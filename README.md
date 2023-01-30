@@ -56,7 +56,7 @@ To install the most recent version of pyedgeconnect, open an
 interactive shell and run:
 
 ```bash
-    $ pip install git+https://github.com/SPOpenSource/edgeconnect-python
+    $ pip install git+https://github.com/aruba/pyedgeconnect
     ...
     $ pip list
     Package                       Version
@@ -69,10 +69,10 @@ interactive shell and run:
 To install a specific branch use the @branch syntax
 
 ```bash
-    $ pip install git+https://github.com/SPOpenSource/edgeconnect-python@<branch_name>
+    $ pip install git+https://github.com/aruba/pyedgeconnect@<branch_name>
     ...
     # Install the Development branch
-    $ pip install git+https://github.com/SPOpenSource/edgeconnect-python@development
+    $ pip install git+https://github.com/aruba/pyedgeconnect@development
     ...
 ```
 
@@ -88,7 +88,7 @@ following syntax:
 ```bash
     $ pip install pyedgeconnect[dev]
     or
-    $ pip install git+https://github.com/SPOpenSource/edgeconnect-python#egg=pyedgeconnect[dev]
+    $ pip install git+https://github.com/aruba/pyedgeconnect#egg=pyedgeconnect[dev]
 ```
 
 ## Docs
@@ -101,7 +101,7 @@ To build the documentation locally, clone the repository, install with ``[dev]``
 to include sphinx and related packages, then in the docs directory run ``make html``
 
 ```bash
-    git clone https://github.com/SPOpenSource/edgeconnect-python.git
+    git clone https://github.com/aruba/pyedgeconnect.git
     cd edgeconnect-python
     pip install .[dev]
     cd docs

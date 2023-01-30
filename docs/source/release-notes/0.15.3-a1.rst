@@ -21,14 +21,14 @@ dashboards.
 Detailed documentation in the Examples section :ref:`ec_telemetry_demo`
 
 As with all examples, the code referenced is available from the GitHub
-repository within the `examples <https://github.com/SPOpenSource/edgeconnect-python/tree/main/examples>`_
+repository within the `examples <https://github.com/aruba/pyedgeconnect/tree/main/examples>`_
 folder.
 
 Clone the repository and download the examples with:
 
   .. code:: bash
 
-      $ git clone https://github.com/SPOpenSource/edgeconnect-python.git
+      $ git clone https://github.com/aruba/pyedgeconnect.git
 
 Init Requests Timeout for Orchestrator & EdgeConnect
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
