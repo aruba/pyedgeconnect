@@ -24,9 +24,9 @@ def get_all_preconfig(
           - GET
           - /gms/appliance/preconfiguration
 
-    :param data_filter: Filter of returned results. Value of "names" will
-        return list of dictionaries of just preconfig names. Value of
-        "metadata" will include all associated metatdata without
+    :param data_filter: Filter of returned results. Value of ``names``
+        will return list of dictionaries of just preconfig names. Value
+        of ``metadata`` will include all associated metatdata without
         configuration data. No filter will return all metadata and
         base64 of the preconfig configuration. Cannot be used with
         preconfig_id parameter, defaults to None
