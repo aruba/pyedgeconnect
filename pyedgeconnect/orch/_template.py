@@ -251,7 +251,7 @@ def select_templates_for_template_group(
 def get_appliance_template_history(
     self,
     ne_pk: str,
-    latest: bool,
+    latest: str,
 ) -> list:
     """Get history of applied templates to the specified appliance. Will
     return a HTTP 204 if no data available.
@@ -268,7 +268,7 @@ def get_appliance_template_history(
 
     :param ne_pk: Network Primary Key (nePk) of appliance, e.g. ``3.NE``
     :type ne_pk: str
-    :param latest: ``True`` for latest applied templates only, or
+    :param latest: String ``True`` for latest applied templates only, or
         ``False`` for all
     :type latest: str
     :return: Returns list of applied templates

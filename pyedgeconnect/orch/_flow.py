@@ -139,7 +139,7 @@ def get_appliance_flows(  # noqa: C901, silences flake8 complexity
         ``term``, ``last1hr``, ``term1hr``, ``last4hr``, ``term4h``,
         ``last24hr``, ``term24hr``. ``last`` implies started, ``term``
         implies ended. Values can be combined with ``%7C``, e.g.,
-        value of ``anytime%7Cterm24hr`` would implie started anytime or
+        value of ``anytime%7Cterm24hr`` would imply started anytime or
         ended within past 24 hours. Defaults to None
     :type uptime: str, optional
     :param active_uptime_start: Custom start time filter for active

@@ -33,5 +33,5 @@ def broadcast_cli(
     return self._post(
         "/broadcastCli",
         data={"neList": appliance_list, "cmdList": cli_commands},
-        return_type="bool",
+        return_type="text",
     )
