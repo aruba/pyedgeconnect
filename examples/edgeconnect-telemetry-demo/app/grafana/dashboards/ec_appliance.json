@@ -5788,10 +5788,6 @@
                         "alias": "Total Flows",
                         "mode": "reduceRow",
                         "reduce": {
-                            "include": [
-                                "non-TCP Flows {_field=\"non-TCP_flow_count\", _start=\"2022-10-07 18:13:51.021 +0000 UTC\", _stop=\"2022-10-07 19:13:51.021 +0000 UTC\", appliance_id=\"1326.NE\", hostname=\"Kennesaw3-Powers\", name=\"tunnel_stats\", overlay=\"DEFAULT\", tunnel_alias=\"to_EAST8-AWS_DEFAULT\", tunnel_id=\"bondedTunnel_107436\"}",
-                                "TCP Flows {_field=\"TCP_flow_count\", _start=\"2022-10-07 18:13:51.021 +0000 UTC\", _stop=\"2022-10-07 19:13:51.021 +0000 UTC\", appliance_id=\"1326.NE\", hostname=\"Kennesaw3-Powers\", name=\"tunnel_stats\", overlay=\"DEFAULT\", tunnel_alias=\"to_EAST8-AWS_DEFAULT\", tunnel_id=\"bondedTunnel_107436\"}"
-                            ],
                             "reducer": "sum"
                         }
                     }
