@@ -6,4 +6,4 @@
 ~~~~~~~~~~~~~
 
 Prepared for first public release on GitHub:
-github.com/SPOpenSource/edgeconnect-python
+github.com/aruba/pyedgeconnect

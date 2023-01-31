@@ -1,12 +1,11 @@
 # MIT License
-# (C) Copyright 2021 Hewlett Packard Enterprise Development LP.
+# (C) Copyright 2023 Hewlett Packard Enterprise Development LP.
 #
-# flow : ECOS current flows
+# flows : ECOS current flows
 
 
 def get_appliance_flows(  # noqa: C901, silences flake8 complexity
     self,
-    ne_id: str,
     ip1: str = None,
     mask1: str = None,
     port1: int = None,
@@ -50,12 +49,10 @@ def get_appliance_flows(  # noqa: C901, silences flake8 complexity
         * - Swagger Section
           - Method
           - Endpoint
-        * - flow
+        * - flows
           - GET
-          - /flow/{neId}/q
+          - /flows
 
-    :param ne_id: Appliance id in the format of integer.NE e.g. ``3.NE``
-    :type ne_id: str
     :param ip1: First IP endpoint, defaults to None
     :type ip1: str, optional
     :param mask1: Mask for ip1 ip address, defaults to None
@@ -315,59 +312,59 @@ def get_appliance_flows(  # noqa: C901, silences flake8 complexity
             * [62] (`int`): Destination VRF ID
     :rtype: dict
     """
-    path = "/flow/{}/q?".format(ne_id)
+    path = "/flows?"
 
     if ip1 is not None:
-        path = path + "&ip1={}".format(ip1)
+        path = path + f"&ip1={ip1}"
     if mask1 is not None:
-        path = path + "&mask1={}".format(mask1)
+        path = path + f"&mask1={mask1}"
     if port1 is not None:
-        path = path + "&port1={}".format(port1)
+        path = path + f"&port1={port1}"
     if ip2 is not None:
-        path = path + "&ip2={}".format(ip2)
+        path = path + f"&ip2={ip2}"
     if mask2 is not None:
-        path = path + "&mask2={}".format(mask2)
+        path = path + f"&mask2={mask2}"
     if port2 is not None:
-        path = path + "&port2={}".format(port2)
+        path = path + f"&port2={port2}"
 
-    path = path + "&ipEitherFlag={}".format(ip_either_flag)
-    path = path + "&portEitherFlag={}".format(port_either_flag)
+    path = path + f"&ipEitherFlag={ip_either_flag}"
+    path = path + f"&portEitherFlag={port_either_flag}"
 
     if vrf1 is not None:
-        path = path + "&vrf1={}".format(vrf1)
+        path = path + f"&vrf1={vrf1}"
     if vrf2 is not None:
-        path = path + "&vrf2={}".format(vrf2)
+        path = path + f"&vrf2={vrf2}"
     if vrf_either is not None:
-        path = path + "&vrfEither={}".format(vrf_either)
+        path = path + f"&vrfEither={vrf_either}"
     if application is not None:
-        path = path + "&application={}".format(application)
+        path = path + f"&application={application}"
     if application_group is not None:
-        path = path + "&applicationGroup={}".format(application_group)
+        path = path + f"&applicationGroup={application_group}"
     if protocol is not None:
-        path = path + "&protocol={}".format(protocol)
+        path = path + f"&protocol={protocol}"
     if vlan is not None:
-        path = path + "&vlan={}".format(vlan)
+        path = path + f"&vlan={vlan}"
     if dscp is not None:
-        path = path + "&dscp={}".format(dscp)
+        path = path + f"&dscp={dscp}"
     if overlays is not None:
-        path = path + "&overlays={}".format(overlays)
+        path = path + f"&overlays={overlays}"
     if transport is not None:
-        path = path + "&transport={}".format(transport)
+        path = path + f"&transport={transport}"
     if services is not None:
-        path = path + "&services={}".format(services)
+        path = path + f"&services={services}"
     if zone1 is not None:
-        path = path + "&zone1={}".format(zone1)
+        path = path + f"&zone1={zone1}"
     if zone2 is not None:
-        path = path + "&zone2={}".format(zone2)
+        path = path + f"&zone2={zone2}"
     if zone_either is not None:
-        path = path + "&zoneEither={}".format(zone_either)
+        path = path + f"&zoneEither={zone_either}"
 
-    path = path + "&filter={}".format(flow_category)
-    path = path + "&edgeHa={}".format(edge_ha)
-    path = path + "&builtIn={}".format(built_in)
+    path = path + f"&filter={flow_category}"
+    path = path + f"&edgeHa={edge_ha}"
+    path = path + f"&builtIn={built_in}"
 
     if uptime is not None:
-        path = path + "&uptime={}".format(uptime)
+        path = path + f"&uptime={uptime}"
     if active_uptime_start is not None and active_uptime_end is not None:
         path += f"&anyStartTime={active_uptime_start}&anyEndTime={active_uptime_end}"
     if term_uptime_start is not None and term_uptime_end is not None:
@@ -375,20 +372,19 @@ def get_appliance_flows(  # noqa: C901, silences flake8 complexity
             f"&termStartTime={term_uptime_start}&termEndTime={term_uptime_end}"
         )
 
-    path = path + "&bytes={}".format(bytes_transferred)
-    path = path + "&duration={}".format(duration)
+    path = path + f"&bytes={bytes_transferred}"
+    path = path + f"&duration={duration}"
 
     if duration is not None:
-        path = path + "&duration={}".format(duration)
+        path = path + f"&duration={duration}"
     if anytime_slow_flows is not None:
-        path = path + "&anytimeSlowFlows={}".format(anytime_slow_flows)
+        path = path + f"&anytimeSlowFlows={anytime_slow_flows}"
 
     return self._get(path)
 
 
 def reset_flows(
     self,
-    ne_id: str,
     flow_id_list: list,
 ) -> dict:
     """Reset specified flows on an appliance.
@@ -399,12 +395,10 @@ def reset_flows(
         * - Swagger Section
           - Method
           - Endpoint
-        * - flow
+        * - flows
           - POST
-          - /flow/flowReset/{neId}
+          - /flowsReset
 
-    :param ne_id: Appliance id in the format of integer.NE e.g. ``3.NE``
-    :type ne_id: str
     :param flow_id_list: List of flow id's to be reset on appliance,
         e.g. ``[0,1,2]``
     :type flow_id_list: list
@@ -415,7 +409,7 @@ def reset_flows(
     data = {"spIds": flow_id_list}
 
     return self._post(
-        "/flow/flowReset/{}".format(ne_id),
+        "/flowsReset",
         data=data,
         expected_status=[200, 204],
     )
@@ -423,7 +417,6 @@ def reset_flows(
 
 def reclassify_flows(
     self,
-    ne_id: str,
     flow_id_list: list = [],
 ) -> dict:
     """Reclassify specified flows on an appliance.
@@ -434,12 +427,10 @@ def reclassify_flows(
         * - Swagger Section
           - Method
           - Endpoint
-        * - flow
+        * - flows
           - POST
-          - /flow/flowReClassification/{neId}
+          - /flowsReClassification
 
-    :param ne_id: Appliance id in the format of integer.NE e.g. ``3.NE``
-    :type ne_id: str
     :param flow_id_list: List of flow id's to be reset on appliance,
         e.g. ``[0,1,2]``, defaults to empty list to reclassify all flows
     :type flow_id_list: list
@@ -453,12 +444,11 @@ def reclassify_flows(
     """
     data = {"spIds": flow_id_list}
 
-    return self._post("/flow/flowReClassification/{}".format(ne_id), data=data)
+    return self._post("/flowsReClassification", data=data)
 
 
 def get_appliance_flow_bandwidth_stats(
     self,
-    ne_id: str,
     flow_id: int,
     flow_seq_num: int,
 ) -> list:
@@ -470,12 +460,10 @@ def get_appliance_flow_bandwidth_stats(
         * - Swagger Section
           - Method
           - Endpoint
-        * - flow
+        * - flows
           - GET
-          - /flow/flowBandwidthStats/{neId}/q
+          - /flowBandwidthStats
 
-    :param ne_id: Appliance id in the format of integer.NE e.g. ``3.NE``
-    :type ne_id: str
     :param flow_id: Flow ID
     :type flow_id: int
     :param flow_seq_num: Flow sequence number
@@ -484,16 +472,11 @@ def get_appliance_flow_bandwidth_stats(
         bandwidth stats about the flow
     :rtype: list[dict]
     """
-    return self._get(
-        "/flow/flowBandwidthStats/{}/q?id={}&seq={}".format(
-            ne_id, flow_id, flow_seq_num
-        )
-    )
+    return self._get(f"/flowBandwidthStats?id={flow_id}&seq={flow_seq_num}")
 
 
 def get_appliance_flow_details(
     self,
-    ne_id: str,
     flow_id: int,
     flow_seq_num: int,
 ) -> list:
@@ -505,12 +488,10 @@ def get_appliance_flow_details(
         * - Swagger Section
           - Method
           - Endpoint
-        * - flow
+        * - flows
           - GET
-          - /flow/flowDetails/{neId}/q
+          - /flowDetails
 
-    :param ne_id: Appliance id in the format of integer.NE e.g. ``3.NE``
-    :type ne_id: str
     :param flow_id: Flow ID
     :type flow_id: int
     :param flow_seq_num: Flow sequence number
@@ -528,16 +509,11 @@ def get_appliance_flow_details(
               description in Swagger
     :rtype: list
     """
-    return self._get(
-        "/flow/flowDetails/{}/q?id={}&seq={}".format(
-            ne_id, flow_id, flow_seq_num
-        )
-    )
+    return self._get(f"flowDetails?id={flow_id}&seq={flow_seq_num}")
 
 
 def get_appliance_flow_details_verbose(
     self,
-    ne_id: str,
     flow_id: int,
     flow_seq_num: int,
 ) -> list:
@@ -549,12 +525,10 @@ def get_appliance_flow_details_verbose(
         * - Swagger Section
           - Method
           - Endpoint
-        * - flow
+        * - flows
           - GET
-          - /flow/flowDetails2/{neId}/q
+          - /flowDetails2
 
-    :param ne_id: Appliance id in the format of integer.NE e.g. ``3.NE``
-    :type ne_id: str
     :param flow_id: Flow ID
     :type flow_id: int
     :param flow_seq_num: Flow sequence number
@@ -579,8 +553,4 @@ def get_appliance_flow_details_verbose(
 
     :rtype: list
     """
-    return self._get(
-        "/flow/flowDetails2/{}/q?id={}&seq={}".format(
-            ne_id, flow_id, flow_seq_num
-        )
-    )
+    return self._get(f"/flowDetails2?id={flow_id}&seq={flow_seq_num}")

@@ -4,7 +4,7 @@
 # vrrp : ECOS VRRP configuration
 
 
-def get_vrrp_interfaes(
+def get_vrrp_interfaces(
     self,
     ne_id: str,
     cached: bool,

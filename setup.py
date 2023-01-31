@@ -19,7 +19,7 @@ setup(
     description="A Python wrapper for Aruba Orchestrator and Edge Connect API",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/SPOpenSource/edgeconnect-python",
+    url="https://github.com/aruba/pyedgeconnect",
     author="Zach Camara",
     author_email="zachary.camara@hpe.com",
     license="MIT",
@@ -58,7 +58,7 @@ setup(
         ],
     },
     project_urls={
-        "Bug Reports": "https://github.com/SPOpenSource/edgeconnect-python/issues",  # noqa E501
-        "Source": "https://github.com/SPOpenSource/edgeconnect-python/",
+        "Bug Reports": "https://github.com/aruba/pyedgeconnect/issues",  # noqa E501
+        "Source": "https://github.com/aruba/pyedgeconnect/",
     },
 )

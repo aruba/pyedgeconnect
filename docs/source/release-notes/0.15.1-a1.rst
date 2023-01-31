@@ -31,13 +31,13 @@ from .ecos._time
 🐛 Bug Fixes
 ~~~~~~~~~~~~~~
 
-- `#4 <https://github.com/SPOpenSource/edgeconnect-python/issues/4>`_ -
+- `#4 <https://github.com/aruba/pyedgeconnect/issues/4>`_ -
   :func:`~pyedgeconnect.Orchestrator.get_all_users` was using POST
   instead of GET
-- `#6 <https://github.com/SPOpenSource/edgeconnect-python/issues/6>`_ -
+- `#6 <https://github.com/aruba/pyedgeconnect/issues/6>`_ -
   :func:`~pyedgeconnect.Orchestrator.update_appliance_access_group`
   remove default values for appliance_groups and appliance_regions
-- `#7 <https://github.com/SPOpenSource/edgeconnect-python/issues/7>`_ -
+- `#7 <https://github.com/aruba/pyedgeconnect/issues/7>`_ -
   :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_tunnel_single_appliance`
   update tunnel_name query in URL to tunnelName
 

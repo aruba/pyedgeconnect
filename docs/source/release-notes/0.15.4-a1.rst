@@ -1,0 +1,81 @@
+0.15.4-a1 -- 2023-01-30
+-----------------------
+
+
+🚀 Features
+~~~~~~~~~~~~~
+
+✨ **A new home!**: Pyedgeconnect will now be maintained going forward
+on the Aruba GitHub: https://github.com/aruba/pyedgeconnect
+
+✨ **A new video!**: Video walkthrough explaining and demonstrating the
+EdgeConnect Telemetry code demo has been published,
+`check it out! <https://youtu.be/tiMdGB-exrg>`_.
+
+✨ **A new code example!**: Automatically update port forwarding
+rules on an appliance with a DHCP-addressed WAN interface to true up
+discrepencies when the WAN IP address may have changed and requires
+the destination address in the inbound port forwarding rules to be
+updated.
+
+
+Updated the following Orchestrator functions from Swagger:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- :func:`~pyedgeconnect.Orchestrator.broadcast_cli` Updated return type
+  from ``bool`` to ``text`` forso that result can be retrieved using
+  returned key string with
+  :func:`~pyedgeconnect.Orchestrator.get_audit_log_task_status`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_template_history`
+  Updated type hint for parameter ``latest`` to ``str`` from ``bool``
+
+
+Added the following EdgeConnect functions from Swagger:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- :func:`~pyedgeconnect.EdgeConnect.get_appliance_flow_bandwidth_stats`
+- :func:`~pyedgeconnect.EdgeConnect.get_appliance_flow_details`
+- :func:`~pyedgeconnect.EdgeConnect.get_appliance_flow_details_verbose`
+- :func:`~pyedgeconnect.EdgeConnect.get_appliance_flows`
+- :func:`~pyedgeconnect.EdgeConnect.reclassify_flows`
+- :func:`~pyedgeconnect.EdgeConnect.reset_flows`
+
+- :func:`~pyedgeconnect.EdgeConnect.get_port_forwarding_rules`
+- :func:`~pyedgeconnect.EdgeConnect.set_port_forwarding_rules`
+- :func:`~pyedgeconnect.EdgeConnect.set_gms_marked_port_forwarding_rules`
+
+- :func:`~pyedgeconnect.EdgeConnect.run_ping_or_traceroute`
+- :func:`~pyedgeconnect.EdgeConnect.get_ping_or_traceroute`
+- :func:`~pyedgeconnect.EdgeConnect.stop_ping_or_traceroute`
+
+- :func:`pyedgeconnect.EdgeConnect.get_appliance_nexthops`
+
+
+🐛 Bug Fixes
+~~~~~~~~~~~~~~
+
+
+💥 Breaking Changes:
+~~~~~~~~~~~~~~~~~~~~~~~
+
+- Corrected function name for :func:`~pyedgeconnect.EdgeConnect.get_vrrp_interfaces`
+  which previously was missing `c` in `interfaces`
+
+
+🧰 Maintenance / Other
+~~~~~~~~~~~~~~~~~~~~~~~
+
+- Within the EdgeConnect Telemetry Demo code example: fix ``Total Flows``
+  calculation for tunnel at bottom of ``EdgeConnect Telemetry``
+  dashboard
+
+
+🐛 Known Issues
+~~~~~~~~~~~~~~~
+
+.. warning::
+
+  The following two functions for the _ip_objects submodule exprience
+  errors at this time. These function do work in the Orchestrator UI:
+  :func:`~pyedgeconnect.Orchestrator.bulk_upload_address_group` and
+  :func:`~pyedgeconnect.Orchestrator.bulk_upload_service_group`

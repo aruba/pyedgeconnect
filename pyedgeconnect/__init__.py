@@ -1224,7 +1224,7 @@ class Orchestrator(HttpCommon):
     )
     from .orch._vrf_dnat_maps import get_dnat_maps
     from .orch._vrf_snat_maps import get_snat_maps
-    from .orch._vrrp import get_vrrp_interfaes
+    from .orch._vrrp import get_vrrp_interfaces
     from .orch._vti import get_vti_interfaes
     from .orch._vxoa_hostname import update_appliance_hostname
     from .orch._wan_next_hop_health import get_wan_next_hop_health_config
@@ -1382,6 +1382,14 @@ class EdgeConnect(HttpCommon):
     from .ecos._deployment import get_appliance_deployment
     from .ecos._disk_usage import get_appliance_disk_usage
     from .ecos._dns import get_appliance_dns_config, set_appliance_dns_config
+    from .ecos._flows import (
+        get_appliance_flow_bandwidth_stats,
+        get_appliance_flow_details,
+        get_appliance_flow_details_verbose,
+        get_appliance_flows,
+        reclassify_flows,
+        reset_flows,
+    )
     from .ecos._gms import assign_orchestrator, get_orchestrator
     from .ecos._interfaces import get_appliance_interfaces
     from .ecos._license import is_reboot_required
@@ -1404,7 +1412,18 @@ class EdgeConnect(HttpCommon):
         get_appliance_network_interfaces,
         modify_network_interfaces,
     )
+    from .ecos._nexthops import get_appliance_nexthops
     from .ecos._peers import get_appliance_peers, get_appliance_peers_ec_only
+    from .ecos._ping_trace import (
+        get_ping_or_traceroute,
+        run_ping_or_traceroute,
+        stop_ping_or_traceroute,
+    )
+    from .ecos._port_forwarding import (
+        get_port_forwarding_rules,
+        set_gms_marked_port_forwarding_rules,
+        set_port_forwarding_rules,
+    )
     from .ecos._reboot import request_reboot
     from .ecos._save_changes import save_changes
     from .ecos._security_maps import (

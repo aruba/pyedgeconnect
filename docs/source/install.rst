@@ -57,7 +57,7 @@ interactive shell and run:
 
 .. code:: bash
 
-    $ pip install git+https://github.com/SPOpenSource/edgeconnect-python
+    $ pip install git+https://github.com/aruba/pyedgeconnect
     ...
     $ pip list
     Package                       Version
@@ -70,9 +70,9 @@ To install a specific branch use the @branch syntax
 
 .. code:: bash
 
-    $ pip install git+https://github.com/SPOpenSource/edgeconnect-python@<branch_name>
+    $ pip install git+https://github.com/aruba/pyedgeconnect@<branch_name>
     # Install the Development branch
-    $ pip install git+https://github.com/SPOpenSource/edgeconnect-python@Development
+    $ pip install git+https://github.com/aruba/pyedgeconnect@Development
 
 Build Documentation Locally
 ---------------------------
@@ -82,7 +82,7 @@ to include sphinx and related packages, then in the docs directory run ``make ht
 
 .. code:: bash
 
-    $ git clone https://github.com/SPOpenSource/edgeconnect-python.git
+    $ git clone https://github.com/aruba/pyedgeconnect.git
     $ cd edgeconnect-python
     $ pip install .[dev]
     $ cd docs

@@ -10,6 +10,7 @@ import requests
 def get_all_preconfig(
     self,
     data_filter: str = None,
+    preconfig_id: int = None,
 ) -> list:
     """Get preconfigs from Orchestrator
 
@@ -23,12 +24,17 @@ def get_all_preconfig(
           - GET
           - /gms/appliance/preconfiguration
 
-    :param filter: Filter of returned results. Value of "names" will
-        return list of dictionaries of just preconfig names. Value of
-        "metadata" will include all associated metatdata without
+    :param data_filter: Filter of returned results. Value of ``names``
+        will return list of dictionaries of just preconfig names. Value
+        of ``metadata`` will include all associated metatdata without
         configuration data. No filter will return all metadata and
-        base64 of the preconfig configuration, defaults to None
-    :type filter: str, optional
+        base64 of the preconfig configuration. Cannot be used with
+        preconfig_id parameter, defaults to None
+    :type data_filter: str, optional
+    :param preconfig_id: Only retrieve details of preconfig with
+        matching id value. Cannot be used with data_filter parameter,
+        defaults to None
+    :type preconfig_id: int, optional
     :return: Returns list of dictionaries of preconfigs and/or
         associated metadata and configuration \n
         [`dict`]: preconfig object \n
@@ -88,10 +94,18 @@ def get_all_preconfig(
                       for the data that was used by this task
     :rtype: list
     """
-    if data_filter == "names":
+    if data_filter is not None and preconfig_id is not None:
+        raise ValueError(
+            "Cannot combine preconfig_id and data_filter paramters"
+        )
+    elif data_filter == "names":
         return self._get("/gms/appliance/preconfiguration?filter=names")
     elif data_filter == "metadata":
         return self._get("/gms/appliance/preconfiguration?filter=metadata")
+    elif preconfig_id is not None:
+        return self._get(
+            f"/gms/appliance/preconfiguration?preconfigId={preconfig_id}"
+        )
     else:
         return self._get("/gms/appliance/preconfiguration")
 
@@ -233,6 +247,8 @@ def get_preconfig(
     preconfig_id: str,
 ) -> dict:
     """Get specific preconfig from Orchestrator
+
+    *** DEPRECATED IN Orchestrator 9.3+ ***
 
     .. list-table::
         :header-rows: 1
