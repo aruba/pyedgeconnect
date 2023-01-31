@@ -16,7 +16,7 @@ author = "Zach Camara"
 # Main version number
 version = "0.15"
 # The full version, including alpha/beta/rc tags
-release = "0.15.3-a1"
+release = "0.15.4-a1"
 
 
 # -- General configuration ---------------------------------------------------
@@ -46,7 +46,7 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
-html_logo = "_static/aruba_small_use_logo.png"
+html_logo = "_static/hpe_aruba_black_pos_rgb.png"
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
