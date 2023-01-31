@@ -25,7 +25,7 @@ EdgeConnect Telemetry API Demo
 
     The code referenced in this document and all published examples
     with pyedgeconnect are available from the GitHub repository within the
-    `examples <https://github.com/SPOpenSource/edgeconnect-python/tree/main/examples>`_
+    `examples <https://github.com/aruba/pyedgeconnect/tree/main/examples>`_
     folder. Each example script contains logic to authenticate to the
     Orchestrator as documented in the authentication example.
 
@@ -33,7 +33,7 @@ EdgeConnect Telemetry API Demo
 
     .. code:: bash
 
-        $ git clone https://github.com/SPOpenSource/edgeconnect-python.git
+        $ git clone https://github.com/aruba/pyedgeconnect.git
 
 Overview and System Prerequisites
 -----------------------------------
@@ -433,6 +433,13 @@ Visualize Data in Grafana
 Required Configuration To Run Demo
 -----------------------------------
 
+.. note::
+
+    If data is not populating in the Dashboards, check the recent log
+    file ``ec-telemetry.log`` in ``app/logging`` on the demo host. Here
+    you can find log messages related to the data collection worker
+    containers.
+
 Environment Variables
 ==========================
 
@@ -473,6 +480,7 @@ up -d``
   # DB_USER and DB_PW used to login to both Grafana/InfluxDB
   DB_TOKEN=<database_token>
   DB_USER=admin
+  # DB_PW must be > 8 characters to meet minimum requirements
   DB_PW=<database_password>
 
   # Number of replica containers for ec-telemetry-worker

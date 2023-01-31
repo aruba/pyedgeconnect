@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:latest
 RUN mkdir /app
 COPY ./app/ec-telemetry /app/ec-telemetry
 RUN chmod +x /app/ec-telemetry

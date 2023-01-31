@@ -14,7 +14,7 @@ addition to any other required logic for a particular use-case.
 
     The code referenced in this document and all published examples
     with pyedgeconnect are available from the GitHub repository within the
-    `examples <https://github.com/SPOpenSource/edgeconnect-python/tree/main/examples>`_
+    `examples <https://github.com/aruba/pyedgeconnect/tree/main/examples>`_
     folder. Each example script contains logic to authenticate to the
     Orchestrator as documented in the authentication example.
 
@@ -22,7 +22,7 @@ addition to any other required logic for a particular use-case.
 
     .. code:: bash
 
-        $ git clone https://github.com/SPOpenSource/edgeconnect-python.git
+        $ git clone https://github.com/aruba/pyedgeconnect.git
 
 
 Environment variables
