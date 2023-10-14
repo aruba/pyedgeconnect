@@ -151,4 +151,4 @@ def get_appliance_bgp_state_all_vrfs(
     :return: Returns appliance BGP state
     :rtype: dict
     """
-    return self._get("/bgp/allVrfs/state/{}".format(ne_id))
+    return self._get("/bgp/state/allVrfs/{}".format(ne_id))
