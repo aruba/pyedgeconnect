@@ -152,3 +152,4 @@ def get_appliance_bgp_state_all_vrfs(
     :rtype: dict
     """
     return self._get("/bgp/state/allVrfs/{}".format(ne_id))
+    
