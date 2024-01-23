@@ -340,7 +340,7 @@ def delete_preconfig(
     :rtype: bool
     """
     return self._delete(
-        "/gms/appliance/preconfiguration/{}".format(preconfig_id),
+        "/gms/appliance/preconfiguration/?preconfigId={}".format(preconfig_id),
         return_type="bool",
     )
 
