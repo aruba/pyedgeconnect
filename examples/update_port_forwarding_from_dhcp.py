@@ -66,7 +66,7 @@ for wan_label in deployment["sysConfig"]["ifLabels"]["wan"]:
         label_id = None
 
 if label_id is None:
-    print(f"WAN label {target_label} not present on {hostname}")
+    print(f"WAN label {target_label} not present on {ec_url}")
     exit()
 
 # Find WAN IP address of corresponding interface with WAN label that is

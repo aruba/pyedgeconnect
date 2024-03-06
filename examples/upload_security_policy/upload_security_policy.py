@@ -92,7 +92,9 @@ else:
 if os.getenv("ORCH_API_KEY") is not None:
     orch_api_key = os.getenv("ORCH_API_KEY")
 else:
-    orch_api_key_input = input("Orchstrator API Key (enter to skip): ")
+    orch_api_key_input = getpass.getpass(
+        "Orchstrator API Key (enter to skip): "
+    )
     if len(orch_api_key_input) == 0:
         orch_api_key = None
         # Set user and password if present in environment variable
@@ -239,7 +241,7 @@ with open(csv_filename, encoding="utf-8-sig") as csvfile:
         zones[raw_zones[zone]["name"]] = zone
 
     # For each row in configuration file, add to security rules
-    for rule in ruleset:
+    for rule in ruleset:  # noqa: C901
         try:
             # Set rule priority
             rule_priority = rule["rule_priority"]
@@ -277,7 +279,8 @@ with open(csv_filename, encoding="utf-8-sig") as csvfile:
                 match_criteria["dst_ip"] = rule["dst_ip"]
             else:
                 pass
-            # if src_addrgrp_groups exists and is not blank, set the value
+            # if src_addrgrp_groups exists and is not blank
+            # set the value
             if (
                 rule.get("src_addrgrp_groups")
                 and rule.get("src_addrgrp_groups").strip()
@@ -287,7 +290,8 @@ with open(csv_filename, encoding="utf-8-sig") as csvfile:
                 ]
             else:
                 pass
-            # if dst_addrgrp_groups exists and is not blank, set the value
+            # if dst_addrgrp_groups exists and is not blank
+            # set the value
             if (
                 rule.get("dst_addrgrp_groups")
                 and rule.get("dst_addrgrp_groups").strip()
@@ -297,7 +301,8 @@ with open(csv_filename, encoding="utf-8-sig") as csvfile:
                 ]
             else:
                 pass
-            # if either_addrgrp_groups exists and is not blank, set the value
+            # if either_addrgrp_groups exists and is not blank
+            # set the value
             if (
                 rule.get("either_addrgrp_groups")
                 and rule.get("either_addrgrp_groups").strip()
@@ -408,7 +413,8 @@ with open(csv_filename, encoding="utf-8-sig") as csvfile:
             else:
                 pass
             # if internet exists and is not blank, set the value
-            # ``1`` for internet traffic, ``0`` for for non-internet/internal
+            # ``1`` for internet traffic, ``0`` for for
+            # non-internet/internal
             if rule.get("internet") and rule.get("internet").strip():
                 match_criteria["internet"] = overlays[rule["overlay"]]
             else:
@@ -446,8 +452,8 @@ with open(csv_filename, encoding="utf-8-sig") as csvfile:
                 # Skip to next rule in ruleset
                 continue
 
-            # Combine source and destination zones into string <srcId_dstId>
-            # E.g., 10_10 or 10_12
+            # Combine source and destination zones into
+            # string of <srcId_dstId> E.g., 10_10 or 10_12
             zone_pair = f'{zones[rule["src_zone"]]}_{zones[rule["dst_zone"]]}'
 
             # If this is the first rule with this zone combination,
