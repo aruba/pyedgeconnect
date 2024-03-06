@@ -30,8 +30,13 @@ def broadcast_cli(
     :return: Returns True/False based on successful call.
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        data = ({"nePks": appliance_list, "cmdList": cli_commands},)
+    else:
+        data = ({"neList": appliance_list, "cmdList": cli_commands},)
+
     return self._post(
         "/broadcastCli",
-        data={"neList": appliance_list, "cmdList": cli_commands},
+        data=data,
         return_type="text",
     )

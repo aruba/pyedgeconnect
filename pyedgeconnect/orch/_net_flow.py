@@ -51,4 +51,9 @@ def get_net_flow_configuration(
           collector type
     :rtype: dict
     """
-    return self._get("/netFlow/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/netFlow?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/netFlow/{ne_id}?cached={cached}"
+
+    return self._get(path)

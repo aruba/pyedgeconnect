@@ -25,7 +25,12 @@ def get_appliance_ospf_config(
     :return: Returns dictionary of OSPF configuration info
     :rtype: dict
     """
-    return self._get("/ospf/config/system/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/ospf/config/system?nePk={ne_id}"
+    else:
+        path = f"/ospf/config/system/{ne_id}"
+
+    return self._get(path)
 
 
 def get_appliance_ospf_interfaces_config(
@@ -50,7 +55,12 @@ def get_appliance_ospf_interfaces_config(
     :return: Returns dictionary of OSPF interfaces configuration info
     :rtype: dict
     """
-    return self._get("/ospf/config/interfaces/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/ospf/config/interfaces?nePk={ne_id}"
+    else:
+        path = f"/ospf/config/interfaces/{ne_id}"
+
+    return self._get(path)
 
 
 def get_appliance_ospf_state(
@@ -74,7 +84,12 @@ def get_appliance_ospf_state(
     :return: Returns dictionary of OSPF system state
     :rtype: dict
     """
-    return self._get("/ospf/state/system/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/ospf/state/system?nePk={ne_id}"
+    else:
+        path = f"/ospf/state/system/{ne_id}"
+
+    return self._get(path)
 
 
 def get_appliance_ospf_interfaces_state(
@@ -98,7 +113,12 @@ def get_appliance_ospf_interfaces_state(
     :return: Returns dictionary of OSPF interfaces state
     :rtype: dict
     """
-    return self._get("/ospf/state/interfaces/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/ospf/state/interfaces?nePk={ne_id}"
+    else:
+        path = f"/ospf/state/interfaces/{ne_id}"
+
+    return self._get(path)
 
 
 def get_appliance_ospf_neighbors_state(
@@ -122,4 +142,9 @@ def get_appliance_ospf_neighbors_state(
     :return: Returns dictionary of OSPF neighbors state
     :rtype: dict
     """
-    return self._get("/ospf/state/interfaces/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/ospf/state/neighbors?nePk={ne_id}"
+    else:
+        path = f"/ospf/state/neighbors/{ne_id}"
+
+    return self._get(path)

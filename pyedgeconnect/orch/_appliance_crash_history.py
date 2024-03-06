@@ -29,10 +29,9 @@ def appliance_crash_history(
         appliance crash history.
     :rtype: bool or dict
     """
-
     if action is not None:
         return self._get(
-            "/gms/applianceCrashHistory?action={}".format(action),
+            f"/gms/applianceCrashHistory?action={action}",
             expected_status=[204],
             return_type="bool",
         )

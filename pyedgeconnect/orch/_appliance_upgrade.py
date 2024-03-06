@@ -61,6 +61,12 @@ def delete_ecos_image(
           upgrade background task
     :rtype: dict
     """
+    if self.orch_version >= 9.3:
+        path = f"/vxoaImages?imageFile={image_name}"
+    else:
+        path = f"/vxoaImages/{image_name}"
+
     return self._delete(
-        "/vxoaImages/{}".format(image_name), return_type="text"
+        path,
+        return_type="text",
     )

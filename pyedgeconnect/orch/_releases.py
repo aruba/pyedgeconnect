@@ -120,7 +120,7 @@ def get_releases_for_orchestrator_and_ecos(
             * keyword **uploadedBy** (`null`): ``null``
     :rtype: dict
     """
-    return self._get("/release?filter={}".format(filter_new))
+    return self._get(f"/release?filter={filter_new}")
 
 
 def get_releases_notifications(
@@ -175,8 +175,13 @@ def delay_release_notification(
     """
     data = {"delayByHours": hour_delay}
 
+    if self.orch_version >= 9.3:
+        path = f"/release/notifications/delay?version={version}"
+    else:
+        path = f"/release/notifications/delay/{version}"
+
     return self._post(
-        "/release/notifications/delay/{}".format(version),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",
@@ -202,9 +207,13 @@ def dismiss_release_notification(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/release/notifications/dismiss?version={version}"
+    else:
+        path = f"/release/notifications/dismiss/{version}"
 
     return self._post(
-        "/release/notifications/dismiss/{}".format(version),
+        path,
         expected_status=[204],
         return_type="bool",
     )

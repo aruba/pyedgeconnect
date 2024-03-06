@@ -46,7 +46,11 @@ def tcpdump_run(
         "port": port,
     }
 
-    return self._post("/tcpdump/run", data=data, return_type="bool")
+    return self._post(
+        "/tcpdump/run",
+        data=data,
+        return_type="bool",
+    )
 
 
 def tcpdump_status_appliance(
@@ -78,7 +82,12 @@ def tcpdump_status_appliance(
           processing stage
     :rtype: dict
     """
-    return self._get("/tcpdump/status/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/tcpdump/status?nePk={ne_id}"
+    else:
+        path = f"/tcpdump/status/{ne_id}"
+
+    return self._get(path)
 
 
 def tcpdump_status_all(self) -> str:
@@ -101,4 +110,7 @@ def tcpdump_status_all(self) -> str:
     :return: Returns string hash value
     :rtype: str
     """
-    return self._get("/tcpdump/tcpdumpStatus", return_type="text")
+    return self._get(
+        "/tcpdump/tcpdumpStatus",
+        return_type="text",
+    )

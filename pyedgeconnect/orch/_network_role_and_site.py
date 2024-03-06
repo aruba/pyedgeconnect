@@ -105,7 +105,12 @@ def get_appliance_network_role_and_site(
         * keyword **nePk** (`str`): Appliance ID or NePK, e.g. ``3.NE``
     :rtype: dict
     """
-    return self._get("/appliance/networkRoleAndSite/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/appliance/networkRoleAndSite?nePk={ne_id}"
+    else:
+        path = f"/appliance/networkRoleAndSite/{ne_id}"
+
+    return self._get(path)
 
 
 def update_appliance_network_role_and_site(
@@ -146,8 +151,13 @@ def update_appliance_network_role_and_site(
         "sitePriority": site_priority,
     }
 
+    if self.orch_version >= 9.3:
+        path = f"/appliance/networkRoleAndSite?nePk={ne_id}"
+    else:
+        path = f"/appliance/networkRoleAndSite/{ne_id}"
+
     return self._post(
-        "/appliance/networkRoleAndSite/{}".format(ne_id),
+        path,
         data=data,
         return_type="bool",
     )

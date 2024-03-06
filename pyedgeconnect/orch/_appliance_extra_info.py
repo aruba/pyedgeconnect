@@ -44,7 +44,12 @@ def get_appliance_extra_info(
               determined by Orchestrator/Appliance
     :rtype: dict
     """
-    return self._get("/appliance/extraInfo/{}".format(ne_pk))
+    if self.orch_version >= 9.3:
+        path = f"/appliance/extraInfo?nePk={ne_pk}"
+    else:
+        path = f"/appliance/extraInfo/{ne_pk}"
+
+    return self._get(path)
 
 
 def set_appliance_extra_info(
@@ -125,8 +130,13 @@ def set_appliance_extra_info(
         data["overlaySettings"]["ipsecUdpPort"] = ipsec_udp_port
         data["overlaySettings"]["isUserDefinedIPSecUDPPort"] = True
 
+    if self.orch_version >= 9.3:
+        path = f"/appliance/extraInfo?nePk={ne_pk}"
+    else:
+        path = f"/appliance/extraInfo/{ne_pk}"
+
     return self._post(
-        "/appliance/extraInfo/{}".format(ne_pk),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",
@@ -155,8 +165,13 @@ def delete_appliance_extra_info(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/appliance/extraInfo?nePk={ne_pk}"
+    else:
+        path = f"/appliance/extraInfo/{ne_pk}"
+
     return self._delete(
-        "/appliance/extraInfo/{}".format(ne_pk),
+        path,
         expected_status=[204],
         return_type="bool",
     )

@@ -32,4 +32,9 @@ def get_appliance_shaper(
         ``max_bw`` fields.
     :rtype: dict
     """
-    return self._get("/shaper/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/shaper?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/shaper/{ne_id}?cached={cached}"
+
+    return self._get(path)

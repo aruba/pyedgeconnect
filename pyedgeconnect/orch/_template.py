@@ -47,7 +47,13 @@ def get_template_group(
     :rtype: dict
     """
     template_group.replace(" ", "%20")
-    return self._get("/template/templateGroups/{}".format(template_group))
+
+    if self.orch_version >= 9.3:
+        path = f"/template/templateGroups?templateGroup={template_group}"
+    else:
+        path = f"/template/templateGroups/{template_group}"
+
+    return self._get(path)
 
 
 def post_template_group(
@@ -97,8 +103,14 @@ def post_template_group(
     #   }
 
     template_group.replace(" ", "%20")
+
+    if self.orch_version >= 9.3:
+        path = f"/template/templateGroups?templateGroup={template_group}"
+    else:
+        path = f"/template/templateGroups/{template_group}"
+
     return self._post(
-        "/template/templateGroups/{}".format(template_group),
+        path,
         data=template_group_body,
         return_type="bool",
     )
@@ -127,8 +139,14 @@ def delete_template_group(
     :rtype: bool
     """
     template_group.replace(" ", "%20")
+
+    if self.orch_version >= 9.3:
+        path = f"/template/templateGroups?templateGroup={template_group}"
+    else:
+        path = f"/template/templateGroups/{template_group}"
+
     return self._delete(
-        "/template/templateGroups/{}".format(template_group),
+        path,
         expected_status=[204],
         return_type="bool",
     )
@@ -210,7 +228,13 @@ def get_selected_templates_in_template_group(
     :rtype: list
     """
     template_group.replace(" ", "%20")
-    return self._get("/template/templateSelection/{}".format(template_group))
+
+    if self.orch_version >= 9.3:
+        path = f"/template/templateSelection?templateGroup={template_group}"
+    else:
+        path = f"/template/templateSelection/{template_group}"
+
+    return self._get(path)
 
 
 def select_templates_for_template_group(
@@ -239,10 +263,15 @@ def select_templates_for_template_group(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
     template_group.replace(" ", "%20")
+
+    if self.orch_version >= 9.3:
+        path = f"/template/templateSelection?templateGroup={template_group}"
+    else:
+        path = f"/template/templateSelection/{template_group}"
+
     return self._post(
-        "/template/templateSelection/{}".format(template_group),
+        path,
         data=selected_templates,
         return_type="bool",
     )
@@ -274,8 +303,13 @@ def get_appliance_template_history(
     :return: Returns list of applied templates
     :rtype: list
     """
+    if self.orch_version >= 9.3:
+        path = f"/template/history?nePk={ne_pk}&latestOnly={latest}"
+    else:
+        path = f"/template/history/{ne_pk}?latestOnly={latest}"
+
     return self._get(
-        "/template/history/{}?latestOnly={}".format(ne_pk, latest),
+        path,
         expected_status=[200, 204],
     )
 
@@ -301,7 +335,12 @@ def get_appliance_applied_template_goups(
     :return: Returns list of applied templates
     :rtype: list
     """
-    return self._get("/template/history/groupList/{}".format(ne_pk))
+    if self.orch_version >= 9.3:
+        path = f"/template/history/groupList?nePk={ne_pk}"
+    else:
+        path = f"/template/history/groupList/{ne_pk}"
+
+    return self._get(path)
 
 
 def get_template_group_association_all_appliances(self) -> dict:
@@ -350,7 +389,12 @@ def get_appliance_template_groups_association(
           template groups
     :rtype: dict
     """
-    return self._get("/template/applianceAssociation/{}".format(ne_pk))
+    if self.orch_version >= 9.3:
+        path = f"/template/applianceAssociation?nePk={ne_pk}"
+    else:
+        path = f"/template/applianceAssociation/{ne_pk}"
+
+    return self._get(path)
 
 
 def associate_template_group_to_appliance(
@@ -400,8 +444,13 @@ def associate_template_group_to_appliance(
     """  # noqa: E501, W505
     data = {"templateIds": template_groups_list}
 
+    if self.orch_version >= 9.3:
+        path = f"/template/applianceAssociation?nePk={ne_pk}"
+    else:
+        path = f"/template/applianceAssociation/{ne_pk}"
+
     return self._post(
-        "/template/applianceAssociation/{}".format(ne_pk),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",

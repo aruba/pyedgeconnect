@@ -1,13 +1,12 @@
 # MIT License
-# (C) Copyright 2021 Hewlett Packard Enterprise Development LP.
+# (C) Copyright 2023 Hewlett Packard Enterprise Development LP.
 #
 # vrrp : ECOS VRRP configuration
+from __future__ import annotations
 
 
 def get_vrrp_interfaces(
     self,
-    ne_id: str,
-    cached: bool,
 ) -> list:
     """Get configured vrrp interfaces on appliance
 
@@ -19,13 +18,8 @@ def get_vrrp_interfaces(
           - Endpoint
         * - vrrp
           - GET
-          - /vrrp/{neId}?cached={cached}
+          - /vrrp
 
-    :param ne_id: Appliance id in the format of integer.NE e.g. ``3.NE``
-    :type ne_id: str
-    :param cached: ``True`` retrieves last known value to Orchestrator,
-        ``False`` retrieves values directly from Appliance
-    :type cached: bool
     :return: Returns list of dictionaries of VRRP interface
         configurations \n
         [`dict`]: VRRP interface configuration object \n
@@ -46,6 +40,9 @@ def get_vrrp_interfaces(
             * keyword **priority** (`int`): The greater the number, the
               higher the priority. The appliance with the higher
               priority is the VRRP Master. Must be between 1-254
+            * keyword **priorityState** (`int`): The greater the number,
+              the higher the priority. The appliance with the higher
+              priority is the VRRP Master.
             * keyword **vipaddr** (`str`): Must be valid ip address and
               not match any of the existing interface ips on the
               appliance
@@ -82,9 +79,60 @@ def get_vrrp_interfaces(
               to wan0)
     :rtype: list
     """
-    if self.orch_version >= 9.3:
-        path = f"/vrrp?nePk={ne_id}&cached={cached}"
-    else:
-        path = f"/vrrp/{ne_id}?cached={cached}"
+    return self._get("/vrrp")
 
-    return self._get(path)
+
+def configure_vrrp_interfaces(
+    self,
+    vrrp: list[dict],
+) -> list:
+    """Configure vrrp interfaces on appliance
+
+    .. list-table::
+        :header-rows: 1
+
+        * - Swagger Section
+          - Method
+          - Endpoint
+        * - vrrp
+          - POST
+          - /vrrp
+
+    :param vrrp: List of dictionaries of VRRP interface
+        configurations \n
+        [`dict`]: VRRP interface configuration object \n
+            * keyword **pkt_trace** (`bool`): Default is ``False``
+            * keyword **adv_timer** (`int`): Time interval between
+              advertisements. Default is 1 second. Must be between 1-255
+            * keyword **preempt** (`bool`): If ``True`` the appliance
+              with the highest priority comes back online and again
+              assumes primary responsibility. Default is true
+            * keyword **holddown** (`int`): Default is ``10``. Must be
+              between 1-255
+            * keyword **auth** (`str`): Authentication string. Maximum 8
+              characters
+            * keyword **desc** (`str`): Description string. Maximum 64
+              characters
+            * keyword **enable** (`str`): Enable/Disable the VRRP
+              instance, valid options are ``Up`` or ``Down``
+            * keyword **priority** (`int`): The greater the number, the
+              higher the priority. The appliance with the higher
+              priority is the VRRP Master. Must be between 1-254
+            * keyword **vipaddr** (`str`): Must be valid ip address and
+              not match any of the existing interface ips on the
+              appliance
+            * keyword **interface** (`str`): Name of interface that VRRP
+              is using for peering. Eg. ``wan0``
+            * keyword **groupId** (`int`): Identifier assigned to the
+              two peers. Depending on the deployment, the group can
+              consist of an appliance and a router (or L3 switch), or
+              two appliances. Must be between 1-255
+    :type vrrp: list[dict]
+    :return:
+    :rtype: bool
+    """
+    return self._post(
+        "/vrrp",
+        data=vrrp,
+        return_type="bool",
+    )

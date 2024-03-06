@@ -142,7 +142,12 @@ def get_routing_segmentation_segment_by_id(
         * keyword **comment** (`str`): Comment on routing segment
     :rtype: dict
     """
-    return self._get("/vrf/config/segments/{}".format(segment_id))
+    if self.orch_version >= 9.3:
+        path = f"/vrf/config/segments?id={segment_id}"
+    else:
+        path = f"/vrf/config/segments/{segment_id}"
+
+    return self._get(path)
 
 
 def update_routing_segmentation_segment_by_id(
@@ -171,8 +176,13 @@ def update_routing_segmentation_segment_by_id(
     """
     data = {"name": new_segment_name}
 
+    if self.orch_version >= 9.3:
+        path = f"/vrf/config/segments?id={segment_id}"
+    else:
+        path = f"/vrf/config/segments/{segment_id}"
+
     return self._put(
-        "/vrf/config/segments/{}".format(segment_id),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",
@@ -200,8 +210,13 @@ def delete_routing_segmentation_segment_by_id(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/vrf/config/segments?id={segment_id}"
+    else:
+        path = f"/vrf/config/segments/{segment_id}"
+
     return self._delete(
-        "/vrf/config/segments/{}".format(segment_id),
+        path,
         expected_status=[204],
         return_type="bool",
     )
@@ -283,7 +298,12 @@ def get_routing_segmentation_maps_from_source_segment(
             * keyword **misc** (`str`): No description in Swagger
     :rtype: dict
     """
-    return self._get("/vrf/config/maps/{}".format(segment_id))
+    if self.orch_version >= 9.3:
+        path = f"/vrf/config/maps?srcSegmentId={segment_id}"
+    else:
+        path = f"/vrf/config/maps/{segment_id}"
+
+    return self._get(path)
 
 
 def update_routing_segmentation_maps_from_source_segment(
@@ -329,8 +349,13 @@ def update_routing_segmentation_maps_from_source_segment(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/vrf/config/maps?srcSegmentId={segment_id}"
+    else:
+        path = f"/vrf/config/maps/{segment_id}"
+
     return self._post(
-        "/vrf/config/maps/{}".format(segment_id),
+        path,
         data=segment_map,
         expected_status=[204],
         return_type="bool",
@@ -358,8 +383,13 @@ def delete_routing_segmentation_maps_from_source_segment(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/vrf/config/maps?srcSegmentId={segment_id}"
+    else:
+        path = f"/vrf/config/maps/{segment_id}"
+
     return self._delete(
-        "/vrf/config/maps/{}".format(segment_id),
+        path,
         expected_status=[204],
         return_type="bool",
     )
@@ -367,8 +397,8 @@ def delete_routing_segmentation_maps_from_source_segment(
 
 def get_routing_segmentation_security_policy(
     self,
-    source_zone: str,
-    destination_zone: str,
+    source_segment: str,
+    destination_segment: str,
 ) -> dict:
     """Get all security policies configured on Orchestrator for a
     particular pair source and destination segments
@@ -383,25 +413,27 @@ def get_routing_segmentation_security_policy(
           - GET
           - /vrf/config/securityPolicies/{map}
 
-    :param source_zone: Numeric string id of source segment, e.g. ``0``
-    :type source_zone: int
-    :param destination_zone: Numeric string id of destination segment,
+    :param source_segment: Numeric string id of source segment,
         e.g. ``0``
-    :type destination_zone: int
+    :type source_segment: int
+    :param destination_segment: Numeric string id of destination
+        segment, e.g. ``0``
+    :type destination_segment: int
     :return: Returns dictionary of applicable maps and details
     :rtype: dict
     """
-    return self._get(
-        "/vrf/config/securityPolicies/{}_{}".format(
-            source_zone, destination_zone
-        )
-    )
+    if self.orch_version >= 9.3:
+        path = f"/vrf/config/securityPolicies?map={source_segment}_{destination_segment}"  # noqa: E501
+    else:
+        path = f"/vrf/config/securityPolicies/{source_segment}_{destination_segment}"  # noqa: E501
+
+    return self._get(path)
 
 
 def update_routing_segmentation_security_policy(
     self,
-    source_zone: str,
-    destination_zone: str,
+    source_segment: str,
+    destination_segment: str,
     segment_map: dict,
 ) -> bool:
     """Update security policies configured on Orchestrator for a
@@ -451,22 +483,29 @@ def update_routing_segmentation_security_policy(
             }
         }
 
-    :param source_zone: Numeric string id of source segment, e.g. ``0``
-    :type source_zone: int
-    :param destination_zone: Numeric string id of destination segment,
+    :param source_segment: Numeric string id of source segment,
         e.g. ``0``
-    :type destination_zone: int
+    :type source_segment: str
+    :param destination_segment: Numeric string id of destination
+        segment, e.g. ``0``
+    :type destination_segment: str
     :param segment_map: Security map details, see above example. Note
         that the `<zoneFromId_zoneToId>` under the map are the firewall
-        zones and not related to the segment ids.
+        zones and not related to the segment ids. Use
+        :func:`~pyedgeconnect.Orchestrator.get_zones_vrf_mapping` to
+        find appropriate zone id values for each zone as it's uniquely
+        defined within each VRF ID.
     :type segment_map: dict
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/vrf/config/securityPolicies?map={source_segment}_{destination_segment}"  # noqa: E501
+    else:
+        path = f"/vrf/config/securityPolicies/{source_segment}_{destination_segment}"  # noqa: E501
+
     return self._post(
-        "/vrf/config/securityPolicies/{}_{}".format(
-            source_zone, destination_zone
-        ),
+        path,
         data=segment_map,
         expected_status=[204],
         return_type="bool",

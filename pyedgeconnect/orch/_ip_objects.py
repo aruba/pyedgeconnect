@@ -196,7 +196,12 @@ def get_address_group(
             * keyword **comment** (`str`): User comment for group
     :rtype: dict
     """
-    return self._get("/ipObjects/addressGroup/{}".format(ag_name))
+    if self.orch_version >= 9.3:
+        path = f"/ipObjects/addressGroup/?name={ag_name}"
+    else:
+        path = f"/ipObjects/addressGroup/{ag_name}"
+
+    return self._get(path)
 
 
 def delete_address_group(
@@ -220,9 +225,13 @@ def delete_address_group(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/ipObjects/addressGroup/?name={ag_name}"
+    else:
+        path = f"/ipObjects/addressGroup/{ag_name}"
 
     return self._delete(
-        "/ipObjects/addressGroup/{}".format(ag_name),
+        path,
         expected_status=[204],
         return_type="bool",
     )
@@ -261,9 +270,7 @@ def bulk_upload_address_group(
         * keyword **existingGroupNames** (`list[str]`):
     :rtype: dict
     """
-    # TODO - validate function, currently testing broken in SEWAN in
-    # trying to upload file even in UI, need to test further before
-    # completing code
+    # TODO - need to validate function, low priority for API use-case
     with open(csv_filename, "rb") as upload_data:
         return self._post(
             "/ipObjects/addressGroup/bulkUpload",
@@ -549,7 +556,12 @@ def get_service_group(
             * keyword **comment** (`str`): User comment for group
     :rtype: dict
     """
-    return self._get("/ipObjects/serviceGroup/{}".format(sg_name))
+    if self.orch_version >= 9.3:
+        path = f"/ipObjects/serviceGroup/?name={sg_name}"
+    else:
+        path = f"/ipObjects/serviceGroup/{sg_name}"
+
+    return self._get(path)
 
 
 def delete_service_group(
@@ -573,9 +585,13 @@ def delete_service_group(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/ipObjects/serviceGroup/?name={sg_name}"
+    else:
+        path = f"/ipObjects/serviceGroup/{sg_name}"
 
     return self._delete(
-        "/ipObjects/addressGroup/{}".format(sg_name),
+        path,
         expected_status=[204],
         return_type="bool",
     )
@@ -614,9 +630,7 @@ def bulk_upload_service_group(
         * keyword **existingGroupNames** (`list[str]`):
     :rtype: dict
     """
-    # TODO - validate function, currently testing broken in SEWAN in
-    # trying to upload file even in UI, need to test further before
-    # completing code
+    # TODO - need to validate function, low priority for API use-case
     with open(csv_filename, "rb") as upload_data:
         return self._post(
             "/ipObjects/serviceGroup/bulkUpload",

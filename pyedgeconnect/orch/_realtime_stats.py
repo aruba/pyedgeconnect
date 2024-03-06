@@ -111,4 +111,12 @@ def get_realtime_stats(
     """
     data = {"type": stat_type, "name": stat_name, "filter": stat_filter}
 
-    return self._post("/realtimeStats/{}".format(ne_pk), data=data)
+    if self.orch_version >= 9.3:
+        path = f"/realtimeStats?nePk={ne_pk}"
+    else:
+        path = f"/realtimeStats/{ne_pk}"
+
+    return self._post(
+        path,
+        data=data,
+    )

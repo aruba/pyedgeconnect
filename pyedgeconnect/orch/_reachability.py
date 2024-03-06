@@ -26,7 +26,12 @@ def get_reachability_status_appliance(
     :return: Returns dictionary of reachability status
     :rtype: dict
     """
-    return self._get("/reachability/appliance/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/reachability/appliance?nePk={ne_id}"
+    else:
+        path = f"/reachability/appliance/{ne_id}"
+
+    return self._get(path)
 
 
 def get_reachability_status_orchestrator(
@@ -52,4 +57,9 @@ def get_reachability_status_orchestrator(
     :return: Returns dictionary of reachability status
     :rtype: dict
     """
-    return self._get("/reachability/gms/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/reachability/gms?nePk={ne_id}"
+    else:
+        path = f"/reachability/gms/{ne_id}"
+
+    return self._get(path)

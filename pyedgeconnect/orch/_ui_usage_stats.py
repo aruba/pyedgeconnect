@@ -25,8 +25,13 @@ def add_ui_usage_count(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/uiUsageStats?uiName={ui_name}"
+    else:
+        path = f"/uiUsageStats/{ui_name}"
+
     return self._post(
-        "/uiUsageStats/{}".format(ui_name),
+        path,
         expected_status=[204],
         return_type="bool",
     )

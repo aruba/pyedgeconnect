@@ -42,6 +42,9 @@ def get_appliance_software_version(
               partition will boot if another active partition fails
     :rtype: list
     """
-    return self._get(
-        "/appliancesSoftwareVersions/{}?cached={}".format(ne_pk, cached)
-    )
+    if self.orch_version >= 9.3:
+        path = f"/appliancesSoftwareVersions?nePk={ne_pk}&cached={cached}"
+    else:
+        path = f"/appliancesSoftwareVersions/{ne_pk}?cached={cached}"
+
+    return self._get(path)

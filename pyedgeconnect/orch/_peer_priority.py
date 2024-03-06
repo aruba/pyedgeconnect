@@ -38,6 +38,9 @@ def get_peer_priority_configuration(
                   dictionary key)
     :rtype: dict
     """
-    return self._get(
-        "/appliance/peerPriorityList/{}?cached={}".format(ne_id, cached)
-    )
+    if self.orch_version >= 9.3:
+        path = f"/appliance/peerPriorityList?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/appliance/peerPriorityList/{ne_id}?cached={cached}"
+
+    return self._get(path)

@@ -1,5 +1,5 @@
 # MIT License
-# (C) Copyright 2021 Hewlett Packard Enterprise Development LP.
+# (C) Copyright 2023 Hewlett Packard Enterprise Development LP.
 #
 # interfaceLabels : Save and delete labels for interfaces
 
@@ -46,7 +46,7 @@ def get_all_interface_labels(
     path = "/gms/interfaceLabels"
 
     if active is not None:
-        path = path + "?active={}".format(active)
+        path += f"?active={active}"
 
     return self._get(path)
 
@@ -145,7 +145,7 @@ def update_interface_labels(
     path = "/gms/interfaceLabels"
 
     if delete_dependencies is not None:
-        path = path + "?deleteDependencies={}".format(delete_dependencies)
+        path += f"?deleteDependencies={delete_dependencies}"
 
     return self._post(
         "/gms/interfaceLabels",
@@ -190,12 +190,21 @@ def get_interface_labels_by_type(
                 ``False`` if inactive
     :rtype: dict
     """
-    path = "/gms/interfaceLabels/{}".format(label_type)
+    if self.orch_version >= 9.3:
+        path = f"/gms/interfaceLabels?type={label_type}"
 
-    if active is not None:
-        path = path + "?active={}".format(active)
+        if active is not None:
+            path += f"&active={active}"
 
-    return self._get(path)
+        return self._get(path)
+
+    else:
+        path = f"/gms/interfaceLabels/{label_type}"
+
+        if active is not None:
+            path += f"?active={active}"
+
+        return self._get(path)
 
 
 def push_interface_labels_to_appliance(
@@ -220,4 +229,12 @@ def push_interface_labels_to_appliance(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-    return self._post("interfaceLabels/{}".format(ne_pk), return_type="bool")
+    if self.orch_version >= 9.3:
+        path = f"/interfaceLabels?nePk={ne_pk}"
+    else:
+        path = f"/interfaceLabels/{ne_pk}"
+
+    return self._post(
+        path,
+        return_type="bool",
+    )

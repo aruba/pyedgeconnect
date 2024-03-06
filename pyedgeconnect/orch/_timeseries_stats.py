@@ -26,9 +26,12 @@ def get_timeseries_stats_appliance_process_state(
     :return: Returns list of dictionaries
     :rtype: list
     """
-    return self._get(
-        "/stats/timeseries/applianceProcessState/{}".format(ne_pk)
-    )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/applianceProcessState?nePk={ne_pk}"
+    else:
+        path = f"/stats/timeseries/applianceProcessState/{ne_pk}"
+
+    return self._get(path)
 
 
 def get_timeseries_stats_orchestrator_memory(
@@ -61,12 +64,12 @@ def get_timeseries_stats_orchestrator_memory(
     :return: Returns list of dictionaries, all memory values are in KB
     :rtype: list
     """
-    path = "/stats/timeseries/metrics?startTime={}&endTime={}".format(
-        start_time, end_time
+    path = (
+        f"/stats/timeseries/metrics?startTime={start_time}&endTime={end_time}"
     )
 
     if key is not None:
-        path = path + "&key={}".format(key)
+        path += "&key={}".format(key)
 
     return self._get(path)
 
@@ -136,21 +139,21 @@ def get_timeseries_stats_tunnel_single_appliance(
     :return: Returns nested dictionary
     :rtype: dict
     """
-    path = (
-        "/stats/timeseries/tunnel/"
-        + "{}?startTime={}&endTime={}&granularity={}&tunnelName={}".format(
-            ne_pk, start_time, end_time, granularity, tunnel_name
-        )
-    )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/tunnel?nePk={ne_pk}"
+    else:
+        path = f"/stats/timeseries/tunnel/{ne_pk}?"
+
+    path += f"startTime={start_time}&endTime={end_time}&granularity={granularity}&tunnelName={tunnel_name}"  # noqa: E501
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -228,24 +231,22 @@ def get_timeseries_stats_appliances(
     """
     path = (
         "/stats/timeseries/appliance?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
 
-    path = path + "&trafficType={}".format(traffic_type)
+    path += f"&trafficType={traffic_type}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -319,23 +320,24 @@ def get_timeseries_stats_appliances_ne_pk_list(
     """
     path = (
         "/stats/timeseries/appliance?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
-    path = path + "&trafficType={}".format(traffic_type)
+    path += f"&trafficType={traffic_type}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -408,23 +410,24 @@ def get_timeseries_stats_appliances_single_appliance(
     :return: Returns nested dictionary
     :rtype: dict
     """
-    path = (
-        "/stats/timeseries/appliance/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
-    )
 
-    path = path + "&trafficType={}".format(traffic_type)
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/appliance?nePk={ne_pk}"
+    else:
+        path = f"/stats/timeseries/appliance/{ne_pk}?"
+
+    path += f"startTime={start_time}&endTime={end_time}"
+
+    path += f"&granularity={granularity}&trafficType={traffic_type}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -506,25 +509,22 @@ def get_timeseries_stats_traffic_class(
     """
     path = (
         "/stats/timeseries/trafficClass?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
 
-    path = path + "&trafficType={}".format(traffic_type)
-    path = path + "&trafficClass={}".format(traffic_class)
+    path += f"&trafficType={traffic_type}&trafficClass={traffic_class}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -604,24 +604,24 @@ def get_timeseries_stats_traffic_class_ne_pk_list(
     """
     path = (
         "/stats/timeseries/trafficClass?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
-    path = path + "&trafficType={}".format(traffic_type)
-    path = path + "&trafficClass={}".format(traffic_class)
+    path += f"&trafficType={traffic_type}&trafficClass={traffic_class}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -698,24 +698,26 @@ def get_timeseries_stats_traffic_class_single_appliance(
     :return: Returns nested dictionary
     :rtype: dict
     """
-    path = (
-        "/stats/timeseries/trafficClass?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/trafficClass?nePk={ne_pk}"
+    else:
+        path = f"/stats/timeseries/trafficClass/{ne_pk}?"
+
+    path += (
+        f"&startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
-    path = path + "&trafficType={}".format(traffic_type)
-    path = path + "&trafficClass={}".format(traffic_class)
+    path += f"&trafficType={traffic_type}"
+    path += f"&trafficClass={traffic_class}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -799,26 +801,22 @@ def get_timeseries_stats_flow(
     """
     path = (
         "/stats/timeseries/flow?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
 
-    path = path + "&trafficType={}".format(traffic_type)
-
-    path = path + "&flowType={}".format(flow_type)
+    path += f"&trafficType={traffic_type}&flowType={flow_type}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -900,25 +898,26 @@ def get_timeseries_stats_flow_ne_pk_list(
     """
     path = (
         "/stats/timeseries/flow?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
-    path = path + "&trafficType={}".format(traffic_type)
+    path += f"&trafficType={traffic_type}"
 
-    path = path + "&flowType={}".format(flow_type)
+    path += f"&flowType={flow_type}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -997,25 +996,25 @@ def get_timeseries_stats_flow_single_appliance(
     :return: Returns nested dictionary
     :rtype: dict
     """
-    path = (
-        "/stats/timeseries/flow/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/flow?nePk={ne_pk}&"
+    else:
+        path = f"/stats/timeseries/flow/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
-    path = path + "&trafficType={}".format(traffic_type)
-
-    path = path + "&flowType={}".format(flow_type)
+    path += f"&trafficType={traffic_type}&flowType={flow_type}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -1097,26 +1096,24 @@ def get_timeseries_stats_dscp(
     """
     path = (
         "/stats/timeseries/dscp?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
 
-    path = path + "&trafficType={}".format(traffic_type)
+    path += f"&trafficType={traffic_type}"
 
-    path = path + "&dscp={}".format(dscp)
+    path += f"&dscp={dscp}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -1196,25 +1193,24 @@ def get_timeseries_stats_dscp_ne_pk_list(
     """
     path = (
         "/stats/timeseries/dscp?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
-    path = path + "&trafficType={}".format(traffic_type)
-
-    path = path + "&dscp={}".format(dscp)
+    path += f"&trafficType={traffic_type}&dscp={dscp}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -1291,25 +1287,25 @@ def get_timeseries_stats_dscp_single_appliance(
     :return: Returns nested dictionary
     :rtype: dict
     """
-    path = (
-        "/stats/timeseries/dscp/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/dscp?nePk={ne_pk}&"
+    else:
+        path = f"/stats/timeseries/dscp/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
-    path = path + "&trafficType={}".format(traffic_type)
-
-    path = path + "&dscp={}".format(dscp)
+    path += f"&trafficType={traffic_type}&dscp={dscp}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -1377,22 +1373,20 @@ def get_timeseries_stats_shaper(
     """
     path = (
         "/stats/timeseries/shaper?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
 
-    path = path + "&trafficClass={}".format(traffic_class)
+    path += f"&trafficClass={traffic_class}"
 
-    path = path + "&direction={}".format(direction)
+    path += f"&direction={direction}"
 
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
 
     return self._get(path)
 
@@ -1458,21 +1452,20 @@ def get_timeseries_stats_shaper_ne_pk_list(
     """
     path = (
         "/stats/timeseries/shaper?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
-    path = path + "&trafficClass={}".format(traffic_class)
-
-    path = path + "&direction={}".format(direction)
+    path += f"&trafficClass={traffic_class}&direction={direction}"
 
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -1519,11 +1512,13 @@ def get_timeseries_stats_internal_drops_single_appliance(
     :return: Returns nested dictionary
     :rtype: dict
     """
-    path = (
-        "/stats/timeseries/internalDrops/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/internalDrops?nePk={ne_pk}&"
+    else:
+        path = f"/stats/timeseries/internalDrops/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     return self._get(path)
@@ -1596,21 +1591,19 @@ def get_timeseries_stats_drc(
     """
     path = (
         "/stats/timeseries/drc?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -1680,21 +1673,22 @@ def get_timeseries_stats_drc_ne_pk_list(
     """
     path = (
         "/stats/timeseries/drc?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -1765,23 +1759,25 @@ def get_timeseries_stats_drc_single_appliance(
     :return: Returns nested dictionary
     :rtype: dict
     """
-    path = (
-        "/stats/timeseries/drc/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/drc?nePk={ne_pk}&"
+    else:
+        path = f"/stats/timeseries/drc/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
-    path = path + "&tunnelName={}".format(tunnel_name)
+    path += f"&tunnelName={tunnel_name}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -1843,19 +1839,21 @@ def get_timeseries_stats_interface_single_appliance(
     :return: Returns list of dictionaries
     :rtype: list
     """
-    path = (
-        "/stats/timeseries/interface/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/interface?nePk={ne_pk}&"
+    else:
+        path = f"/stats/timeseries/interface/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
-    path = path + "&trafficType={}".format(traffic_type)
+    path += f"&trafficType={traffic_type}"
 
     if interface_name is not None:
-        path = path + "&interfaceName={}".format(interface_name)
+        path += f"&interfaceName={interface_name}"
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
 
     return self._get(path)
 
@@ -1931,25 +1929,27 @@ def get_timeseries_stats_interface_overlay_single_appliance(
     :return: Returns list of dictionaries
     :rtype: list
     """
-    path = (
-        "/stats/timeseries/interfaceOverlay/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/interfaceOverlay?nePk={ne_pk}&"
+    else:
+        path = f"/stats/timeseries/interfaceOverlay/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if tunnel_type is not None:
-        path = path + "&tunnelType={}".format(tunnel_type)
+        path += f"&tunnelType={tunnel_type}"
     if label_id is not None:
-        path = path + "&labelId={}".format(label_id)
+        path += f"&labelId={label_id}"
     if is_wan_side is not None:
-        path = path + "&isWanSide={}".format(is_wan_side)
+        path += f"&isWanSide={is_wan_side}"
     if interface_name is not None:
-        path = path + "&interfaceName={}".format(interface_name)
+        path += f"&interfaceName={interface_name}"
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
 
     return self._get(path)
 
@@ -2005,17 +2005,19 @@ def get_timeseries_stats_mos_single_appliance(
     :return: Returns list of dictionaries
     :rtype: list
     """
-    path = (
-        "/stats/timeseries/mos/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/mos?nePk={ne_pk}&"
+    else:
+        path = f"/stats/timeseries/mos/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
-    path = path + "&tunnel={}".format(tunnel_name)
+    path += f"&tunnel={tunnel_name}"
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
 
     return self._get(path)
 
@@ -2080,19 +2082,17 @@ def get_timeseries_stats_application(
     """
     path = (
         "/stats/timeseries/application2?startTime="
-        + "{}&endTime={}&application={}".format(
-            start_time, end_time, application
-        )
+        + f"{start_time}&endTime={end_time}&application={application}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if total is not None:
-        path = path + "&total={}".format(total)
+        path += f"&total={total}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
     return self._get(path)
 
@@ -2155,19 +2155,20 @@ def get_timeseries_stats_application_ne_pk_list(
     """
     path = (
         "/stats/timeseries/application2?startTime="
-        + "{}&endTime={}&application={}".format(
-            start_time, end_time, application
-        )
+        + f"{start_time}&endTime={end_time}&application={application}"
     )
 
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if total is not None:
-        path = path + "&total={}".format(total)
+        path += f"&total={total}"
     if latest is not None:
-        path = path + "&latest={}".format(latest)
+        path += f"&latest={latest}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -2221,17 +2222,19 @@ def get_timeseries_stats_application_single_appliance(
     :return: Returns nested dictionary
     :rtype: dict
     """
-    path = (
-        "/stats/timeseries/application2/"
-        + "{}?startTime={}&endTime={}&application={}".format(
-            ne_pk, start_time, end_time, application
-        )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/application2?nePk={ne_pk}&"
+    else:
+        path = f"/stats/timeseries/application2/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&application={application}"
     )
 
     if total is not None:
-        path = path + "&total={}".format(total)
+        path += f"&total={total}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
     return self._get(path)
 
@@ -2283,15 +2286,17 @@ def get_timeseries_stats_boost_single_appliance(
     :return: Returns list of dictionaries
     :rtype: list
     """
-    path = (
-        "/stats/timeseries/boost/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/boost?nePk={ne_pk}&"
+    else:
+        path = f"/stats/timeseries/boost/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
 
     return self._get(path)
 
@@ -2346,13 +2351,15 @@ def get_timeseries_stats_security_policy_single_appliance(
     :return: Returns nested dictionary
     :rtype: dict
     """
-    path = (
-        "/stats/timeseries/securityPolicy/"
-        + "{}?startTime={}&endTime={}".format(ne_pk, start_time, end_time)
-        + "&granularity={}&fromZone={}&toZone={}".format(
-            granularity, from_zone, to_zone
-        )
-    )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/securityPolicy?nePk={ne_pk}&"
+    else:
+        path = f"/stats/timeseries/securityPolicy/{ne_pk}?"
+
+    path += f"startTime={start_time}&endTime={end_time}"
+
+    path += f"&granularity={granularity}&fromZone={from_zone}&toZone={to_zone}"
+
     return self._get(path)
 
 
@@ -2411,16 +2418,16 @@ def get_timeseries_stats_jitter_single_appliance(
     :return: Returns nested dictionary
     :rtype: dict
     """
-    path = (
-        "/stats/timeseries/jitter/"
-        + "{}?startTime={}&endTime={}&granularity={}&tunnel={}".format(
-            ne_pk, start_time, end_time, granularity, tunnel_name
-        )
-    )
+    if self.orch_version >= 9.3:
+        path = f"/stats/timeseries/jitter?nePk={ne_pk}&"
+    else:
+        path = f"/stats/timeseries/jitter/{ne_pk}?"
+
+    path += f"startTime={start_time}&endTime={end_time}&granularity={granularity}&tunnel={tunnel_name}"  # noqa: E501
 
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if limit is not None:
-        path = path + "&limit={}".format(limit)
+        path += f"&limit={limit}"
 
     return self._get(path)

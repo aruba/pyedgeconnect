@@ -36,12 +36,21 @@ def backup_appliance_config(
           to get progress of the requested action.
     :rtype: dict
     """
-    data = {
-        "neList": ne_pk_list,
-        "comment": comment,
-    }
+    if self.orch_version >= 9.3:
+        data = {
+            "nePks": ne_pk_list,
+            "comment": comment,
+        }
+    else:
+        data = {
+            "neList": ne_pk_list,
+            "comment": comment,
+        }
 
-    return self._post("/appliance/backup", data=data)
+    return self._post(
+        "/appliance/backup",
+        data=data,
+    )
 
 
 def get_appliance_backup_history(
@@ -88,12 +97,13 @@ def get_appliance_backup_history(
               value of ``null``
     :rtype: dict
     """
-    path = "/appliance/backup/{}?runningConfig={}".format(
-        ne_id, running_config
-    )
+    if self.orch_version >= 9.3:
+        path = f"/appliance/backup?nePk={ne_id}&runningConfig={running_config}"
+    else:
+        path = f"/appliance/backup/{ne_id}?runningConfig={running_config}"
 
     if appliance_backup_id is not None:
-        path = path + "&id={}".format(appliance_backup_id)
+        path += "&id={}".format(appliance_backup_id)
 
     return self._get(path)
 
@@ -120,8 +130,13 @@ def delete_appliance_backup(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/appliance/backup?backupFilePk={appliance_backup_id}"
+    else:
+        path = f"/appliance/backup/{appliance_backup_id}"
+
     return self._delete(
-        "/appliance/backup/{}".format(appliance_backup_id),
+        path,
         return_type="bool",
     )
 
@@ -153,6 +168,14 @@ def restore_appliance_from_backup(
           to get progress of the requested action.
     :rtype: dict
     """
+    if self.orch_version >= 9.3:
+        path = f"/appliance/restore?nePk={ne_pk}"
+    else:
+        path = f"/appliance/restore/{ne_pk}"
+
     data = {"backupFilePk": appliance_backup_id}
 
-    return self._post("/appliance/restore/{}".format(ne_pk), data=data)
+    return self._post(
+        path,
+        data=data,
+    )

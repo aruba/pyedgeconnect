@@ -33,6 +33,9 @@ def get_wan_next_hop_health_config(
         * keyword **retry_count** (`int`): Retry count
     :rtype: dict
     """
-    return self._get(
-        "/appliance/wanNextHopHealth/{}?cached={}".format(ne_id, cached)
-    )
+    if self.orch_version >= 9.3:
+        path = f"/appliance/wanNextHopHealth?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/appliance/wanNextHopHealth/{ne_id}?cached={cached}"
+
+    return self._get(path)

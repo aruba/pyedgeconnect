@@ -1,5 +1,5 @@
 # MIT License
-# (C) Copyright 2022 Hewlett Packard Enterprise Development LP.
+# (C) Copyright 2023 Hewlett Packard Enterprise Development LP.
 #
 # deployment : ECOS deployment configuration
 
@@ -360,7 +360,13 @@ def get_appliance_deployment(
                   peer
     :rtype: dict
     """
-    return self._get("/deployment/{}".format(ne_pk))
+    if self.orch_version >= 9.3:
+        path = f"/deployment?nePk={ne_pk}"
+
+    else:
+        path = f"/deployment/{ne_pk}"
+
+    return self._get(path)
 
 
 # TODO - POST /deployment/validate/{nePk}
@@ -474,7 +480,8 @@ def get_single_appliance_deployment(
     self,
     ne_pk: str,
 ) -> dict:
-    """Get the deployment configuration of the appliance
+    """Get the deployment configuration of the appliance only including
+    simplified LAN and WAN interface configuration.
 
     .. list-table::
         :header-rows: 1
@@ -568,4 +575,10 @@ def get_single_appliance_deployment(
             of appliance
     :rtype: dict
     """
-    return self._get("/tunnelsConfiguration/deployment/{}".format(ne_pk))
+    if self.orch_version >= 9.3:
+        path = f"/tunnelsConfiguration/deployment?nePk={ne_pk}"
+
+    else:
+        path = f"/tunnelsConfiguration/deployment/{ne_pk}"
+
+    return self._get(path)

@@ -174,7 +174,12 @@ def get_overlay_config(
     :return: Returns dictionary of overlay configuration
     :rtype: dict
     """
-    return self._get("/gms/overlays/config/{}".format(overlay_id))
+    if self.orch_version >= 9.3:
+        path = f"/gms/overlays/config?overlayId={overlay_id}"
+    else:
+        path = f"/gms/overlays/config/{overlay_id}"
+
+    return self._get(path)
 
 
 def modify_overlay_config(
@@ -206,8 +211,13 @@ def modify_overlay_config(
         return newly created Overlay ID
     :rtype: Requests.response object
     """
+    if self.orch_version >= 9.3:
+        path = f"/gms/overlays/config?overlayId={overlay_id}"
+    else:
+        path = f"/gms/overlays/config/{overlay_id}"
+
     return self._put(
-        "/gms/overlays/config/{}".format(overlay_id),
+        path,
         data=overlay_config,
         return_type="full_response",
     )
@@ -236,8 +246,13 @@ def delete_overlay(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/gms/overlays/config?overlayId={overlay_id}"
+    else:
+        path = f"/gms/overlays/config/{overlay_id}"
+
     return self._delete(
-        "/gms/overlays/config/{}".format(overlay_id),
+        path,
         expected_status=[204],
         return_type="bool",
     )
@@ -268,9 +283,15 @@ def get_overlay_config_for_region(
     :return: Returns dictionary of overlay configuration
     :rtype: dict
     """
-    return self._get(
-        "/gms/overlays/config/{}/{}".format(overlay_id, region_id)
-    )
+    if self.orch_version >= 9.3:
+        path = (
+            "/gms/overlays/config/regions?"
+            + f"overlayId={overlay_id}&regionId={region_id}"
+        )
+    else:
+        path = f"/gms/overlays/config/{overlay_id}/{region_id}"
+
+    return self._get(path)
 
 
 def modify_overlay_config_for_region(
@@ -301,8 +322,16 @@ def modify_overlay_config_for_region(
     :return: Returns dictionary of overlay configuration
     :rtype: dict
     """
+    if self.orch_version >= 9.3:
+        path = (
+            "/gms/overlays/config/regions?"
+            + f"overlayId={overlay_id}&regionId={region_id}"
+        )
+    else:
+        path = f"/gms/overlays/config/{overlay_id}/{region_id}"
+
     return self._put(
-        "/gms/overlays/config/{}/{}".format(overlay_id, region_id),
+        path,
         data=overlay_config,
         return_type="full_response",
     )

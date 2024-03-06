@@ -52,4 +52,9 @@ def get_appliance_user_accounts(
                 * keyword **username** (`str`): Logged in username
     :rtype: dict
     """
-    return self._get("/userAccount/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/userAccount?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/userAccount/{ne_id}?cached={cached}"
+
+    return self._get(path)

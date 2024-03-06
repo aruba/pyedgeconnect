@@ -29,7 +29,12 @@ def get_appliance_tca(
     :return: Returns dictionary of system tca configuration
     :rtype: dict
     """
-    return self._get("/tca/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/tca?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/tca/{ne_id}?cached={cached}"
+
+    return self._get(path)
 
 
 def get_appliance_tunnel_tca(
@@ -57,4 +62,9 @@ def get_appliance_tunnel_tca(
     :return: Returns dictionary of system tca configuration
     :rtype: dict
     """
-    return self._get("/tca/tunnel/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/tca/tunnel?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/tca/tunnel/{ne_id}?cached={cached}"
+
+    return self._get(path)

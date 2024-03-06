@@ -50,5 +50,8 @@ def set_rest_api_config(
     data = {"communicateWithApplianceViaPortal": enable}
 
     return self._get(
-        "/restApiConfig", data=data, expected_status=[204], return_type="bool"
+        "/restApiConfig",
+        data=data,
+        expected_status=[204],
+        return_type="bool",
     )

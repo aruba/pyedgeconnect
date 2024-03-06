@@ -30,4 +30,9 @@ def get_custom_appliance_tags(
     :return: Returns user-defined appliance tags
     :rtype: dict
     """
-    return self._get("/customApplianceTags/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/customApplianceTags?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/customApplianceTags/{ne_id}?cached={cached}"
+
+    return self._get(path)

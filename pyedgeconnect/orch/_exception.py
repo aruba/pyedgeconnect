@@ -201,7 +201,10 @@ def delete_all_tunnel_exceptions(
     )
 
 
-def delete_tunnel_exceptions_list(self, exception_id_list: list[int]) -> bool:
+def delete_tunnel_exceptions_list(
+    self,
+    exception_id_list: list[int],
+) -> bool:
     """Delete list of tunnel exceptions
 
     .. list-table::
@@ -221,6 +224,7 @@ def delete_tunnel_exceptions_list(self, exception_id_list: list[int]) -> bool:
     """
     return self._post(
         "/exception/tunnel/deleteByIds",
+        data=exception_id_list,
         return_type="bool",
     )
 
@@ -275,15 +279,23 @@ def update_single_tunnel_exception(
         "description": description,
     }
 
+    if self.orch_version >= 9.3:
+        path = f"/exception/tunnel?id={exception_id}"
+    else:
+        path = f"/exception/tunnel/{exception_id}"
+
     return self._put(
-        "/exception/tunnel/{}".format(exception_id),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",
     )
 
 
-def delete_single_tunnel_exception(self, exception_id: int) -> bool:
+def delete_single_tunnel_exception(
+    self,
+    exception_id: int,
+) -> bool:
     """Delete specified tunnel exception by id
 
     .. list-table::
@@ -299,7 +311,12 @@ def delete_single_tunnel_exception(self, exception_id: int) -> bool:
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/exception/tunnel?id={exception_id}"
+    else:
+        path = f"/exception/tunnel/{exception_id}"
+
     return self._delete(
-        "/exception/tunnel/{}".format(exception_id),
+        path,
         return_type="bool",
     )

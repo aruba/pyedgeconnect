@@ -36,9 +36,15 @@ def erase_appliance_network_memory(
           when ``erase`` is set to ``True``.
     :rtype: dict
     """
-    data = {
-        "neList": ne_pk_list,
-        "erase": erase,
-    }
+    if self.orch_version >= 9.3:
+        data = {
+            "nePks": ne_pk_list,
+            "erase": erase,
+        }
+    else:
+        data = {
+            "neList": ne_pk_list,
+            "erase": erase,
+        }
 
     return self._post("/networkMemory", data=data)

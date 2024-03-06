@@ -112,13 +112,17 @@ def upgrade_appliances(
     :rtype: dict
     """
     data = {
-        "neList": ne_pk_list,
         "installOption": install_option,
         "imageName": image_name,
         "version": version,
         "fromPortal": from_portal,
         "usingUrl": from_url,
     }
+
+    if self.orch_version >= 9.3:
+        data["nePks"] = ne_pk_list
+    else:
+        data["neList"] = ne_pk_list
 
     return self._post(
         "/validateApplianceUpgrade",

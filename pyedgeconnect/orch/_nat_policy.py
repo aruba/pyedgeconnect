@@ -31,7 +31,12 @@ def get_nat_policy(
         domain groups and maps).
     :rtype: dict
     """
-    return self._get("/natMaps/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/natMaps?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/natMaps/{ne_id}?cached={cached}"
+
+    return self._get(path)
 
 
 def get_nat_policy_inbound_outbound(
@@ -61,7 +66,12 @@ def get_nat_policy_inbound_outbound(
         domain groups and maps).
     :rtype: dict
     """
-    return self._get("/natAll/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/natAll?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/natAll/{ne_id}?cached={cached}"
+
+    return self._get(path)
 
 
 def get_nat_policy_dynamic(
@@ -91,4 +101,9 @@ def get_nat_policy_dynamic(
         domain groups and maps).
     :rtype: dict
     """
-    return self._get("/natMapsDynamic/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/natMapsDynamic?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/natMapsDynamic/{ne_id}?cached={cached}"
+
+    return self._get(path)

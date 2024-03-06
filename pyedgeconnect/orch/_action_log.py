@@ -75,9 +75,9 @@ def get_audit_log(
     )
 
     if ne_pk is not None:
-        path = path + "&appliance={}".format(ne_pk)
+        path += "&appliance={}".format(ne_pk)
     if username is not None:
-        path = path + "&username={}".format(username)
+        path += "&username={}".format(username)
 
     return self._get(path)
 

@@ -110,28 +110,28 @@ def get_service_id_to_service_mapping(
     path = "/spPortal/internetDb/serviceIdToSaasId"
 
     if any(v is not None for v in [match_any, org, service_ids, top]):
-        path = path + "?"
+        path += "?"
 
     if match_any is not None:
-        path = path + "matchAny={}".format(match_any)
+        path += "matchAny={}".format(match_any)
         if org is not None:
-            path = path + "&org={}".format(org)
+            path += "&org={}".format(org)
         if service_ids is not None:
-            path = path + "&serviceIds={}".format(service_ids)
+            path += "&serviceIds={}".format(service_ids)
         if top is not None:
-            path = path + "&top={}".format(top)
+            path += "&top={}".format(top)
     elif org is not None:
-        path = path + "org={}".format(org)
+        path += "org={}".format(org)
         if service_ids is not None:
-            path = path + "&serviceIds={}".format(service_ids)
+            path += "&serviceIds={}".format(service_ids)
         if top is not None:
-            path = path + "&top={}".format(top)
+            path += "&top={}".format(top)
     elif service_ids is not None:
-        path = path + "serviceIds={}".format(service_ids)
+        path += "serviceIds={}".format(service_ids)
         if top is not None:
-            path = path + "&top={}".format(top)
+            path += "&top={}".format(top)
     elif top is not None:
-        path = path + "top={}".format(top)
+        path += "top={}".format(top)
     else:
         pass
 
@@ -412,13 +412,13 @@ def search_app_definition_data(
     path = "/spPortal/internetDb/ipIntelligence/search"
 
     if ip_address is not None or data_filter is not None:
-        path = path + "?"
+        path += "?"
     if ip_address is not None:
-        path = path + "ip={}".format(ip_address)
+        path += "ip={}".format(ip_address)
         if data_filter is not None:
-            path = path + "&filter={}".format(data_filter)
+            path += "&filter={}".format(data_filter)
     elif data_filter is not None:
-        path = path + "filter={}".format(data_filter)
+        path += "filter={}".format(data_filter)
     else:
         pass
 

@@ -56,4 +56,9 @@ def get_appliance_dns(
                 * keyword **vrf_id** (`int`): VRF ID number, e.g. ``0``
     :rtype: dict
     """
-    return self._get("/resolver/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/resolver?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/resolver/{ne_id}?cached={cached}"
+
+    return self._get(path)

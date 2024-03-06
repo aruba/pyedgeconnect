@@ -94,37 +94,37 @@ def get_bonded_tunnel_details(
     path = "/tunnels2/bonded?limit={}".format(limit)
 
     if matching_alias is not None:
-        path = path + "&matchingAlias={}".format(matching_alias)
+        path += "&matchingAlias={}".format(matching_alias)
     if overlay_id is not None:
-        path = path + "&overlayId={}".format(overlay_id)
+        path += "&overlayId={}".format(overlay_id)
     if state is not None:
-        path = path + "&state={}".format(state)
+        path += "&state={}".format(state)
     if tunnel_id is not None:
-        path = path + "&id={}".format(tunnel_id)
+        path += "&id={}".format(tunnel_id)
     if alias is not None:
-        path = path + "&alias={}".format(alias)
+        path += "&alias={}".format(alias)
     if tag is not None:
-        path = path + "&tag={}".format(tag)
+        path += "&tag={}".format(tag)
     if source_ne_pk is not None:
-        path = path + "&srcNePk={}".format(source_ne_pk)
+        path += "&srcNePk={}".format(source_ne_pk)
     if dest_ne_pk is not None:
-        path = path + "&destNePk={}".format(dest_ne_pk)
+        path += "&destNePk={}".format(dest_ne_pk)
     if dest_tunnel_id is not None:
-        path = path + "&destTunnelId={}".format(dest_tunnel_id)
+        path += "&destTunnelId={}".format(dest_tunnel_id)
     if dest_tunnel_alias is not None:
-        path = path + "&destTunnelAlias={}".format(dest_tunnel_alias)
+        path += "&destTunnelAlias={}".format(dest_tunnel_alias)
     if operational_status is not None:
-        path = path + "&operStatus={}".format(operational_status)
+        path += "&operStatus={}".format(operational_status)
     if admin_status is not None:
-        path = path + "&adminStatus={}".format(admin_status)
+        path += "&adminStatus={}".format(admin_status)
     if remote_id_state is not None:
-        path = path + "&remoteIdState={}".format(remote_id_state)
+        path += "&remoteIdState={}".format(remote_id_state)
     if fec_status is not None:
-        path = path + "&fecStatus={}".format(fec_status)
+        path += "&fecStatus={}".format(fec_status)
     if fec_ratio is not None:
-        path = path + "&fecRatio={}".format(fec_ratio)
+        path += "&fecRatio={}".format(fec_ratio)
     if children is not None:
-        path = path + "&children={}".format(children)
+        path += "&children={}".format(children)
 
     return self._get(path)
 
@@ -218,40 +218,43 @@ def get_bonded_tunnel_details_for_appliance(
         query details
     :rtype: dict
     """
-    path = "/tunnels2/bonded/{}?limit={}".format(ne_pk, limit)
+    if self.orch_version >= 9.3:
+        path = f"/tunnels2/bonded?nePk={ne_pk}&limit={limit}"
+    else:
+        path = f"/tunnels2/bonded/{ne_pk}?limit={limit}"
 
     if matching_alias is not None:
-        path = path + "&matchingAlias={}".format(matching_alias)
+        path += "&matchingAlias={}".format(matching_alias)
     if overlay_id is not None:
-        path = path + "&overlayId={}".format(overlay_id)
+        path += "&overlayId={}".format(overlay_id)
     if state is not None:
-        path = path + "&state={}".format(state)
+        path += "&state={}".format(state)
     if tunnel_id is not None:
-        path = path + "&id={}".format(tunnel_id)
+        path += "&id={}".format(tunnel_id)
     if alias is not None:
-        path = path + "&alias={}".format(alias)
+        path += "&alias={}".format(alias)
     if tag is not None:
-        path = path + "&tag={}".format(tag)
+        path += "&tag={}".format(tag)
     if source_ne_pk is not None:
-        path = path + "&srcNePk={}".format(source_ne_pk)
+        path += "&srcNePk={}".format(source_ne_pk)
     if dest_ne_pk is not None:
-        path = path + "&destNePk={}".format(dest_ne_pk)
+        path += "&destNePk={}".format(dest_ne_pk)
     if dest_tunnel_id is not None:
-        path = path + "&destTunnelId={}".format(dest_tunnel_id)
+        path += "&destTunnelId={}".format(dest_tunnel_id)
     if dest_tunnel_alias is not None:
-        path = path + "&destTunnelAlias={}".format(dest_tunnel_alias)
+        path += "&destTunnelAlias={}".format(dest_tunnel_alias)
     if operational_status is not None:
-        path = path + "&operStatus={}".format(operational_status)
+        path += "&operStatus={}".format(operational_status)
     if admin_status is not None:
-        path = path + "&adminStatus={}".format(admin_status)
+        path += "&adminStatus={}".format(admin_status)
     if remote_id_state is not None:
-        path = path + "&remoteIdState={}".format(remote_id_state)
+        path += "&remoteIdState={}".format(remote_id_state)
     if fec_status is not None:
-        path = path + "&fecStatus={}".format(fec_status)
+        path += "&fecStatus={}".format(fec_status)
     if fec_ratio is not None:
-        path = path + "&fecRatio={}".format(fec_ratio)
+        path += "&fecRatio={}".format(fec_ratio)
     if children is not None:
-        path = path + "&children={}".format(children)
+        path += "&children={}".format(children)
 
     return self._get(path)
 
@@ -281,7 +284,12 @@ def get_bonded_tunnel_details_for_appliance_tunnel(
         query details
     :rtype: dict
     """
-    return self._get("/tunnels2/bonded/{}/{}".format(ne_pk, bonded_tunnel_id))
+    if self.orch_version >= 9.3:
+        path = f"/tunnels2/bonded?nePk={ne_pk}&tunnelId={bonded_tunnel_id}"
+    else:
+        path = f"/tunnels2/bonded/{ne_pk}/{bonded_tunnel_id}"
+
+    return self._get(path)
 
 
 def get_bonded_tunnels_for_physical_tunnel(
@@ -313,18 +321,22 @@ def get_bonded_tunnels_for_physical_tunnel(
         query details
     :rtype: dict
     """  # noqa: W505
-    if state is not None:
-        return self._get(
-            "/tunnels2/bondedTunnelsWithPhysicalTunnel/{}/{}?state={}".format(
-                ne_pk, physical_tunnel_id, state
-            )
+    if self.orch_version >= 9.3:
+        path = (
+            f"/tunnels2/bondedTunnelsWithPhysicalTunnel?nePk={ne_pk}"
+            + f"&physicalTunnelId={physical_tunnel_id}"
         )
+        if state is not None:
+            path += f"&state={state}"
     else:
-        return self._get(
-            "/tunnels2/bondedTunnelsWithPhysicalTunnel/{}/{}".format(
-                ne_pk, physical_tunnel_id
-            )
+        path = (
+            "/tunnels2/bondedTunnelsWithPhysicalTunnel"
+            + f"/{ne_pk}/{physical_tunnel_id}"
         )
+        if state is not None:
+            path += f"?state={state}"
+
+    return self._get(path)
 
 
 def get_bonded_tunnels_state(
@@ -350,6 +362,12 @@ def get_bonded_tunnels_state(
         appliances
     :rtype: dict
     """
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
-    return self._post("/tunnels2/bonded/state", data=data)
+    return self._post(
+        "/tunnels2/bonded/state",
+        data=data,
+    )

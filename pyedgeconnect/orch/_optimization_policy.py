@@ -32,4 +32,9 @@ def get_optimization_policy(
         domain groups and maps).
     :rtype: dict
     """
-    return self._get("/optimizationMaps/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/optimizationMaps?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/optimizationMaps/{ne_id}?cached={cached}"
+
+    return self._get(path)

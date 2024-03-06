@@ -3,6 +3,7 @@
 #
 # appliancePreconfig : Get and apply appliance preconfigurations
 import base64
+import warnings
 
 import requests
 
@@ -235,8 +236,13 @@ def modify_preconfig(
         "configData": yaml_upload,
     }
 
+    if self.orch_version >= 9.3:
+        path = f"/gms/appliance/preconfiguration?preconfigId={preconfig_id}"
+    else:
+        path = f"/gms/appliance/preconfiguration/{preconfig_id}"
+
     return self._post(
-        "/gms/appliance/preconfiguration/{}".format(preconfig_id),
+        path,
         data=data,
         return_type="bool",
     )
@@ -315,7 +321,17 @@ def get_preconfig(
                   the data that was used by this task
     :rtype: dict
     """
-    return self._get("/gms/appliance/preconfiguration/{}".format(preconfig_id))
+    if self.orch_version >= 9.3:
+        warnings.warn(
+            "This endpoint is deprecated for 9.3, please use Orchestrator.get_all_preconfig() specifying the single preconfig to retrieve information for",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        path = f"/gms/appliance/preconfiguration?preconfigId={preconfig_id}"
+    else:
+        path = f"/gms/appliance/preconfiguration/{preconfig_id}"
+
+    return self._get(path)
 
 
 def delete_preconfig(
@@ -339,8 +355,13 @@ def delete_preconfig(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/gms/appliance/preconfiguration?preconfigId={preconfig_id}"
+    else:
+        path = f"/gms/appliance/preconfiguration/{preconfig_id}"
+
     return self._delete(
-        "/gms/appliance/preconfiguration/{}".format(preconfig_id),
+        path,
         return_type="bool",
     )
 
@@ -593,10 +614,16 @@ def approve_and_apply_preconfig(
     :return: Returns True/False based on successful call
     :rtype: bool
     """  # noqa E501
+
+    if self.orch_version >= 9.3:
+        path = f"/gms/appliance/preconfiguration/apply/discovered?preconfigId={preconfig_id}&discoveredId={discovered_id}"
+    else:
+        path = (
+            f"/gms/appliance/preconfiguration/{preconfig_id}/apply/discovered/{discovered_id}",
+        )
+
     return self._post(
-        "/gms/appliance/preconfiguration/{}/apply/discovered/{}".format(
-            preconfig_id, discovered_id
-        ),
+        path,
         return_type="bool",
     )
 
@@ -626,10 +653,21 @@ def apply_preconfig_to_existing(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+
+    if self.orch_version >= 9.3:
+        path = f"/gms/appliance/preconfiguration/apply?preconfigId={preconfig_id}&nePk={ne_pk}"
+    else:
+        path = (
+            f"/gms/appliance/preconfiguration/{preconfig_id}/apply/{ne_pk}",
+        )
+
     return self._post(
-        "/gms/appliance/preconfiguration/{}/apply/{}".format(
-            preconfig_id, ne_pk
-        ),
+        path,
+        return_type="bool",
+    )
+
+    return self._post(
+        f"/gms/appliance/preconfiguration/{preconfig_id}/apply/{ne_pk}",
         return_type="bool",
     )
 
@@ -684,6 +722,13 @@ def get_apply_preconfig_status(
                   the data that was used by this task
     :rtype: dict
     """
+    if self.orch_version >= 9.3:
+        path = (
+            f"/gms/appliance/preconfiguration/apply?preconfigId={preconfig_id}"
+        )
+    else:
+        path = f"/gms/appliance/preconfiguration/{preconfig_id}/apply"
+
     return self._get(
-        "/gms/appliance/preconfiguration/{}/apply".format(preconfig_id)
+        path,
     )

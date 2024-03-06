@@ -33,8 +33,13 @@ def update_appliance_hostname(
         "hostname": hostname,
     }
 
+    if self.orch_version >= 9.3:
+        path = f"/hostname?nePk={ne_pk}"
+    else:
+        path = f"/hostname/{ne_pk}"
+
     return self._post(
-        "/hostname/{}".format(ne_pk),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",

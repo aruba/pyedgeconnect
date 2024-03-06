@@ -75,7 +75,29 @@ def login(
             if cookie.name == "orchCsrfToken":
                 self.headers["X-XSRF-TOKEN"] = cookie.value
                 self.authenticated = True
-                return True
+
+                # Check if Orchestrator version is 9.3+ once logged in
+                try:
+                    orch_info = self.get_orchestrator_server_brief()
+                    release = orch_info["release"]
+                    major = int(release.split(".")[0])
+                    minor = int(release.split(".")[1])
+                    self.orch_version = major + minor / 10
+                    return True
+
+                # If Orch Version not found, default to pre-9.3
+                except Exception as e:
+                    print(e)
+                    print(
+                        """
+                        Login succeeded but attempt to retrieve
+                        Orchestrator version failed
+                        Defaulting logic to pre-9.3 API endpoints
+                        """
+                    )
+                    self.orch_version = 0.0
+                    return True
+
         # HTTP/200 without a cookie
         self.logger.error("Login failed: HTTP 200 but no CSRF Token cookie")
         self.logger.error(response.cookies)
@@ -108,7 +130,9 @@ def send_mfa(
     :type user: str
     :param password: Password associated with the Username
     :type password: str
-    :param temp_code:
+    :param temp_code: Request a temporary authentication code be sent to
+        your email even if email based two factor authentication is not
+        enabled for your account
     :type temp_code: bool
     :return: Returns True/False based on successful call.
     :rtype: bool

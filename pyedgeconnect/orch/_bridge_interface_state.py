@@ -41,6 +41,9 @@ def get_appliance_bridge_interface_state(
                   interface for traffic received on this interface
     :rtype: dict
     """
-    return self._get(
-        "/appliance/interface/bridge/{}?cached={}".format(ne_id, cached)
-    )
+    if self.orch_version >= 9.3:
+        path = f"/appliance/interface/bridge?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/appliance/interface/bridge/{ne_id}?cached={cached}"
+
+    return self._get(path)

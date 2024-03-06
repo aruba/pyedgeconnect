@@ -29,7 +29,10 @@ def save_changes_ne_pk_list(
           to get progress of the requested action.
     :rtype: dict
     """
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post("/appliance/saveChanges", data=data)
 
@@ -58,5 +61,13 @@ def save_changes_single_appliance(
           to get progress of the requested action.
     :rtype: dict
     """
+    if self.orch_version >= 9.3:
+        path = f"/appliance/saveChanges?nePk={ne_pk}"
+    else:
+        path = f"/appliance/saveChanges/{ne_pk}"
+
     # Swagger docs indicates body should be a blank {} JSON object
-    return self._post("/appliance/saveChanges/{}".format(ne_pk), data={})
+    return self._post(
+        path,
+        data={},
+    )

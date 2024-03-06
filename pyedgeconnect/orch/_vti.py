@@ -29,4 +29,9 @@ def get_vti_interfaes(
     :return: Returns dictionary of VTI configurations
     :rtype: dict
     """
-    return self._get("/virtualif/vti/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/virtualif/vti?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/virtualif/vti/{ne_id}?cached={cached}"
+
+    return self._get(path)
