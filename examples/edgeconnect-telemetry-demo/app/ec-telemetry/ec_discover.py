@@ -56,7 +56,7 @@ elif log_level == "INFO":
     logger.setLevel(logging.INFO)
 elif log_level == "DEBUG":
     logger.setLevel(logging.DEBUG)
-elif log_level == None:
+elif log_level is None:
     logger.disabled = True
 logger.addHandler(log_file_handler)
 
@@ -79,10 +79,12 @@ for job_id in main_registry.get_job_ids():
     main_registry.remove(job_id, delete_job=True)
 
 # Run loop on telemetry collection queueing for appliances
-while True:
+while True:  # noqa: C901
 
     # Start log
-    logger.critical("*** --- *** --- EC TELEMETRY NEW QUEUE STARTING --- *** --- ***")
+    logger.critical(
+        "*** --- *** --- EC TELEMETRY NEW QUEUE STARTING --- *** --- ***"
+    )
 
     # Instantiate Orchestrator for discovering appliances
     orch = Orchestrator(
@@ -132,13 +134,13 @@ while True:
     if ready_to_retrieve:
 
         # Get appliances and determine reachability
-        logger.debug(f"Retrieving appliance data from Orchestrator")
+        logger.debug("Retrieving appliance data from Orchestrator")
         appliances = orch.get_appliances()
         appliance_state_time = int(time.time())
 
         # Get interface labels from Orchestrator and map the interface
         # labels into a flat dictionary
-        logger.debug(f"Retrieving interface label data from Orchestrator")
+        logger.debug("Retrieving interface label data from Orchestrator")
         orch_int_labels = orch.get_all_interface_labels()
         interface_labels = {}
         for label in orch_int_labels["wan"]:
@@ -148,14 +150,14 @@ while True:
 
         # Get overlay ids from Orchestrator and map the overlay ids into
         # a flat dictionary
-        logger.debug(f"Retrieving overlay data from Orchestrator")
+        logger.debug("Retrieving overlay data from Orchestrator")
         overlays = orch.get_all_overlays_config()
         overlay_ids = {}
         for overlay in overlays:
             overlay_ids[str(overlay["id"])] = overlay["name"]
 
         # Get appliance licensing information from Orchestrator
-        logger.debug(f"Retrieving appliance licensing data from Orchestrator")
+        logger.debug("Retrieving appliance licensing data from Orchestrator")
         licensing = orch.get_portal_licensed_appliances()
 
         # Limit appliances to submit to job queue if any are specified
@@ -189,7 +191,9 @@ while True:
         # hostnames to the limit file
         else:
             num_random_appliances = 4
-            logger.warning("No appliances listed in limit_appliances.json file")
+            logger.warning(
+                "No appliances listed in limit_appliances.json file"
+            )
             random_appliances = []
             while len(appliance_set) < num_random_appliances:
                 for appliance in appliances:
@@ -215,7 +219,7 @@ while True:
                     break
                 elif len(appliance_set) == 0:
                     logger.critical(
-                        f"No appliances were currently reachable from Orchestrator"
+                        "No appliances were currently reachable from Orchestrator"
                     )
                     break
 
@@ -236,15 +240,15 @@ while True:
             for appliance in appliance_set:
                 for license_item in licensing:
                     if license_item["applianceId"] == appliance["id"]:
-                        appliance["license_display"] = license_item["licenses"]["fx"][
-                            "tier"
-                        ]["display"]
-                        appliance["license_bw"] = license_item["licenses"]["fx"][
-                            "tier"
-                        ]["bandwidth"]
+                        appliance["license_display"] = license_item[
+                            "licenses"
+                        ]["fx"]["tier"]["display"]
+                        appliance["license_bw"] = license_item["licenses"][
+                            "fx"
+                        ]["tier"]["bandwidth"]
 
-            # Append interface mapping and overlay mapping to appliance list
-            # before submitting appliances to job queue
+            # Append interface mapping and overlay mapping to appliance
+            # list before submitting appliances to job queue
             for appliance in appliance_set:
                 appliance["interface_labels_map"] = interface_labels
                 appliance["overlay_id_map"] = overlay_ids

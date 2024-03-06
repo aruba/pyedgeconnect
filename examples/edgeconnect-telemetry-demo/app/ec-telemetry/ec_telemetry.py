@@ -23,14 +23,15 @@ import time
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
-from influxdb_client.client.util.multiprocessing_helper import \
-    MultiprocessingWriter
+from influxdb_client.client.util.multiprocessing_helper import (  # noqa: E501
+    MultiprocessingWriter,
+)
 from influxdb_client.client.write_api import WriteOptions
 
 from pyedgeconnect import EdgeConnect
 
 
-def ec_data_gather(
+def ec_data_gather(  # noqa: C901
     appliance,
 ):
     """Collect telemetry data from EdgeConnect appliance and write the
@@ -75,7 +76,7 @@ def ec_data_gather(
             current_time = time.perf_counter() - self._start_time
             if int(current_time) > 60:
                 logger.critical(
-                    f"{log_prefix} - {current_time}: Process taking over 60 seconds to complete, check container resource utilization or expected latency to reach appliance, certain requests may have timed out"
+                    f"{log_prefix} - {current_time}: Process taking over 60 seconds to complete, check container resource utilization or expected latency to reach appliance, certain requests may have timed out"  # noqa: W505
                 )
 
     def list_tunnel_aliases(tunnels: list) -> list:
@@ -96,7 +97,9 @@ def ec_data_gather(
                 for tunnel in tunnels:
                     alias_list.append(tunnel["alias"])
             else:
-                raise NameError("Tunnel data not retrieved, cannot process aliases")
+                raise NameError(
+                    "Tunnel data not retrieved, cannot process aliases"
+                )  # noqa: E501
         except Exception as e:
             logger.error(
                 f"{log_prefix}{proc_timer.current()}: {e}",
@@ -243,9 +246,9 @@ def ec_data_gather(
                 "packets_lan_tx": int(str_stat_list[12]),
                 "packets_lan_rx": int(str_stat_list[13]),
                 "average_latency": int(str_stat_list[14]),  # Milliseconds*100
-                "minute_latency": int(
+                "min_latency": int(
                     str_stat_list[15]
-                ),  # Minute latency during the minute Milliseconds*100
+                ),  # Min latency during the minute Milliseconds*100
                 "TCP_flow_count": int(str_stat_list[16]),
                 "TCP_Accelerated_flow_count": int(str_stat_list[17]),
                 "non-TCP_flow_count": int(str_stat_list[18]),
@@ -269,7 +272,7 @@ def ec_data_gather(
                 "Overhead_wan_tx_bytes": int(str_stat_list[32]),
                 "Overhead_header_wan_rx_bytes": int(str_stat_list[33]),
                 "Overhead_header_wan_tx_bytes": int(str_stat_list[34]),
-                # Ignore 35, bw utilization percentage - not measured properly
+                # Ignore 35, bw util percentage - not measured properly
                 # Ignore 36-64
                 "Post_FEC_MOS_Score_(*100)": int(str_stat_list[65]),
                 "Pre_FEC_MOS_Score_(*100)": int(str_stat_list[66]),
@@ -564,6 +567,138 @@ def ec_data_gather(
 
         return data_points
 
+    def proc_tclass_minute_stats(
+        general_ec_tags,
+        stat_file,
+        tclass_names=None,
+    ) -> list:
+        """Process minute stats data for traffic class data
+
+        :param general_ec_tags: common metadata to tag data with for
+            appliance
+        :type general_ec_tags: dict
+        :param stat_file: Line text of minute stats for stat type
+        :type stat_file: str
+        :return: List of data points to send to InfluxDB
+        :rtype: list
+        """
+        # points object to write to influx
+        data_points = []
+
+        for line in stat_file:
+            # 63026 - Stats value bug ECOS stats pre 9.1.3.0 & 9.2.2.0
+            line = line.replace("18446744073709551615", "0")
+            str_stat_list = line.split(",")
+
+            # Identify traffic type
+            if str_stat_list[2] == "1":
+                traffic_type = "optimized_traffic"
+            elif str_stat_list[2] == "2":
+                traffic_type = "passthrough_shaped"
+            elif str_stat_list[2] == "3":
+                traffic_type = "passthrough_unshaped"
+            elif str_stat_list[2] == "4":
+                traffic_type = "all_traffic"
+
+            # Set values for tags
+            tags = general_ec_tags.copy()
+            tags["traffic_class"] = str_stat_list[1]
+            tags["traffic_type"] = traffic_type
+
+            # Assign values to corresponding fields
+            fields = {
+                "bytes_wan_tx": int(str_stat_list[3]),
+                "bytes_wan_rx": int(str_stat_list[4]),
+                "bytes_lan_tx": int(str_stat_list[5]),
+                "bytes_lan_rx": int(str_stat_list[6]),
+                "packets_wan_tx": int(str_stat_list[7]),
+                "packets_wan_rx": int(str_stat_list[8]),
+                "packets_lan_tx": int(str_stat_list[9]),
+                "packets_lan_rx": int(str_stat_list[10]),
+                # Ignore 11-18
+            }
+
+            # Add friendly name of traffic class if available
+            if tclass_names is not None:
+                fields["traffic_class_name"] = tclass_names[str_stat_list[1]]
+
+            # Use timestamp from minute data
+            timestamp = int(str_stat_list[19])
+            # Append formatted data
+            data_points.append(
+                {
+                    "measurement": "traffic_class_stats",
+                    "tags": tags,
+                    "time": datetime.fromtimestamp(timestamp),
+                    "fields": fields,
+                }
+            )
+
+        return data_points
+
+    def proc_shaper_minute_stats(
+        general_ec_tags,
+        stat_file,
+        tclass_names=None,
+    ) -> list:
+        """Process minute stats data for shaper data
+
+        :param general_ec_tags: common metadata to tag data with for
+            appliance
+        :type general_ec_tags: dict
+        :param stat_file: Line text of minute stats for stat type
+        :type stat_file: str
+        :return: List of data points to send to InfluxDB
+        :rtype: list
+        """
+        # points object to write to influx
+        data_points = []
+
+        for line in stat_file:
+            # 63026 - Stats value bug ECOS stats pre 9.1.3.0 & 9.2.2.0
+            line = line.replace("18446744073709551615", "0")
+            str_stat_list = line.split(",")
+
+            # Shaper direction
+            if str_stat_list[2] == "0":
+                traffic_type = "outbound"
+            elif str_stat_list[2] == "1":
+                traffic_type = "inbound"
+
+            # Set values for tags
+            tags = general_ec_tags.copy()
+            tags["traffic_class"] = str_stat_list[1]
+            tags["shaper_direction"] = traffic_type
+
+            # Assign values to corresponding fields
+            fields = {
+                "total_bytes_shaped": int(str_stat_list[3]),
+                "total_bytes_used_shaped": int(str_stat_list[4]),
+                "total_packets_used_shaped": int(str_stat_list[5]),
+                "shaper_wait_time": int(str_stat_list[6]),  # in ms
+                "shaper_wait_count": int(str_stat_list[7]),
+                "shaper_dropped_expired_packets": int(str_stat_list[8]),
+                "shaper_dropped_other": int(str_stat_list[9]),
+            }
+
+            # Add friendly name of traffic class if available
+            if tclass_names is not None:
+                fields["traffic_class_name"] = tclass_names[str_stat_list[1]]
+
+            # Use timestamp from minute data
+            timestamp = int(str_stat_list[10])
+            # Append formatted data
+            data_points.append(
+                {
+                    "measurement": "shaper_stats",
+                    "tags": tags,
+                    "time": datetime.fromtimestamp(timestamp),
+                    "fields": fields,
+                }
+            )
+
+        return data_points
+
     def proc_memory_stats(
         general_ec_tags,
         ec_memory,
@@ -648,7 +783,8 @@ def ec_data_gather(
                     "cpu_pNice": float(cpu["pNice"]),
                 }
 
-                # CPU Timestamp is returned in ms, convert to s for datetime
+                # CPU Timestamp is returned in ms
+                # convert to seconds for datetime
                 timestamp = int(cpu_stat_ts) / 1000
                 # Append formatted data
                 data_points.append(
@@ -757,14 +893,18 @@ def ec_data_gather(
             "hw_outstanding_alarms": int(
                 ec_alarms["summary"]["num_equipment_outstanding"]
             ),
-            "tca_outstanding_alarms": int(ec_alarms["summary"]["num_tca_outstanding"]),
+            "tca_outstanding_alarms": int(
+                ec_alarms["summary"]["num_tca_outstanding"]
+            ),  # noqa: E501
             "traffic_class_outstanding_alarms": int(
                 ec_alarms["summary"]["num_traffic_class_outstanding"]
             ),
             "tunnel_outstanding_alarms": int(
                 ec_alarms["summary"]["num_tunnel_outstanding"]
             ),
-            "raise_ignore_alarms": int(ec_alarms["summary"]["num_raise_ignore"]),
+            "raise_ignore_alarms": int(
+                ec_alarms["summary"]["num_raise_ignore"]
+            ),  # noqa: E501
         }
 
         # Use timestamp from when alarm data was retrieved
@@ -879,18 +1019,26 @@ def ec_data_gather(
                 if interface["applianceIPs"][0]["wanSide"] is True:
                     if interface["applianceIPs"][0].get("vlan") is None:
                         wan_int_name = interface["ifName"]
-                        wan_int_inbound = interface["applianceIPs"][0]["maxBW"][
+                        wan_int_inbound = interface["applianceIPs"][0][
+                            "maxBW"
+                        ][  # noqa: E501
                             "inbound"
                         ]
-                        wan_int_outbound = interface["applianceIPs"][0]["maxBW"][
+                        wan_int_outbound = interface["applianceIPs"][0][
+                            "maxBW"
+                        ][  # noqa: E501
                             "outbound"
                         ]
                     else:
-                        wan_int_name = f'{interface["ifName"]}.{interface["applianceIPs"][0]["vlan"]}'
-                        wan_int_inbound = interface["applianceIPs"][0]["maxBW"][
+                        wan_int_name = f'{interface["ifName"]}.{interface["applianceIPs"][0]["vlan"]}'  # noqa: E501
+                        wan_int_inbound = interface["applianceIPs"][0][
+                            "maxBW"
+                        ][  # noqa: E501
                             "inbound"
                         ]
-                        wan_int_outbound = interface["applianceIPs"][0]["maxBW"][
+                        wan_int_outbound = interface["applianceIPs"][0][
+                            "maxBW"
+                        ][  # noqa: E501
                             "outbound"
                         ]
                     tags = general_ec_tags.copy()
@@ -922,13 +1070,15 @@ def ec_data_gather(
                         if sub_interface.get("vlan") is None:
                             wan_int_name = interface["ifName"]
                             wan_int_inbound = sub_interface["maxBW"]["inbound"]
-                            wan_int_outbound = sub_interface["maxBW"]["outbound"]
+                            wan_int_outbound = sub_interface["maxBW"][
+                                "outbound"
+                            ]  # noqa: E501
                         else:
-                            wan_int_name = (
-                                f'{interface["ifName"]}.{sub_interface["vlan"]}'
-                            )
+                            wan_int_name = f'{interface["ifName"]}.{sub_interface["vlan"]}'  # noqa: E501
                             wan_int_inbound = sub_interface["maxBW"]["inbound"]
-                            wan_int_outbound = sub_interface["maxBW"]["outbound"]
+                            wan_int_outbound = sub_interface["maxBW"][
+                                "outbound"
+                            ]  # noqa: E501
                         tags = general_ec_tags.copy()
                         tags["interface_name"] = wan_int_name
                         tags["interface_label"] = interface_labels[
@@ -1111,7 +1261,6 @@ def ec_data_gather(
         write_options=WriteOptions(batch_size=1000, flush_interval=1000),
         debug=db_debug,
     ) as influx_write_api:
-
         # Start timing process
         proc_timer = Timer()
         proc_timer.start()
@@ -1124,7 +1273,9 @@ def ec_data_gather(
         # Setup log settings for messages and errors
         log_level = os.getenv("LOG_LEVEL")
         logger = logging.getLogger(__name__)
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(message)s"
+        )  # noqa: E501
         local_log_directory = "logging/"
         if not os.path.exists(local_log_directory):
             os.makedirs(local_log_directory)
@@ -1144,14 +1295,14 @@ def ec_data_gather(
             logger.setLevel(logging.INFO)
         elif log_level == "DEBUG":
             logger.setLevel(logging.DEBUG)
-        elif log_level == None:
+        elif log_level is None:
             logger.disabled = True
         logger.addHandler(log_file_handler)
 
         log_prefix = f"cid: {container_hostname} - {ec_hostname} @ {ec_ip} - "
 
         logger.info(
-            f"{log_prefix}{proc_timer.current()}: --------APPLIANCE STARTED--------"
+            f"{log_prefix}{proc_timer.current()}: --------APPLIANCE STARTED--------"  # noqa: W505
         )
         proc_timer.check_minute()
 
@@ -1216,7 +1367,7 @@ def ec_data_gather(
         current_stat = "metadata"
         try:
             # Log appliance state/reachability information regardless if
-            # appliance is currently reachable from this monitoring script
+            # appliance is currently reachable from this script
             tags = general_ec_tags.copy()
             fields = appliance_meta_fields
             timestamp = appliance_state_time
@@ -1230,7 +1381,7 @@ def ec_data_gather(
             ]
 
             logger.debug(
-                f"{log_prefix}{proc_timer.current()}: WRITE APPLIANCE METADATA AND REACHABILITY"
+                f"{log_prefix}{proc_timer.current()}: WRITE APPLIANCE METADATA AND REACHABILITY"  # noqa: W505
             )
             proc_timer.check_minute()
 
@@ -1240,16 +1391,16 @@ def ec_data_gather(
                     bucket=db_bucket,
                     record=data_points,
                 )
-            except Exception as e:
+            except Exception:
                 logger.error(
-                    f"{log_prefix}{proc_timer.current()}: Failed sending {current_stat} to InfluxDB, data points and exception below",
+                    f"{log_prefix}{proc_timer.current()}: Failed sending {current_stat} to InfluxDB, data points and exception below",  # noqa: E501
                     exc_info=1,
                 )
                 logger.error(data_points)
 
-        except Exception as e:
+        except Exception:
             logger.error(
-                f"{log_prefix}{proc_timer.current()}: Failed assembling {current_stat} to send to InfluxDB, data points and exception below",
+                f"{log_prefix}{proc_timer.current()}: Failed assembling {current_stat} to send to InfluxDB, data points and exception below",  # noqa: E501
                 exc_info=1,
             )
             logger.error(data_points)
@@ -1267,13 +1418,14 @@ def ec_data_gather(
                 pass
             else:
                 logger.error(
-                    f"{log_prefix}{proc_timer.current()}: FAILED TO PING APPLIANCE - ping response code: {ping_check}"
+                    f"{log_prefix}{proc_timer.current()}: FAILED TO PING APPLIANCE - ping response code: {ping_check}"  # noqa: W505
                 )
                 # Exit as appliance is unreachable from worker
                 # container at this moment and stats cannot be collected
                 sys.exit(0)
 
-            # Log into appliance to gather telemetry and metadata mapping
+            # Log into appliance to gather telemetry
+            # and metadata mapping
             ec = EdgeConnect(ec_ip, verify_ssl=False)
             login_state = ec.login(ec_user, ec_pw)
             if login_state:
@@ -1285,12 +1437,14 @@ def ec_data_gather(
 
                     try:
                         # Gather Minute Stats data from appliance
-                        # Determine current minute range of data from appliance
+                        # Determine current minute range of data from
+                        # an appliance
                         # Returns value for 'newest' and 'oldest'
                         ec_min_range = ec.get_appliance_stats_minute_range()
-                        # Poll the latest available minute data from appliance
+                        # Poll the latest available minute data from
+                        # an appliance
                         newest_minute = int(ec_min_range["newest"])
-                        # Set oldest minute to lookback 3 minutes (180 sec)
+                        # Set oldest minute to lookback 3 minutes
                         oldest_minute = newest_minute - 180
                         # Set current poll to newest minute data
                         current_poll_minute = newest_minute
@@ -1302,14 +1456,12 @@ def ec_data_gather(
                             )
                             if type(minute_stat) is bool:
                                 logger.error(
-                                    f"{log_prefix}{proc_timer.current()}: Retrieve minute stats failed for {datetime.fromtimestamp(current_poll_minute)}",
+                                    f"{log_prefix}{proc_timer.current()}: Retrieve minute stats failed for {datetime.fromtimestamp(current_poll_minute)}",  # noqa: E501
                                 )
                                 minute_stats_status = False
                             else:
                                 # On success, write TGZ to local file
-                                tar_filename = (
-                                    f"{ec_directory}/st2-{current_poll_minute}.tgz"
-                                )
+                                tar_filename = f"{ec_directory}/st2-{current_poll_minute}.tgz"  # noqa: E501
                                 if minute_stat.status_code == 200:
                                     with open(tar_filename, "wb") as stat_file:
                                         for chunk in minute_stat:
@@ -1318,32 +1470,32 @@ def ec_data_gather(
                                 # Decrement current poll minute
                                 current_poll_minute -= 60
 
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Retrieve minute stats failed",
+                            f"{log_prefix}{proc_timer.current()}: Retrieve minute stats failed",  # noqa: E501
                             exc_info=1,
                         )
                         minute_stats_status = False
 
                     logger.debug(
-                        f"{log_prefix}{proc_timer.current()}: GET DEPLOYMENT STATS"
+                        f"{log_prefix}{proc_timer.current()}: GET DEPLOYMENT STATS"  # noqa: W505
                     )
                     proc_timer.check_minute()
                     try:
-                        # Get deployment information to understand max interface
-                        # and system bandwidths
+                        # Get deployment information to understand max
+                        # interface and system bandwidths
                         deployment = ec.get_appliance_deployment()
                         deployment_time = int(time.time())
                         deployment_stats_status = True
                         if deployment is False:
                             logger.error(
-                                f"{log_prefix}{proc_timer.current()}: Retrieve deployment stats failed"
+                                f"{log_prefix}{proc_timer.current()}: Retrieve deployment stats failed"  # noqa: W505
                             )
                             deployment_stats_status = False
 
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Retrieve deployment stats failed",
+                            f"{log_prefix}{proc_timer.current()}: Retrieve deployment stats failed",  # noqa: E501
                             exc_info=1,
                         )
                         deployment_stats_status = False
@@ -1359,27 +1511,25 @@ def ec_data_gather(
                         memory_stats_status = True
                         if ec_memory is False:
                             logger.error(
-                                f"{log_prefix}{proc_timer.current()}: Retrieve memory stats failed"
+                                f"{log_prefix}{proc_timer.current()}: Retrieve memory stats failed"  # noqa: W505
                             )
                             memory_stats_status = False
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Retrieve memory stats failed",
+                            f"{log_prefix}{proc_timer.current()}: Retrieve memory stats failed",  # noqa: E501
                             exc_info=1,
                         )
                         memory_stats_status = False
 
-                    logger.debug(f"{log_prefix}{proc_timer.current()}: GET CPU STATS")
+                    logger.debug(
+                        f"{log_prefix}{proc_timer.current()}: GET CPU STATS"
+                    )  # noqa: E501
                     proc_timer.check_minute()
                     try:
                         # Current CPU use (returns 5sec intervals for
                         # whole minute)
                         # If newest_minute wasn't captured from minute
                         # stats, poll for current minute time
-                        try:
-                            cpu_time = newest_minute * 1000
-                        except NameError:
-                            cpu_time = int(time.time()) * 1000
 
                         # Get current CPU utilization
                         ec_cpu_minute_5sec_interval = ec.get_appliance_cpu(0)
@@ -1390,25 +1540,26 @@ def ec_data_gather(
                             ec_cpu_minute_5sec_interval.get("data") is None
                             or ec_cpu_minute_5sec_interval is False
                         ):
-
                             logger.error(
-                                f"{log_prefix}{proc_timer.current()}: Retrieve cpu stats failed",
+                                f"{log_prefix}{proc_timer.current()}: Retrieve cpu stats failed",  # noqa: E501
                             )
-                            logger.error(f"CPU values: {ec_cpu_minute_5sec_interval}")
+                            logger.error(
+                                f"CPU values: {ec_cpu_minute_5sec_interval}"
+                            )  # noqa: E501
                             cpu_stats_status = False
 
                         else:
                             cpu_stats_status = True
 
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Retrieve cpu stats failed",
+                            f"{log_prefix}{proc_timer.current()}: Retrieve cpu stats failed",  # noqa: E501
                             exc_info=1,
                         )
                         cpu_stats_status = False
 
                     logger.debug(
-                        f"{log_prefix}{proc_timer.current()}: GET ROUTE TABLE STATS",
+                        f"{log_prefix}{proc_timer.current()}: GET ROUTE TABLE STATS",  # noqa: E501
                     )
                     proc_timer.check_minute()
                     try:
@@ -1418,16 +1569,18 @@ def ec_data_gather(
                         route_stats_status = True
                         if appliance_routes is False:
                             logger.error(
-                                f"{log_prefix}{proc_timer.current()}: Retrieve route stats failed"
+                                f"{log_prefix}{proc_timer.current()}: Retrieve route stats failed"  # noqa: W505
                             )
                             route_stats_status = False
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Retrieve route stats failed"
+                            f"{log_prefix}{proc_timer.current()}: Retrieve route stats failed"  # noqa: W505
                         )
                         route_stats_status = False
 
-                    logger.debug(f"{log_prefix}{proc_timer.current()}: GET ALARM STATS")
+                    logger.debug(
+                        f"{log_prefix}{proc_timer.current()}: GET ALARM STATS"
+                    )  # noqa: E501
                     proc_timer.check_minute()
                     try:
                         # Get Alarm counts by type (Critical, etc.)
@@ -1436,18 +1589,18 @@ def ec_data_gather(
                         alarm_stats_status = True
                         if ec_alarms is False:
                             logger.error(
-                                f"{log_prefix}{proc_timer.current()}: Retrieve alarm stats failed"
+                                f"{log_prefix}{proc_timer.current()}: Retrieve alarm stats failed"  # noqa: W505
                             )
                             alarm_stats_status = False
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Retrieve alarm stats failed",
+                            f"{log_prefix}{proc_timer.current()}: Retrieve alarm stats failed",  # noqa: E501
                             exc_info=1,
                         )
                         alarm_stats_status = False
 
                     logger.debug(
-                        f"{log_prefix}{proc_timer.current()}: GET TUNNEL COUNTS"
+                        f"{log_prefix}{proc_timer.current()}: GET TUNNEL COUNTS"  # noqa: W505
                     )
                     proc_timer.check_minute()
 
@@ -1467,23 +1620,31 @@ def ec_data_gather(
                             ec.get_appliance_all_tunnel_ids(state_match="Up")
                         )
                         up_overlay_tunnels = len(
-                            ec.get_appliance_all_bonded_tunnel_ids(state_match="Up")
+                            ec.get_appliance_all_bonded_tunnel_ids(
+                                state_match="Up"
+                            )  # noqa: E501
                         )
                         up_third_party_tunnels = len(
-                            ec.get_appliance_all_3rdparty_tunnel_ids(state_match="Up")
+                            ec.get_appliance_all_3rdparty_tunnel_ids(
+                                state_match="Up"
+                            )  # noqa: E501
                         )
                         # Collect down underlay tunnel information
-                        down_underlay_sdwan_tunnels = ec.get_appliance_tunnel_aliases(
-                            limit=1000,
-                            state_match="Down",
+                        down_underlay_sdwan_tunnels = (
+                            ec.get_appliance_tunnel_aliases(  # noqa: E501
+                                limit=1000,
+                                state_match="Down",
+                            )
                         )
 
                         # Assemble down underlay tunnel aliases to list
-                        down_underlay_sdwan_tunnels_aliases = list_tunnel_aliases(
-                            down_underlay_sdwan_tunnels
+                        down_underlay_sdwan_tunnels_aliases = (
+                            list_tunnel_aliases(  # noqa: E501
+                                down_underlay_sdwan_tunnels
+                            )
                         )
                         # Collect down overlay tunnel information
-                        down_overlay_tunnels = ec.get_appliance_bonded_tunnel_aliases(
+                        down_overlay_tunnels = ec.get_appliance_bonded_tunnel_aliases(  # noqa: E501
                             limit=1000,
                             state_match="Down",
                         )
@@ -1498,12 +1659,12 @@ def ec_data_gather(
                                 state_match="Down",
                             )
                         )
-                        # Assemble down thid party tunnel aliases to list
+                        # Assemble down thid party tunnel aliases
                         down_third_party_tunnels_aliases = list_tunnel_aliases(
                             down_third_party_tunnels
                         )
 
-                        # Combine down tunnels into string for easy storage
+                        # Combine down tunnels into string
                         underlay_down_tunnels = ""
                         overlay_down_tunnels = ""
                         third_party_down_tunnels = ""
@@ -1519,46 +1680,54 @@ def ec_data_gather(
                                 third_party_down_tunnels += f"{tunnel},"
 
                         tunnel_summary = {
-                            "underlay_sdwan_tunnels": total_underlay_sdwan_tunnels,
+                            "underlay_sdwan_tunnels": total_underlay_sdwan_tunnels,  # noqa: E501
                             "overlay_sdwan_tunnels": total_overlay_tunnels,
                             "third_party_tunnels": total_third_party_tunnels,
-                            "up_underlay_sdwan_tunnels": up_underlay_sdwan_tunnels,
+                            "up_underlay_sdwan_tunnels": up_underlay_sdwan_tunnels,  # noqa: E501
                             "up_overlay_sdwan_tunnels": up_overlay_tunnels,
                             "up_third_party_tunnels": up_third_party_tunnels,
                             "down_underlay_sdwan_tunnels": len(
                                 down_underlay_sdwan_tunnels
                             ),
-                            "down_overlay_sdwan_tunnels": len(down_overlay_tunnels),
-                            "down_third_party_tunnels": len(down_third_party_tunnels),
+                            "down_overlay_sdwan_tunnels": len(
+                                down_overlay_tunnels
+                            ),  # noqa: E501
+                            "down_third_party_tunnels": len(
+                                down_third_party_tunnels
+                            ),  # noqa: E501
                             "underlay_down_tunnels": underlay_down_tunnels,
                             "overlay_down_tunnels": overlay_down_tunnels,
-                            "third_party_down_tunnels": third_party_down_tunnels,
+                            "third_party_down_tunnels": third_party_down_tunnels,  # noqa: E501
                         }
 
                         tunnel_summary_time = int(time.time())
                         tunnel_count_stats_status = True
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Retrieve tunnel count stats failed",
+                            f"{log_prefix}{proc_timer.current()}: Retrieve tunnel count stats failed",  # noqa: E501
                             exc_info=1,
                         )
                         tunnel_count_stats_status = False
 
-                    logger.debug(f"{log_prefix}{proc_timer.current()}: GET DISK STATS")
+                    logger.debug(
+                        f"{log_prefix}{proc_timer.current()}: GET DISK STATS"
+                    )  # noqa: E501
                     proc_timer.check_minute()
                     try:
                         # Get disk usage stats
                         ec_disk_usage = ec.get_appliance_disk_usage()
                         ec_disk_usage_time = int(time.time())
                         disk_stats_status = True
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Retrieve disk stats failed",
+                            f"{log_prefix}{proc_timer.current()}: Retrieve disk stats failed",  # noqa: E501
                             exc_info=1,
                         )
                         disk_stats_status = False
 
-                    logger.debug(f"{log_prefix}{proc_timer.current()}: GET SYSTEM INFO")
+                    logger.debug(
+                        f"{log_prefix}{proc_timer.current()}: GET SYSTEM INFO"
+                    )  # noqa: E501
                     proc_timer.check_minute()
                     try:
                         # Get system info
@@ -1567,18 +1736,18 @@ def ec_data_gather(
                         system_info_status = True
                         if ec_system_info is False:
                             logger.error(
-                                f"{log_prefix}{proc_timer.current()}: Retrieve system info failed"
+                                f"{log_prefix}{proc_timer.current()}: Retrieve system info failed"  # noqa: W505
                             )
                             system_info_status = False
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Retrieve system info failed",
+                            f"{log_prefix}{proc_timer.current()}: Retrieve system info failed",  # noqa: E501
                             exc_info=1,
                         )
                         system_info_status = False
 
                     logger.debug(
-                        f"{log_prefix}{proc_timer.current()}: GET REALTIME STATS"
+                        f"{log_prefix}{proc_timer.current()}: GET REALTIME STATS"  # noqa: W505
                     )
                     proc_timer.check_minute()
                     try:
@@ -1600,33 +1769,55 @@ def ec_data_gather(
                         pps_status = True
                         if realtime_traffic is False:
                             logger.error(
-                                f"{log_prefix}{proc_timer.current()}: Retrieve realtime traffic stats failed"
+                                f"{log_prefix}{proc_timer.current()}: Retrieve realtime traffic stats failed"  # noqa: W505
                             )
                             pps_status = False
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Retrieve realtime traffic stats failed",
+                            f"{log_prefix}{proc_timer.current()}: Retrieve realtime traffic stats failed",  # noqa: E501
                             exc_info=1,
                         )
                         pps_status = False
 
                     logger.debug(
-                        f"{log_prefix}{proc_timer.current()}: LOGGING OUT OF APPLIANCE"
+                        f"{log_prefix}{proc_timer.current()}: GET TRAFFIC CLASS NAMES",  # noqa: E501
                     )
                     proc_timer.check_minute()
                     try:
-                        # Logout from appliance once all telemetry gathered
-                        ec.logout()
+                        # Current traffic class names
+                        tclass_names = ec.get_traffic_class_names()
+                        if tclass_names is False:
+                            logger.error(
+                                f"{log_prefix}{proc_timer.current()}: Retrieve traffic class names failed, bad response"  # noqa: W505
+                            )
+                            tclass_names_status = False
+                        else:
+                            tclass_names_status = True
                     except Exception as e:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: ERROR LOGGING OUT OF APPLIANCE",
+                            f"{log_prefix}{proc_timer.current()}: Retrieve traffic class names failed, ec.get_traffic_class_names failed"  # noqa: W505
+                        )
+                        logger.error(e)
+                        tclass_names_status = False
+
+                    logger.debug(
+                        f"{log_prefix}{proc_timer.current()}: LOGGING OUT OF APPLIANCE"  # noqa: W505
+                    )
+                    proc_timer.check_minute()
+                    try:
+                        # Logout from appliance once
+                        # all telemetry gathered
+                        ec.logout()
+                    except Exception:
+                        logger.error(
+                            f"{log_prefix}{proc_timer.current()}: ERROR LOGGING OUT OF APPLIANCE",  # noqa: E501
                             exc_info=1,
                         )
 
-                except Exception as e:
+                except Exception:
                     ec.logout()
                     logger.error(
-                        f"{log_prefix}{proc_timer.current()}: ERROR ENCOUNTED WHEN CONNECTED TO APPLIANCE, LOGGING OUT",
+                        f"{log_prefix}{proc_timer.current()}: ERROR ENCOUNTED WHEN CONNECTED TO APPLIANCE, LOGGING OUT",  # noqa: E501
                         exc_info=1,
                     )
 
@@ -1635,7 +1826,7 @@ def ec_data_gather(
                     # Unpack and remove tar files for minute stats
                     try:
                         logger.debug(
-                            f"{log_prefix}{proc_timer.current()}: UNPACK MINUTE STATS",
+                            f"{log_prefix}{proc_timer.current()}: UNPACK MINUTE STATS",  # noqa: E501
                         )
                         # Unpack all Minute Stat TGZ files
                         for tgz_file in os.listdir(ec_directory):
@@ -1648,9 +1839,9 @@ def ec_data_gather(
                                 os.remove(tfile)
                             else:
                                 pass
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Failed unpacking minute stat tgz files",
+                            f"{log_prefix}{proc_timer.current()}: Failed unpacking minute stat tgz files",  # noqa: E501
                             exc_info=1,
                         )
 
@@ -1658,7 +1849,7 @@ def ec_data_gather(
                     for stats_folder in os.listdir(ec_directory):
                         stat_base_dir = f"{ec_directory}/{stats_folder}"
                         logger.debug(
-                            f"{log_prefix}{proc_timer.current()}: PROCESS MINUTE STATS -- stats: {stats_folder}"
+                            f"{log_prefix}{proc_timer.current()}: PROCESS MINUTE STATS -- stats: {stats_folder}"  # noqa: W505
                         )
                         proc_timer.check_minute()
 
@@ -1669,12 +1860,14 @@ def ec_data_gather(
                             "boost_v2.txt",
                             "drops_v2.txt",
                             "interface_overlay_v2.txt",
+                            "tclass_v2.txt",
+                            "shaper_v2.txt",
                         ]
 
                         for stat_filename in stats_filenames:
                             current_stat = f"minute: {stat_filename}"
                             logger.debug(
-                                f"{log_prefix}{proc_timer.current()}: PROCESS {current_stat} from {stats_folder}"
+                                f"{log_prefix}{proc_timer.current()}: PROCESS {current_stat} from {stats_folder}"  # noqa: W505
                             )
 
                             try:
@@ -1682,32 +1875,36 @@ def ec_data_gather(
                                 # Log error if file not present and list
                                 # directory contents
                                 if (
-                                    os.path.exists(f"{stat_base_dir}/{stat_filename}")
+                                    os.path.exists(
+                                        f"{stat_base_dir}/{stat_filename}"
+                                    )  # noqa: E501
                                     is False
                                 ):
                                     logger.error(
-                                        f"{log_prefix}{proc_timer.current()}: {stat_filename} not present in {stats_folder}"
+                                        f"{log_prefix}{proc_timer.current()}: {stat_filename} not present in {stats_folder}"  # noqa: W505
                                     )
                                     # Log directory contents if expected
                                     # file is not present
                                     try:
                                         contents = os.listdir(stat_base_dir)
                                         logger.error(
-                                            f"{log_prefix}{proc_timer.current()}: directory contents {contents}"
+                                            f"{log_prefix}{proc_timer.current()}: directory contents {contents}"  # noqa: W505
                                         )
-                                    except Exception as e:
+                                    except Exception:
                                         logger.error(
-                                            f"{log_prefix}{proc_timer.current()}: Could not log directory contents",
+                                            f"{log_prefix}{proc_timer.current()}: Could not log directory contents",  # noqa: E501
                                             exc_info=1,
                                         )
 
                                 # Log error if file is present but empty
                                 elif (
-                                    os.stat(f"{stat_base_dir}/{stat_filename}").st_size
+                                    os.stat(
+                                        f"{stat_base_dir}/{stat_filename}"
+                                    ).st_size  # noqa: E501
                                     == 0
                                 ):
                                     logger.warning(
-                                        f"{log_prefix}{proc_timer.current()}: {stat_filename} BLANK in {stats_folder}",
+                                        f"{log_prefix}{proc_timer.current()}: {stat_filename} BLANK in {stats_folder}",  # noqa: E501
                                     )
                                 # Else, process file based on stat type
                                 else:
@@ -1716,27 +1913,31 @@ def ec_data_gather(
                                             f"{stat_base_dir}/{stat_filename}",
                                             "r",
                                         ) as stat_file:
-                                            data_points = proc_interface_minute_stats(
+                                            data_points = proc_interface_minute_stats(  # noqa: E501
                                                 general_ec_tags,
                                                 stat_file,
-                                                appliance["interface_labels_map"],
+                                                appliance[
+                                                    "interface_labels_map"
+                                                ],  # noqa: E501
                                             )
                                     elif stat_filename == "tunnel_v2.txt":
                                         with open(
                                             f"{stat_base_dir}/{stat_filename}",
                                             "r",
                                         ) as stat_file:
-                                            data_points = proc_tunnel_minute_stats(
+                                            data_points = proc_tunnel_minute_stats(  # noqa: E501
                                                 general_ec_tags,
                                                 stat_file,
-                                                appliance["overlay_id_map"],
+                                                appliance[
+                                                    "overlay_id_map"
+                                                ],  # noqa: E501
                                             )
                                     elif stat_filename == "flow_v2.txt":
                                         with open(
                                             f"{stat_base_dir}/{stat_filename}",
                                             "r",
                                         ) as stat_file:
-                                            data_points = proc_flow_minute_stats(
+                                            data_points = proc_flow_minute_stats(  # noqa: E501
                                                 general_ec_tags,
                                                 stat_file,
                                             )
@@ -1745,7 +1946,7 @@ def ec_data_gather(
                                             f"{stat_base_dir}/{stat_filename}",
                                             "r",
                                         ) as stat_file:
-                                            data_points = proc_boost_minute_stats(
+                                            data_points = proc_boost_minute_stats(  # noqa: E501
                                                 general_ec_tags,
                                                 stat_file,
                                             )
@@ -1754,23 +1955,58 @@ def ec_data_gather(
                                             f"{stat_base_dir}/{stat_filename}",
                                             "r",
                                         ) as stat_file:
-                                            data_points = proc_drops_minute_stats(
+                                            data_points = proc_drops_minute_stats(  # noqa: E501
                                                 general_ec_tags,
                                                 stat_file,
                                             )
-                                    elif stat_filename == "interface_overlay_v2.txt":
+                                    elif (
+                                        stat_filename
+                                        == "interface_overlay_v2.txt"  # noqa: E501
+                                    ):
                                         with open(
                                             f"{stat_base_dir}/{stat_filename}",
                                             "r",
                                         ) as stat_file:
-                                            data_points = (
-                                                proc_interface_overlay_minute_stats(
+                                            data_points = proc_interface_overlay_minute_stats(  # noqa: E501
+                                                general_ec_tags,
+                                                stat_file,
+                                                appliance[
+                                                    "interface_labels_map"
+                                                ],  # noqa: E501
+                                                appliance["overlay_id_map"],
+                                            )
+                                    elif stat_filename == "tclass_v2.txt":
+                                        with open(
+                                            f"{stat_base_dir}/{stat_filename}",
+                                            "r",
+                                        ) as stat_file:
+                                            if tclass_names_status:
+                                                data_points = proc_tclass_minute_stats(  # noqa: E501
                                                     general_ec_tags,
                                                     stat_file,
-                                                    appliance["interface_labels_map"],
-                                                    appliance["overlay_id_map"],
+                                                    tclass_names,
                                                 )
-                                            )
+                                            else:
+                                                data_points = proc_tclass_minute_stats(  # noqa: E501
+                                                    general_ec_tags,
+                                                    stat_file,
+                                                )
+                                    elif stat_filename == "shaper_v2.txt":
+                                        with open(
+                                            f"{stat_base_dir}/{stat_filename}",
+                                            "r",
+                                        ) as stat_file:
+                                            if tclass_names_status:
+                                                data_points = proc_shaper_minute_stats(  # noqa: E501
+                                                    general_ec_tags,
+                                                    stat_file,
+                                                    tclass_names,
+                                                )
+                                            else:
+                                                data_points = proc_shaper_minute_stats(  # noqa: E501
+                                                    general_ec_tags,
+                                                    stat_file,
+                                                )
                                     # Logic to process additional
                                     # minute stat files would be here
                                     #
@@ -1781,7 +2017,7 @@ def ec_data_gather(
                                         continue
 
                                     logger.debug(
-                                        f"{log_prefix}{proc_timer.current()}: WRITE {current_stat} from {stats_folder}"
+                                        f"{log_prefix}{proc_timer.current()}: WRITE {current_stat} from {stats_folder}"  # noqa: W505
                                     )
                                     proc_timer.check_minute()
 
@@ -1792,15 +2028,17 @@ def ec_data_gather(
                                             record=data_points,
                                         )
                                     except Exception as e:
+                                        logger.error(e)
                                         logger.error(
-                                            f"{log_prefix}{proc_timer.current()}: Failed sending {current_stat} to InfluxDB, data points and exception below",
+                                            f"{log_prefix}{proc_timer.current()}: Failed sending {current_stat} to InfluxDB, data points and exception below",  # noqa: E501
                                             exc_info=1,
                                         )
                                         logger.error(data_points)
 
                             except Exception as e:
+                                logger.error(e)
                                 logger.error(
-                                    f"{log_prefix}{proc_timer.current()}: Failed processing {current_stat}",
+                                    f"{log_prefix}{proc_timer.current()}: Failed processing {current_stat}",  # noqa: E501
                                     exc_info=1,
                                 )
 
@@ -1822,7 +2060,7 @@ def ec_data_gather(
                 for pit_stat in point_in_time_stats:
                     current_stat = f"point-in-time: {pit_stat}"
                     logger.debug(
-                        f"{log_prefix}{proc_timer.current()}: PROCESS {current_stat}"
+                        f"{log_prefix}{proc_timer.current()}: PROCESS {current_stat}"  # noqa: W505
                     )
                     proc_timer.check_minute()
 
@@ -1838,7 +2076,10 @@ def ec_data_gather(
                                 appliance["interface_labels_map"],
                                 deployment_time,
                             )
-                        elif pit_stat == "memory" and memory_stats_status is True:
+                        elif (
+                            pit_stat == "memory"
+                            and memory_stats_status is True  # noqa: E501
+                        ):
                             # Process memory stats
                             data_points = proc_memory_stats(
                                 general_ec_tags,
@@ -1846,18 +2087,24 @@ def ec_data_gather(
                                 ec_memory_time,
                             )
                         elif pit_stat == "cpu" and cpu_stats_status is True:
-                            # if ec_cpu_minute_5sec_interval["data"] is not None:
                             # Process cpu stats
                             data_points = proc_cpu_stats(
                                 general_ec_tags,
                                 ec_cpu_minute_5sec_interval,
                             )
-                        elif pit_stat == "route_table" and route_stats_status is True:
+                        elif (
+                            pit_stat == "route_table"
+                            and route_stats_status is True  # noqa: E501
+                        ):  # noqa: E501
                             # Current route table size
                             data_points = proc_route_table_stats(
-                                general_ec_tags, appliance_routes, ec_route_time
+                                general_ec_tags,
+                                appliance_routes,
+                                ec_route_time,
                             )
-                        elif pit_stat == "alarms" and alarm_stats_status is True:
+                        elif (
+                            pit_stat == "alarms" and alarm_stats_status is True
+                        ):  # noqa: E501
                             # Process alarm stats
                             data_points = proc_alarm_stats(
                                 general_ec_tags,
@@ -1881,7 +2128,10 @@ def ec_data_gather(
                                 ec_disk_usage,
                                 ec_disk_usage_time,
                             )
-                        elif pit_stat == "system_info" and system_info_status is True:
+                        elif (
+                            pit_stat == "system_info"
+                            and system_info_status is True  # noqa: E501
+                        ):
                             # Process system info
                             data_points = proc_system_info_stats(
                                 general_ec_tags,
@@ -1898,9 +2148,9 @@ def ec_data_gather(
 
                         stat_processing = True
 
-                    except Exception as e:
+                    except Exception:
                         logger.error(
-                            f"{log_prefix}{proc_timer.current()}: Failed processing {current_stat}, data points included in debug and exception follow in debug",
+                            f"{log_prefix}{proc_timer.current()}: Failed processing {current_stat}, data points included in debug and exception follow in debug",  # noqa: E501
                             exc_info=1,
                         )
                         logger.debug(data_points)
@@ -1916,28 +2166,31 @@ def ec_data_gather(
                                 bucket=db_bucket,
                                 record=data_points,
                             )
-                        except Exception as e:
+                        except Exception:
                             logger.error(
-                                f"{log_prefix}{proc_timer.current()}: Failed sending {current_stat} to InfluxDB, data points and exception below",
+                                f"{log_prefix}{proc_timer.current()}: Failed sending {current_stat} to InfluxDB, data points and exception below",  # noqa: E501
                                 exc_info=1,
                             )
                             logger.error(data_points)
 
-                # Remove minute stats folders once data is sent to InfluxDB
+                # Remove minute stats folders once
+                # data is sent to InfluxDB
                 for stats_folder in os.listdir(ec_directory):
                     shutil.rmtree(f"{ec_directory}/{stats_folder}")
 
                 logger.info(
-                    f"{log_prefix}{proc_timer.current()}: --------APPLIANCE COMPLETED--------"
+                    f"{log_prefix}{proc_timer.current()}: --------APPLIANCE COMPLETED--------"  # noqa: W505
                 )
 
             else:
-                logger.error(f"{log_prefix}{proc_timer.current()}: FAILED TO LOGIN")
+                logger.error(
+                    f"{log_prefix}{proc_timer.current()}: FAILED TO LOGIN"
+                )  # noqa: E501
 
         except SystemExit:
             # Only called if script could not ping appliance
             pass
-        except Exception as e:
+        except Exception:
             logger.error(
                 f"{log_prefix}{proc_timer.current()}: Exception occured",
                 exc_info=1,
