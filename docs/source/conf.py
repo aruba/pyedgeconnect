@@ -14,9 +14,9 @@ copyright = "2022 Hewlett Packard Enterprise Development LP"
 author = "Zach Camara"
 
 # Main version number
-version = "0.15"
+version = "0.16"
 # The full version, including alpha/beta/rc tags
-release = "0.15.4-a1"
+release = "0.16.0-a1"
 
 
 # -- General configuration --------------------------------------------
