@@ -6,6 +6,15 @@ Code Formatting
 Flake8 is run on the codebase according to parameters in the .flake8
 file following PEP8 conventions where possible.
 
+Example below to run flake8 against the pyedgeconnect modules or
+examples from the root repo directory
+
+.. code::bash
+
+  $ flake8 pyedgeconnect
+  # or
+  $ flake8 examples
+
 Naming Conventions
 ^^^^^^^^^^^^^^^^^^
 

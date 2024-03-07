@@ -88,4 +88,9 @@ def get_appliance_system_state_info(
             * keyword **num_warning** (`int`): Number of warning alarms
     :rtype: dict
     """
-    return self._get("/systemInfo/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/systemInfo?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/systemInfo/{ne_id}?cached={cached}"
+
+    return self._get(path)

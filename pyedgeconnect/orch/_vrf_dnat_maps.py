@@ -29,4 +29,9 @@ def get_dnat_maps(
     :return: Returns dictionary of DNAT maps
     :rtype: dict
     """
-    return self._get("/dnatMaps/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/dnatMaps?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/dnatMaps/{ne_id}?cached={cached}"
+
+    return self._get(path)

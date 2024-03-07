@@ -1,0 +1,2 @@
+pyedgeconnect
+pandas

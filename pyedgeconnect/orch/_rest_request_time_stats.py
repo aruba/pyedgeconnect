@@ -46,7 +46,7 @@ def get_appliance_rest_stats(
     """
 
     path = "/restRequestTimeStats/summary?nePk={}".format(ne_pk)
-    path = path + "&resource={}&portalWS={}&timedout={}&from={}&to={}".format(
+    path += "&resource={}&portalWS={}&timedout={}&from={}&to={}".format(
         resource, portal_ws, timedout, time_from, time_to
     )
     return self._get(path)

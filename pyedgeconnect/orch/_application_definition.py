@@ -2,6 +2,7 @@
 # (C) Copyright 2021 Hewlett Packard Enterprise Development LP.
 #
 # applicationDefinition : Application Definition
+import json
 
 
 def get_user_defined_app_port_protocol(self) -> dict:
@@ -22,10 +23,8 @@ def get_user_defined_app_port_protocol(self) -> dict:
         classification
     :rtype: dict
     """
-
     return self._get(
-        "/applicationDefinition/portProtocolClassification?resourceKey"
-        + "=userDefined"
+        "/applicationDefinition/portProtocolClassification?resourceKey=userDefined"  # noqa: W505
     )
 
 
@@ -78,10 +77,13 @@ def update_user_defined_app_port_protocol(
         "disabled": disabled,
     }
 
+    if self.orch_version >= 9.3:
+        path = f"/applicationDefinition/portProtocolClassification?port={port}&protocol={protocol}"  # noqa: E501
+    else:
+        path = f"/applicationDefinition/portProtocolClassification/{port}/{protocol}"  # noqa: E501
+
     return self._post(
-        "/applicationDefinition/portProtocolClassification/{}/{}".format(
-            port, protocol
-        ),
+        path,
         data=data,
         return_type="bool",
     )
@@ -111,10 +113,13 @@ def delete_user_defined_app_port_protocol(
     :return: Returns True/False based on successful call
     :rtype: bool
     """  # noqa: W505
+    if self.orch_version >= 9.3:
+        path = f"/applicationDefinition/portProtocolClassification?port={port}&protocol={protocol}"  # noqa: E501
+    else:
+        path = f"/applicationDefinition/portProtocolClassification/{port}/{protocol}"  # noqa: E501
+
     return self._delete(
-        "/applicationDefinition/portProtocolClassification/{}/{}".format(
-            port, protocol
-        ),
+        path,
         return_type="bool",
     )
 
@@ -148,7 +153,7 @@ def get_user_defined_app_dns_classification(self) -> list:
     """
     return self._get(
         "/applicationDefinition/dnsClassification?resourceKey=userDefined"
-    )
+    )  # noqa: E501
 
 
 def update_user_defined_app_dns_classification(
@@ -196,8 +201,13 @@ def update_user_defined_app_dns_classification(
         "disabled": disabled,
     }
 
+    if self.orch_version >= 9.3:
+        path = f"/applicationDefinition/dnsClassification?domain={domain}"  # noqa: E501
+    else:
+        path = f"/applicationDefinition/dnsClassification/{domain}"
+
     return self._post(
-        "/applicationDefinition/dnsClassification/{}".format(domain),
+        path,
         data=data,
         return_type="bool",
     )
@@ -225,8 +235,13 @@ def delete_user_defined_app_dns_classification(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/applicationDefinition/dnsClassification?domain={domain}"  # noqa: E501
+    else:
+        path = f"/applicationDefinition/dnsClassification/{domain}"
+
     return self._delete(
-        "/applicationDefinition/dnsClassification/{}".format(domain),
+        path,
         return_type="bool",
     )
 
@@ -247,7 +262,6 @@ def get_user_defined_app_address_map(self) -> dict:
     :return: Returns user-defined application by address map
     :rtype: dict
     """
-
     return self._get(
         "/applicationDefinition/ipIntelligenceClassification?resourceKey"
         + "=userDefined"
@@ -264,6 +278,9 @@ def post_user_defined_app_address_map(
     country: str = "",
     country_code: str = "",
     org: str = "",
+    ms_instance: str = "",
+    ms_category: str = "",
+    proxy: str = "0",
 ) -> bool:
     """Create or update user defined application groups based on
     address map
@@ -299,13 +316,40 @@ def post_user_defined_app_address_map(
     :type country_code: str, optional
     :param org: Organization of application group, defaults to ""
     :type org: str, optional
+    :param ms_instance: Sub attributes for application definition,
+        identifying Microsoft instance, required field as of 9.2,
+        e.g., `WorldWide`, `USGovDoD`, `USGCC`, `Germany`, `China`,
+        defaults to ""
+    :type ms_instance: str, optional
+    :param ms_category: Sub attributes for application definition,
+        identifying Microsoft category, required field as of 9.2,
+        e.g., `Optimize`, `Allow`, `Default`,
+        defaults to ""
+    :type ms_category: str, optional
+    :param proxy: Sub attributes for application definition,
+        identifying app proxy status, required field as of 9.2,
+        e.g., `Yes` or `No`,
+        defaults to ""
+    :type proxy: str, optional
     :return: Returns True/False based on successful call
     :rtype: bool
     """  # noqa: E501,W505
     if ip_end < ip_start:
         raise ValueError(
-            "End IP %r is lower than starting IP %r." % ip_end, ip_start
+            f"""
+            End IP is lower than starting IP
+                End IP: {ip_end}
+                Start IP: {ip_start}
+                """
         )
+
+    subattributes = {
+        "msinstance": ms_instance,
+        "mscategory": ms_category,
+        "proxy": proxy,
+    }
+    # Convert subattributes dictionary into escaped string format
+    subattributes_str = json.dumps(subattributes).replace('"', '\\"')
 
     ipIntelligenceConfig = {
         "ip_start": ip_start,
@@ -316,12 +360,16 @@ def post_user_defined_app_address_map(
         "country": country,
         "country_code": country_code,
         "org": org,
+        "subattributes": subattributes_str,
     }
 
+    if self.orch_version >= 9.3:
+        path = f"/applicationDefinition/ipIntelligenceClassification?ipStart={ip_start}&ipEnd={ip_end}"  # noqa: E501
+    else:
+        path = f"/applicationDefinition/ipIntelligenceClassification/{ip_start}/{ip_end}"  # noqa: E501
+
     return self._post(
-        "/applicationDefinition/ipIntelligenceClassification/{}/{}".format(
-            ip_start, ip_end
-        ),
+        path,
         data=ipIntelligenceConfig,
         return_type="bool",
     )
@@ -356,10 +404,13 @@ def delete_user_defined_app_address_map(
     :return: Returns True/False based on successful call
     :rtype: bool
     """  # noqa: E501,W505
+    if self.orch_version >= 9.3:
+        path = f"/applicationDefinition/ipIntelligenceClassification?ipStart={ip_start}&ipEnd={ip_end}"  # noqa: E501
+    else:
+        path = f"/applicationDefinition/ipIntelligenceClassification/{ip_start}/{ip_end}"  # noqa: E501
+
     return self._delete(
-        "/applicationDefinition/ipIntelligenceClassification/{}/{}".format(
-            ip_start, ip_end
-        ),
+        path,
         return_type="bool",
     )
 
@@ -383,8 +434,7 @@ def get_user_defined_app_meter_flow(self) -> dict:
     :rtype: dict
     """
     return self._get(
-        "/applicationDefinition/meterFlowClassification?resourceKey"
-        + "=userDefined"
+        "/applicationDefinition/meterFlowClassification?resourceKey=userDefined"  # noqa: W505
     )
 
 
@@ -436,10 +486,13 @@ def post_user_defined_app_meter_flow(
         "disabled": disabled,
     }
 
+    if self.orch_version >= 9.3:
+        path = f"/applicationDefinition/meterFlowClassification?flowType={flow_type}&mid={mid}"  # noqa: E501
+    else:
+        path = f"/applicationDefinition/meterFlowClassification/{flow_type}/{mid}"  # noqa: E501
+
     return self._post(
-        "/applicationDefinition/meterFlowClassification/{}/{}".format(
-            flow_type, mid
-        ),
+        path,
         data=data,
         return_type="bool",
     )
@@ -470,10 +523,13 @@ def delete_user_defined_app_meter_flow(
     :return: Returns True/False based on successful call
     :rtype: bool
     """  # noqa: W505
+    if self.orch_version >= 9.3:
+        path = f"/applicationDefinition/meterFlowClassification?flowType={flow_type}&mid={mid}"  # noqa: E501
+    else:
+        path = f"/applicationDefinition/meterFlowClassification/{flow_type}/{mid}"  # noqa: E501
+
     return self._delete(
-        "/applicationDefinition/meterFlowClassification/{}/{}".format(
-            flow_type, mid
-        ),
+        path,
         return_type="bool",
     )
 
@@ -496,7 +552,7 @@ def get_user_defined_app_groups(self) -> list:
     """
     return self._get(
         "/applicationDefinition/applicationTags?resourceKey=userDefined"
-    )
+    )  # noqa: E501
 
 
 def update_user_defined_app_groups(

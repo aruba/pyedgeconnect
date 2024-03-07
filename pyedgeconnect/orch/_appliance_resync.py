@@ -32,6 +32,13 @@ def appliance_resync(
         with the key value to get the status of the operation.
     :rtype: str
     """
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
-    return self._post("/applianceResync", data=data, return_type="text")
+    return self._post(
+        "/applianceResync",
+        data=data,
+        return_type="text",
+    )

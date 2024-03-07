@@ -1,11 +1,16 @@
 # MIT License
-# (C) Copyright 2021 Hewlett Packard Enterprise Development LP.
+# (C) Copyright 2023 Hewlett Packard Enterprise Development LP.
 #
 # appliance : Add, delete and modify appliances
 from __future__ import annotations
 
+import warnings
 
-def get_appliances(self) -> list:
+
+def get_appliances(
+    self,
+    ne_pk: str = None,
+) -> list:
     """Get all appliances from Orchestrator
 
     .. list-table::
@@ -18,10 +23,114 @@ def get_appliances(self) -> list:
           - GET
           - /appliance
 
-    :return: Returns list of dictionaries of each appliance
+    :param ne_pk: Network Primary Key (nePk) of existing appliance,
+        e.g. ``3.NE``, Only defaults to None
+    :type ne_pk: str, optional
+    :return: Returns list of dictionaries of each appliance \n
+        * [`dict`] (`list`): List of appliance information objects \n
+          * keyword **id** (`str`): This is the primary key of the
+            appliance. Every appliance managed by Orchestrator is given
+            a primary key and it uniquely identifies an appliance among
+            all appliances managed by Orchestrator
+          * keyword **uuid** (`str`): This is also an unique identifier.
+            It is generated and self assigned by the appliance itself.
+          * keyword **networkRole** (`str`): The network role the
+            appliance is configured in Orchestrator. spoke = ``0``,
+            hub = ``1``, mesh = ``2``
+          * keyword **site** (`str`): An identifier used to tag an
+            appliance with a site name
+          * keyword **sitePriority** (`int`): Priority given to the
+            appliance with the site it belongs to
+          * keyword **userName** (`str`): User name used to login to
+            appliance
+          * keyword **password** (`str`): Password used to login to
+            appliance. They are not returned for security reasons
+          * keyword **groupId** (`str`): Primary key identifier of the
+            Orchestrator group the appliance belongs to
+          * keyword **IP** (`str`): IP Address of the appliance
+          * keyword **webProtocolType** (`int`): Protocol used by
+            Orchestrator to talk to appliance. Http = ``1``,
+            Https = ``2``, Both = 3
+          * keyword **serial** (`str`): Serial number of the appliance
+          * keyword **hasUnsavedChanges** (`bool`): If ``True``, there
+            are unsaved changes on the appliance
+          * keyword **rebootRequired** (`bool`): If ``True``, the
+            applianceappliance requires areboot
+          * keyword **model** (`str`): Appliance model. Eg: EC-XS
+          * keyword **hardwareRevision** (`str`): Hardware revision of
+            the appliance. e.g. ``200193-004 Rev A``
+          * keyword **hostName** (`str`): Appliance hostname
+          * keyword **applianceId** (`str`): This is yet another
+            identifier of the appliance. But it is mainly used by the
+            appliance to identify its peer
+          * keyword **mode** (`str`): Deployment mode the appliance is
+            configured in
+          * keyword **bypass** (`bool`): If ``True``, appliance is
+            currently in bypass
+          * keyword **softwareVersion** (`str`): Software version
+            running on the appliance
+          * keyword **startupTime** (`int`): No description in Swagger
+          * keyword **webProtocol** (`str`): String version of the
+            protocol field. Possible values are ``BOTH``, ``HTTP``, and
+            ``HTTPS``
+          * keyword **systemBandwidth** (`int`): Appliance system
+            bandwidth, in Kbps
+          * keyword **state** (`int`): State of the appliance. ``0`` -
+            Unknown ( When an appliance is added to Orchestrator, it is
+            in this state ),
+            ``1`` - Normal (Appliance is reachable from Orchestrator),
+            ``2`` - Unreachable (Appliance is unreachable from
+            Orchestrator),
+            ``3`` - Unsupported Version (Orchestrator does not support
+            this version of the appliance ),
+            ``4`` - Out of Synchronization, Orchestrator's cache of
+            appliance configuration/state is out of sync with the
+            configuration/state on the appliance)
+            ``5`` - Synchronization in Progress, Orchestrator is
+            currently synchronizing appliances's configuration and state
+          * keyword **dynamicUuid** (`str`): NEEDS DESCRIPTION
+          * keyword **portalObjectId** (`str`): Appliance hash ID in
+            Cloud Portal
+          * keyword **discoveredFrom** (`int`): How the appliance was
+            added to Orchestrator. ``1`` = MANUAL, ``2`` = PORTAL,
+            ``3`` = APPLIANCE
+          * keyword **reachabilityChannel** (`int`): Reachability
+            channel of the appliance. ``0`` - Unknown,
+            ``1`` - Orchestrator talks to appliance using HTTP/HTTPS
+            using user id and password. This is not used for
+            EdgeConnects and SD-WAN, ``2`` - Appliance connects to
+            Orchestrator using HTTPS Websocket. Orchestrator uses this
+            permanent connection to configure/monitor appliance.
+            This is done because Appliance may be behind a firewall
+            making it hard for Orchestrator to contact appliance using
+            IP address, ``4`` - Orchestrator sends
+            configuration/monitoring request to Cloud Portal which
+            relays those requests to Appliance. Appliance sends its
+            response to Cloud Portal which relays it back to
+            Orchestrator.
+          * keyword **ip** (`str`): Same as IP field
+          * keyword **nePk** (`str`): same as ID field
+          * keyword **zoneList** (`dict`): dictionary of list of zones
+            being used by appliance \n
+              * keyword **zones** (`list[str]`): list of zones
+          * keyword **interfaceList** (`dict`): dictionary of list of
+            interface labels being used by appliance \n
+              * keyword **interfaceLabels** (`list[str]`): list of
+                interface numbers
+          * keyword **tagsList** (`list`): No description in Swagger
     :rtype: list
     """
-    return self._get("/appliance")
+    if self.orch_version >= 9.3:
+        if ne_pk is not None:
+            return self._get(f"/appliance?nePk={ne_pk}")
+        else:
+            return self._get("/appliance")
+    else:
+        if ne_pk is not None:
+            raise ValueError(
+                f"ne_pk parameter only valid for Orchestrator 9.3+, current Orchestrator version: {self.orch_version}"
+            )
+        return self._get("/appliance")
 
 
 def delete_appliance(
@@ -51,11 +160,16 @@ def delete_appliance(
     valid = ".NE"
     if valid not in ne_pk:
         raise ValueError(
-            "nePk must be in format '0.NE', but %r was provided" % ne_pk
+            f"nePk must be in format '0.NE', but {ne_pk} was provided"
         )
 
+    if self.orch_version >= 9.3:
+        path = f"/appliance?nePk={ne_pk}"
+    else:
+        path = f"/appliance/{ne_pk}"
+
     return self._delete(
-        "/appliance/{}".format(ne_pk),
+        path,
         expected_status=[204],
         return_type="bool",
     )
@@ -106,11 +220,16 @@ def delete_appliance_for_rediscovery(
     valid = ".NE"
     if valid not in ne_pk:
         raise ValueError(
-            "nePk must be in format '0.NE', but %r was provided" % ne_pk
+            f"nePk must be in format '0.NE', but {ne_pk} was provided"
         )
 
+    if self.orch_version >= 9.3:
+        path = f"/appliance/deleteForDiscovery?nePk={ne_pk}"
+    else:
+        path = f"/appliance/deleteForDiscovery/{ne_pk}"
+
     return self._delete(
-        "/appliance/deleteForDiscovery/{}".format(ne_pk),
+        path,
         expected_status=[204],
         return_type="bool",
     )
@@ -322,10 +441,19 @@ def get_appliance_info(
     valid = ".NE"
     if valid not in ne_pk:
         raise ValueError(
-            "nePk must be in format '0.NE', but %r was provided" % ne_pk
+            f"nePk must be in format '0.NE', but {ne_pk} was provided"
         )
 
-    return self._get("/appliance/{}".format(ne_pk))
+    if self.orch_version >= 9.3:
+        warnings.warn(
+            "This endpoint is deprecated for 9.3, please use Orchestrator.get_appliances(ne_pk=) specifying the single appliance to retrieve information for",  # NOQA: E501
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._get(f"/appliance?nePk={ne_pk}")
+
+    else:
+        return self._get(f"/appliance/{ne_pk}")
 
 
 def get_all_discovered(self) -> list:
@@ -409,7 +537,10 @@ def delete_denied_appliances(
     :return: Returns True/False based on successful call.
     :rtype: bool
     """
-    data = {"portalObjectIds": appliances}
+    if self.orch_version >= 9.3:
+        data = {"DeniedAppliancePortalObjectId": appliances}
+    else:
+        data = {"portalObjectIds": appliances}
 
     return self._post(
         "/appliance/denied/delete",
@@ -451,10 +582,18 @@ def add_and_approve_discovered_appliances(
     :return: Returns True/False based on successful call.
     :rtype: bool
     """
-    data = {"id": group_pk, "latitude": longitude, "longitude": latitude}
+    data = {
+        "id": group_pk,
+        "latitude": longitude,
+        "longitude": latitude,
+    }
+    if self.orch_version >= 9.3:
+        path = f"/appliance/discovered/approve?id={id_key}"
+    else:
+        path = f"/appliance/discovered/approve/{id_key}"
 
     return self._post(
-        "/appliance/discovered/approve/{}".format(id_key),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",
@@ -493,10 +632,19 @@ def add_discovered_appliances(
     :return: Returns True/False based on successful call.
     :rtype: bool
     """
-    data = {"id": group_pk, "latitude": longitude, "longitude": latitude}
+    data = {
+        "id": group_pk,
+        "latitude": longitude,
+        "longitude": latitude,
+    }
+
+    if self.orch_version >= 9.3:
+        path = f"/appliance/discovered/add?id={id_key}"
+    else:
+        path = f"/appliance/discovered/add/{id_key}"
 
     return self._post(
-        "/appliance/discovered/add/{}".format(id_key),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",
@@ -524,8 +672,13 @@ def deny_appliance(
     :return: Returns True/False based on successful call.
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/appliance/discovered/deny?id={id_key}"
+    else:
+        path = f"/appliance/discovered/deny/{id_key}"
+
     return self._post(
-        "/appliance/discovered/deny/{}".format(id_key),
+        path,
         expected_status=[204],
         return_type="bool",
     )
@@ -576,8 +729,13 @@ def rediscover_denied_appliance(
     :return: Returns True/False based on successful call.
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/appliance/rediscoverAppliance?id={id_key}"
+    else:
+        path = f"/appliance/rediscoverAppliance/{id_key}"
+
     return self._post(
-        "/appliance/rediscoverAppliance/{}".format(id_key),
+        path,
         return_type="bool",
     )
 
@@ -610,8 +768,13 @@ def change_appliance_credentials(
     :return: Returns True/False based on successful call.
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/appliance/changePassword?nePk={ne_pk}&username={username}"
+    else:
+        path = f"/appliance/changePassword/{ne_pk}/{username}"
+
     return self._post(
-        "/appliance/changePassword/{}/{}".format(ne_pk, username),
+        path,
         data={"password": password},
         expected_status=[204],
         return_type="bool",
@@ -644,7 +807,12 @@ def appliance_get_api(
     :return: Returns response of appliance GET API call
     :rtype: dict
     """
-    return self._get("/appliance/rest/{}/{}".format(ne_pk, url))
+    if self.orch_version >= 9.3:
+        path = f"/appliance/rest?nePk={ne_pk}&url={url}"
+    else:
+        path = f"/appliance/rest/{ne_pk}/{url}"
+
+    return self._get(path)
 
 
 def appliance_post_api(
@@ -677,8 +845,13 @@ def appliance_post_api(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/appliance/rest?nePk={ne_pk}&url={url}"
+    else:
+        path = f"/appliance/rest/{ne_pk}/{url}"
+
     return self._post(
-        "/appliance/rest/{}/{}".format(ne_pk, url),
+        path,
         data=data,
         expected_status=[200, 204],
         return_type="bool",
@@ -711,8 +884,13 @@ def appliance_delete_api(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/appliance/rest?nePk={ne_pk}&url={url}"
+    else:
+        path = f"/appliance/rest/{ne_pk}/{url}"
+
     return self._delete(
-        "/appliance/rest/{}/{}".format(ne_pk, url),
+        path,
         expected_status=[200, 204],
         return_type="bool",
     )
@@ -866,6 +1044,9 @@ def get_appliance_dns_cache_config(
             "nePk must be in format '0.NE', but %r was provided" % ne_pk
         )
 
-    return self._get(
-        "/appliance/dnsCache/config/{}?cached={}".format(ne_pk, cached)
-    )
+    if self.orch_version >= 9.3:
+        path = f"/appliance/dnsCache/config?nePk={ne_pk}&cached={cached}"
+    else:
+        path = f"/appliance/dnsCache/config/{ne_pk}?cached={cached}"
+
+    return self._get(path)

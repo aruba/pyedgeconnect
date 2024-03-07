@@ -31,4 +31,9 @@ def get_dns_proxy(
         domain groups and maps).
     :rtype: dict
     """
-    return self._get("/dnsProxy/config/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/dnsProxy/config?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/dnsProxy/config/{ne_id}?cached={cached}"
+
+    return self._get(path)

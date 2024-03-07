@@ -31,4 +31,9 @@ def get_qos_policy(
         domain groups and maps).
     :rtype: dict
     """
-    return self._get("/qosMaps/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/qosMaps?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/qosMaps/{ne_id}?cached={cached}"
+
+    return self._get(path)

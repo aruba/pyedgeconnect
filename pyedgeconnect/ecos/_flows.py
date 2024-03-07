@@ -315,56 +315,56 @@ def get_appliance_flows(  # noqa: C901, silences flake8 complexity
     path = "/flows?"
 
     if ip1 is not None:
-        path = path + f"&ip1={ip1}"
+        path += f"&ip1={ip1}"
     if mask1 is not None:
-        path = path + f"&mask1={mask1}"
+        path += f"&mask1={mask1}"
     if port1 is not None:
-        path = path + f"&port1={port1}"
+        path += f"&port1={port1}"
     if ip2 is not None:
-        path = path + f"&ip2={ip2}"
+        path += f"&ip2={ip2}"
     if mask2 is not None:
-        path = path + f"&mask2={mask2}"
+        path += f"&mask2={mask2}"
     if port2 is not None:
-        path = path + f"&port2={port2}"
+        path += f"&port2={port2}"
 
-    path = path + f"&ipEitherFlag={ip_either_flag}"
-    path = path + f"&portEitherFlag={port_either_flag}"
+    path += f"&ipEitherFlag={ip_either_flag}"
+    path += f"&portEitherFlag={port_either_flag}"
 
     if vrf1 is not None:
-        path = path + f"&vrf1={vrf1}"
+        path += f"&vrf1={vrf1}"
     if vrf2 is not None:
-        path = path + f"&vrf2={vrf2}"
+        path += f"&vrf2={vrf2}"
     if vrf_either is not None:
-        path = path + f"&vrfEither={vrf_either}"
+        path += f"&vrfEither={vrf_either}"
     if application is not None:
-        path = path + f"&application={application}"
+        path += f"&application={application}"
     if application_group is not None:
-        path = path + f"&applicationGroup={application_group}"
+        path += f"&applicationGroup={application_group}"
     if protocol is not None:
-        path = path + f"&protocol={protocol}"
+        path += f"&protocol={protocol}"
     if vlan is not None:
-        path = path + f"&vlan={vlan}"
+        path += f"&vlan={vlan}"
     if dscp is not None:
-        path = path + f"&dscp={dscp}"
+        path += f"&dscp={dscp}"
     if overlays is not None:
-        path = path + f"&overlays={overlays}"
+        path += f"&overlays={overlays}"
     if transport is not None:
-        path = path + f"&transport={transport}"
+        path += f"&transport={transport}"
     if services is not None:
-        path = path + f"&services={services}"
+        path += f"&services={services}"
     if zone1 is not None:
-        path = path + f"&zone1={zone1}"
+        path += f"&zone1={zone1}"
     if zone2 is not None:
-        path = path + f"&zone2={zone2}"
+        path += f"&zone2={zone2}"
     if zone_either is not None:
-        path = path + f"&zoneEither={zone_either}"
+        path += f"&zoneEither={zone_either}"
 
-    path = path + f"&filter={flow_category}"
-    path = path + f"&edgeHa={edge_ha}"
-    path = path + f"&builtIn={built_in}"
+    path += f"&filter={flow_category}"
+    path += f"&edgeHa={edge_ha}"
+    path += f"&builtIn={built_in}"
 
     if uptime is not None:
-        path = path + f"&uptime={uptime}"
+        path += f"&uptime={uptime}"
     if active_uptime_start is not None and active_uptime_end is not None:
         path += f"&anyStartTime={active_uptime_start}&anyEndTime={active_uptime_end}"
     if term_uptime_start is not None and term_uptime_end is not None:
@@ -372,13 +372,13 @@ def get_appliance_flows(  # noqa: C901, silences flake8 complexity
             f"&termStartTime={term_uptime_start}&termEndTime={term_uptime_end}"
         )
 
-    path = path + f"&bytes={bytes_transferred}"
-    path = path + f"&duration={duration}"
+    path += f"&bytes={bytes_transferred}"
+    path += f"&duration={duration}"
 
     if duration is not None:
-        path = path + f"&duration={duration}"
+        path += f"&duration={duration}"
     if anytime_slow_flows is not None:
-        path = path + f"&anytimeSlowFlows={anytime_slow_flows}"
+        path += f"&anytimeSlowFlows={anytime_slow_flows}"
 
     return self._get(path)
 

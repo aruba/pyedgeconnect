@@ -26,7 +26,12 @@ def get_link_integrity_test_result(
     :return: Returns dictionary of test status and related results
     :rtype: dict
     """
-    return self._get("/linkIntegrityTest/status/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/linkIntegrityTest/status?nePk={ne_id}"
+    else:
+        path = f"/linkIntegrityTest/status/{ne_id}"
+
+    return self._get(path)
 
 
 def link_integrity_test(

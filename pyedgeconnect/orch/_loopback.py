@@ -1,5 +1,5 @@
 # MIT License
-# (C) Copyright 2021 Hewlett Packard Enterprise Development LP.
+# (C) Copyright 2023 Hewlett Packard Enterprise Development LP.
 #
 # loopback : Gets Appliance Loopback interfaces config
 
@@ -29,4 +29,9 @@ def get_loopback_interfaes(
     :return: Returns dictionary of configured loopback interfaces
     :rtype: dict
     """
-    return self._get("/virtualif/loopback/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/virtualif/loopback?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/virtualif/loopback/{ne_id}?cached={cached}"
+
+    return self._get(path)

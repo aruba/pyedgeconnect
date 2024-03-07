@@ -84,7 +84,12 @@ def get_user(
         * keyword **salt** (`str`): Usually left blank
     :rtype: dict
     """
-    return self._get("/users/{}".format(username))
+    if self.orch_version >= 9.3:
+        path = f"/users/?userId={username}"
+    else:
+        path = f"/users/{username}"
+
+    return self._get(path)
 
 
 def delete_user(
@@ -112,8 +117,13 @@ def delete_user(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/users?userId={user_id}&userName={username}"
+    else:
+        path = f"/users/{user_id}/{username}"
+
     return self._delete(
-        "/users/{}/{}".format(user_id, username),
+        path,
         expected_status=[204],
         return_type="bool",
     )
@@ -201,8 +211,13 @@ def create_or_update_user(
         "isTwoFactorTime": two_factor_app,
     }
 
+    if self.orch_version >= 9.3:
+        path = f"/users/?newUser={new_user}"
+    else:
+        path = f"/users/{new_user}"
+
     return self._post(
-        "/users/{}".format(new_user),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",
@@ -243,8 +258,13 @@ def change_user_password(
         "newPassword": new_password,
     }
 
+    if self.orch_version >= 9.3:
+        path = f"/users/password?username={username}"
+    else:
+        path = f"/users/{username}/password"
+
     return self._post(
-        "/users/{}/password".format(username),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",

@@ -81,21 +81,23 @@ def get_alarms_from_appliances(
               in unix epoch milliseconds
     :rtype: list
     """
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
-    data = {"ids": ne_pk_list}
-
-    path = "/alarm/appliance?view={}".format(view)
+    path = f"/alarm/appliance?view={view}"
 
     if severity is not None:
-        path = path + "&severity={}".format(severity)
+        path += f"&severity={severity}"
     if order_by_severity is not None:
-        path = path + "&orderBySeverity={}".format(order_by_severity)
+        path += f"&orderBySeverity={order_by_severity}"
     if max_alarms is not None:
-        path = path + "&maxAlarms={}".format(max_alarms)
+        path += f"&maxAlarms={max_alarms}"
     if start_time is not None:
-        path = path + "&from={}".format(start_time)
+        path += f"&from={start_time}"
     if end_time is not None:
-        path = path + "&to={}".format(end_time)
+        path += f"&to={end_time}"
 
     return self._post(path, data=data)
 
@@ -135,11 +137,15 @@ def acknolwedge_alarms_from_appliance(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/alarm/acknowledgement/appliance?nePk={ne_id}"
+    else:
+        path = f"/alarm/acknowledgement/appliance/{ne_id}"
 
     data = {"actions": alarm_list, "acknowledge": acknowledge}
 
     return self._post(
-        "/alarm/acknowledgement/appliance/{}".format(ne_id),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",
@@ -179,11 +185,15 @@ def add_note_to_appliance_alarm(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/alarm/note/appliance?nePk={ne_id}"
+    else:
+        path = f"/alarm/note/appliance/{ne_id}"
 
     data = {"actions": alarm_list, "note": note}
 
     return self._post(
-        "/alarm/note/appliance/{}".format(ne_id),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",
@@ -221,11 +231,15 @@ def clear_alarms_from_appliance(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/alarm/clearance/appliance?nePk={ne_id}"
+    else:
+        path = f"/alarm/clearance/appliance/{ne_id}"
 
     data = {"actions": alarm_list}
 
     return self._post(
-        "/alarm/clearance/appliance/{}".format(ne_id),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",
@@ -263,7 +277,6 @@ def get_alarm_count_all_appliances(
               alarms
     :rtype: list
     """
-
     return self._get("/alarm/count/appliance")
 
 
@@ -287,11 +300,13 @@ def get_alarm_notification_status(
           disabled
     :rtype: dict
     """
-
     return self._get("/alarm/notification")
 
 
-def set_alarm_notification_status(self, enable: bool) -> dict:
+def set_alarm_notification_status(
+    self,
+    enable: bool,
+) -> dict:
     """Set status for alarm notifications
 
     .. list-table::
@@ -310,7 +325,6 @@ def set_alarm_notification_status(self, enable: bool) -> dict:
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
     data = {"enable": enable}
 
     return self._post(
@@ -351,8 +365,12 @@ def get_alarm_count_from_appliance(
           alarms
     :rtype: dict
     """
+    if self.orch_version >= 9.3:
+        path = f"/alarm/count/appliance?nePk={ne_id}"
+    else:
+        path = f"/alarm/count/appliance/{ne_id}"
 
-    return self._get("/alarm/count/appliance/{}".format(ne_id))
+    return self._get(path)
 
 
 def get_alarm_count_orchestrator_and_appliances(
@@ -382,7 +400,6 @@ def get_alarm_count_orchestrator_and_appliances(
           alarms
     :rtype: dict
     """
-
     return self._get("/alarm/summary")
 
 
@@ -417,8 +434,12 @@ def get_alarm_count_orchestrator_or_appliances(
           alarms
     :rtype: dict
     """
+    if self.orch_version >= 9.3:
+        path = f"/alarm/summary?type={alarm_from}"
+    else:
+        path = f"/alarm/summary/{alarm_from}"
 
-    return self._get("/alarm/summary/{}".format(alarm_from))
+    return self._get(path)
 
 
 def get_alarms_from_orchestrator(
@@ -481,15 +502,14 @@ def get_alarms_from_orchestrator(
               in unix epoch milliseconds
     :rtype: list
     """
-
-    path = "/alarm/gms?view={}".format(view)
+    path = f"/alarm/gms?view={view}"
 
     if severity is not None:
-        path = path + "&severity={}".format(severity)
+        path += f"&severity={severity}"
     if start_time is not None:
-        path = path + "&from={}".format(start_time)
+        path += f"&from={start_time}"
     if end_time is not None:
-        path = path + "&to={}".format(end_time)
+        path += f"&to={end_time}"
 
     return self._get(path)
 
@@ -519,7 +539,6 @@ def acknowledge_alarms_from_orchestrator(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
     data = {"ids": alarm_list, "acknowledge": acknowledge}
 
     return self._post(
@@ -554,7 +573,6 @@ def add_note_to_orchestrator_alarm(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
     data = {"ids": alarm_list, "note": note}
 
     return self._post(
@@ -588,7 +606,6 @@ def clear_alarms_from_orchestrator(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
     data = {"ids": alarm_list}
 
     return self._post(
@@ -648,15 +665,14 @@ def get_alarm_descriptions(
               identifies the type of alarm within a sourceType
     :rtype: list
     """
-
     path = "/alarm/description2"
 
     if data_format is not None:
-        path = path + "?format={}".format(data_format)
+        path += f"?format={data_format}"
         if default_values is not None:
-            path = path + "&default={}".format(default_values)
+            path += f"&default={default_values}"
     elif default_values is not None:
-        path = path + "?default={}".format(default_values)
+        path += f"?default={default_values}"
     else:
         pass
 
@@ -665,6 +681,7 @@ def get_alarm_descriptions(
 
 def get_customized_alarm_severity(
     self,
+    alarm_type_id: int = None,
 ) -> list:
     """Get customized alarm severities
 
@@ -678,13 +695,20 @@ def get_customized_alarm_severity(
           - GET
           - /alarm/customization/severity
 
+    :param alarm_type_id: Alarm type id, e.g. 65536, only supported
+      in this function for Orchestrator 9.3+
+    :type alarm_type_id: int, optional
     :return: Returns list of all customized alarm serverities \n
         [`dict`]: alarm object \n
             * keyword **<alarm_typeId>** (`int`): Alarm severity
     :rtype: list
     """
+    path = "/alarm/customization/severity"
 
-    return self._get("/alarm/customization/severity")
+    if self.orch_version >= 9.3 and alarm_type_id is not None:
+        path += f"?alarmTypeId={alarm_type_id}"
+
+    return self._get(path)
 
 
 def set_customized_alarm_severity(
@@ -711,11 +735,12 @@ def set_customized_alarm_severity(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
     data = alarm_severities
 
     return self._post(
-        "/alarm/customization/severity", data=data, return_type="bool"
+        "/alarm/customization/severity",
+        data=data,
+        return_type="bool",
     )
 
 
@@ -743,11 +768,12 @@ def update_customized_alarm_severity(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
     data = alarm_severities
 
     return self._put(
-        "/alarm/customization/severity", data=data, return_type="bool"
+        "/alarm/customization/severity",
+        data=data,
+        return_type="bool",
     )
 
 
@@ -769,8 +795,10 @@ def delete_all_customized_alarm_severity(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
-    return self._delete("/alarm/customization/severity", return_type="bool")
+    return self._delete(
+        "/alarm/customization/severity",
+        return_type="bool",
+    )
 
 
 def get_customized_alarm_severity_for_type(
@@ -801,9 +829,13 @@ def get_customized_alarm_severity_for_type(
           ``warning``, ``minor``, ``major``, and ``critical``
     :rtype: dict
     """
+    if self.orch_version >= 9.3:
+        path = f"/alarm/customization/severity?alarmTypeId={alarm_type_id}"
+    else:
+        path = f"/alarm/customization/severity/{alarm_type_id}"
 
     return self._get(
-        "/alarm/customization/severity/{}".format(alarm_type_id),
+        path,
         expected_status=[200, 204],
     )
 
@@ -834,9 +866,13 @@ def delete_customized_alarm_severity_for_type(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/alarm/customization/severity?alarmTypeId={alarm_type_id}"
+    else:
+        path = f"/alarm/customization/severity/{alarm_type_id}"
 
     return self._delete(
-        "/alarm/customization/severity/{}".format(alarm_type_id),
+        path,
         expected_status=[200, 204],
         return_type="bool",
     )
@@ -865,8 +901,10 @@ def get_alarm_email_delay(
           seconds
     :rtype: dict
     """
-
-    return self._get("/alarm/delayEmail", expected_status=[200, 204])
+    return self._get(
+        "/alarm/delayEmail",
+        expected_status=[200, 204],
+    )
 
 
 def set_alarm_email_delay(
@@ -890,10 +928,13 @@ def set_alarm_email_delay(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
     data = {"duration": alarm_email_delay}
 
-    return self._post("/alarm/delayEmail", data=data, return_type="bool")
+    return self._post(
+        "/alarm/delayEmail",
+        data=data,
+        return_type="bool",
+    )
 
 
 def update_alarm_email_delay(
@@ -917,10 +958,13 @@ def update_alarm_email_delay(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
     data = {"duration": alarm_email_delay}
 
-    return self._put("/alarm/delayEmail", data=data, return_type="bool")
+    return self._put(
+        "/alarm/delayEmail",
+        data=data,
+        return_type="bool",
+    )
 
 
 def delete_alarm_email_delay(
@@ -941,8 +985,10 @@ def delete_alarm_email_delay(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
-    return self._delete("/alarm/delayEmail", return_type="bool")
+    return self._delete(
+        "/alarm/delayEmail",
+        return_type="bool",
+    )
 
 
 def get_supressed_alarms(
@@ -966,7 +1012,6 @@ def get_supressed_alarms(
         * keyword **applianceIds** (`list[str]`): List of appliance ids
     :rtype: dict
     """
-
     return self._get("/alarm/suppress")
 
 
@@ -1001,7 +1046,6 @@ def set_supressed_alarms(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
     data = {
         "action": action,
         "alarmTypeIds": alarm_list,
@@ -1009,7 +1053,10 @@ def set_supressed_alarms(
     }
 
     return self._post(
-        "/alarm/suppress", data=data, expected_status=[204], return_type="bool"
+        "/alarm/suppress",
+        data=data,
+        expected_status=[204],
+        return_type="bool",
     )
 
 
@@ -1031,5 +1078,7 @@ def delete_supressed_alarms(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-
-    return self._delete("/alarm/suppress", return_type="bool")
+    return self._delete(
+        "/alarm/suppress",
+        return_type="bool",
+    )

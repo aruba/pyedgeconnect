@@ -261,8 +261,8 @@ def get_stats_approximate_disk_space(
     )
 
     if number_of_tunnels is not None:
-        path = path + "&numberOfTunnels={}".format(number_of_tunnels)
+        path += "&numberOfTunnels={}".format(number_of_tunnels)
     if number_of_overlays is not None:
-        path = path + "&numberOfOverlays={}".format(number_of_overlays)
+        path += "&numberOfOverlays={}".format(number_of_overlays)
 
     return self._get(path)

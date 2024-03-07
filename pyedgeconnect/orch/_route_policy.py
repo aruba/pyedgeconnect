@@ -35,4 +35,9 @@ def get_route_policy(
         the priority of a rule, each value is the rule object.
     :rtype: dict
     """
-    return self._get("/routeMaps/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/routeMaps?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/routeMaps/{ne_id}?cached={cached}"
+
+    return self._get(path)

@@ -52,4 +52,9 @@ def get_appliance_inbound_shaper(
               * keyword **priority** (`int`): Priority in traffic map
     :rtype: dict
     """
-    return self._get("/inboundShaper/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/inboundShaper?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/inboundShaper/{ne_id}?cached={cached}"
+
+    return self._get(path)

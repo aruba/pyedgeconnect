@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 import traceback
+import warnings
 
 import requests
 from urllib3.exceptions import InsecureRequestWarning
@@ -507,6 +508,28 @@ class Orchestrator(HttpCommon):
             self.logger.setLevel(logging.DEBUG)
             self.logger.addHandler(self.console_handler)
 
+        # Check if Orchestrator version is 9.3+ if API Key provided
+        if api_key != "":
+            try:
+                orch_info = self.get_orchestrator_server_brief()
+                release = orch_info["release"]
+                major = int(release.split(".")[0])
+                minor = int(release.split(".")[1])
+                self.orch_version = major + minor / 10
+            except Exception as e:
+                print(e)
+                print(
+                    """
+                    Attempt to retrieve Orchestrator version failed
+                    Defaulting logic to pre-9.3 API endpoints
+                    """
+                )
+                # Orch Version not found, default to pre-9.3
+                self.orch_version = 0.0
+
+        else:
+            pass
+
     # Imported methods
     from .orch._acls import get_appliance_acls
     from .orch._action_log import (
@@ -804,19 +827,31 @@ class Orchestrator(HttpCommon):
         get_gms_stats_collection_defaults,
         update_gms_stats_collection,
     )
+    from .orch._grnode import (
+        get_all_appliance_locations,
+        get_appliance_location,
+        update_appliance_location_grnodepk,
+        update_appliance_location_nepk,
+    )
     from .orch._group import (
         add_gms_group,
         delete_gms_group,
-        get_all_appliance_locations,
-        get_appliance_location,
         get_gms_group,
         get_gms_groups,
         get_root_gms_group,
-        update_appliance_location_grnodepk,
-        update_appliance_location_nepk,
         update_gms_group,
     )
     from .orch._ha_groups import get_ha_groups, modify_ha_groups
+    from .orch._health import (
+        get_health_alarm_summary,
+        get_health_appliance_summary,
+        get_health_jitter,
+        get_health_latency,
+        get_health_loss,
+        get_health_mos,
+        get_health_threshold_config,
+        set_health_threshold_config,
+    )
     from .orch._hostname import get_orchestrator_hostname
     from .orch._idle_time import clear_idle_time, increment_idle_time
     from .orch._ikeless import (
@@ -1114,6 +1149,8 @@ class Orchestrator(HttpCommon):
         set_template_groups_priorities,
     )
     from .orch._third_party_services import (
+        add_new_service_orchestration,
+        add_service_orchestration_remote_endpoints,
         central_add_subscription,
         central_assign_appliance_to_site,
         central_delete_subscription,
@@ -1135,6 +1172,24 @@ class Orchestrator(HttpCommon):
         clearpass_reset_service_endpoint,
         clearpass_set_pause_orchestration_status,
         clearpass_update_account,
+        delete_service_orchestration,
+        delete_service_orchestration_remote_endpoints,
+        get_service_orchestration_all_names_to_ids,
+        get_service_orchestration_all_services,
+        get_service_orchestration_appliance_association,
+        get_service_orchestration_breakout_state,
+        get_service_orchestration_config_entries,
+        get_service_orchestration_ipsla_settings,
+        get_service_orchestration_labels,
+        get_service_orchestration_remote_endpoints,
+        get_service_orchestration_tunnel_identifiers,
+        get_service_orchestration_tunnel_settings,
+        set_service_orchestration_appliance_association,
+        set_service_orchestration_breakout_state,
+        set_service_orchestration_ipsla_settings,
+        set_service_orchestration_labels,
+        set_service_orchestration_remote_endpoints,
+        set_service_orchestration_tunnel_settings,
     )
     from .orch._third_party_tunnels_configuration import (
         get_passthrough_tunnel_details,
@@ -1457,6 +1512,10 @@ class EdgeConnect(HttpCommon):
         get_appliance_single_3rdparty_tunnel_config,
     )
     from .ecos._time import get_appliance_time
+    from .ecos._traffic_class import (
+        get_traffic_class_names,
+        set_traffic_class_names,
+    )
     from .ecos._tunnel import (
         apply_appliance_tunnel_template,
         configure_appliance_all_tunnels,

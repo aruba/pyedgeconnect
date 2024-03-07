@@ -109,6 +109,7 @@ services:
       - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
       - GF_SECURITY_ADMIN_USER=${DB_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${DB_PW}
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/ec_appliance.json
       # CUSTOM ENV VARS
       - DB_TOKEN=${DB_TOKEN}
       - DB_ORG=${DB_ORG}

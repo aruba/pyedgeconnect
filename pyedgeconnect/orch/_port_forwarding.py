@@ -25,4 +25,9 @@ def get_appliance_port_fowarding(
     :return: Returns dictionary of port forwarding rules
     :rtype: dict
     """
-    return self._get("/portForwarding/{}".format(ne_pk))
+    if self.orch_version >= 9.3:
+        path = f"/portForwarding?nePk={ne_pk}"
+    else:
+        path = f"/portForwarding/{ne_pk}"
+
+    return self._get(path)

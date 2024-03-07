@@ -5,6 +5,7 @@ import getpass
 import os
 
 from jinja2 import Environment, FileSystemLoader
+
 from pyedgeconnect import Orchestrator
 
 # Parse runtime arguments
@@ -56,7 +57,9 @@ else:
 if os.getenv("ORCH_API_KEY") is not None:
     orch_api_key = os.getenv("ORCH_API_KEY")
 else:
-    orch_api_key_input = input("Orchstrator API Key (enter to skip): ")
+    orch_api_key_input = getpass.getpass(
+        "Orchstrator API Key (enter to skip): "
+    )
     if len(orch_api_key_input) == 0:
         orch_api_key = None
         # Set user and password if present in environment variable

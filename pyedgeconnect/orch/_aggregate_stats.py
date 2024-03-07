@@ -77,25 +77,23 @@ def get_aggregate_stats_tunnels(
     """
     path = (
         "/stats/aggregate/tunnel?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
     return self._get(path)
 
@@ -170,25 +168,26 @@ def get_aggregate_stats_tunnels_ne_pk_list(
     """
     path = (
         "/stats/aggregate/tunnel?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -265,27 +264,31 @@ def get_aggregate_stats_tunnels_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/tunnel/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    path = "/stats/aggregate/tunnel"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if tunnel_name is not None:
-        path = path + "&tunnelName={}".format(tunnel_name)
+        path += f"&tunnelName={tunnel_name}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
     return self._get(path)
 
@@ -368,27 +371,25 @@ def get_aggregate_stats_appliances(
     """
     path = (
         "/stats/aggregate/appliance?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
     if traffic_type is not None:
-        path = path + "&trafficType={}".format(traffic_type)
+        path += f"&trafficType={traffic_type}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
     return self._get(path)
 
@@ -469,27 +470,28 @@ def get_aggregate_stats_appliances_ne_pk_list(
     """
     path = (
         "/stats/aggregate/appliance?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if traffic_type is not None:
-        path = path + "&trafficType={}".format(traffic_type)
+        path += f"&trafficType={traffic_type}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -568,27 +570,31 @@ def get_aggregate_stats_appliances_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/appliance/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    path = "/stats/aggregate/appliance"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if traffic_type is not None:
-        path = path + "&trafficType={}".format(traffic_type)
+        path += f"&trafficType={traffic_type}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
     return self._get(path)
 
@@ -645,23 +651,21 @@ def get_aggregate_stats_applications(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/application2?" + "startTime={}&endTime={}".format(
-        start_time,
-        end_time,
+    path = (
+        "/stats/aggregate/application2?"
+        + f"startTime={start_time}&endTime={end_time}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
     if application is not None:
-        path = path + "&application={}".format(application)
+        path += f"&application={application}"
     if top is not None:
-        path = path + "&top={}".format(top)
-    if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
     return self._get(path)
 
@@ -716,23 +720,24 @@ def get_aggregate_stats_applications_ne_pk_list(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/application2?" + "startTime={}&endTime={}".format(
-        start_time,
-        end_time,
+    path = (
+        "/stats/aggregate/application2?"
+        + f"startTime={start_time}&endTime={end_time}"
     )
 
     if application is not None:
-        path = path + "&application={}".format(application)
+        path += f"&application={application}"
     if top is not None:
-        path = path + "&top={}".format(top)
-    if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -740,12 +745,10 @@ def get_aggregate_stats_applications_ne_pk_list(
 def get_aggregate_stats_applications_single_appliance(
     self,
     ne_pk: str,
-    ne_pk_list: list[str],
     start_time: int,
     end_time: int,
     application: str = None,
     top: int = None,
-    overlay: str = None,
     data_format: str = None,
 ) -> dict:
     """Get aggregate application stats data filter by query parameters
@@ -785,23 +788,21 @@ def get_aggregate_stats_applications_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/application2/"
-        + "{}?startTime={}&endTime={}".format(
-            ne_pk,
-            start_time,
-            end_time,
-        )
-    )
+    path = "/stats/aggregate/application2"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += f"startTime={start_time}&endTime={end_time}"
 
     if application is not None:
-        path = path + "&application={}".format(application)
+        path += f"&application={application}"
     if top is not None:
-        path = path + "&top={}".format(top)
-    if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
     return self._get(path)
 
@@ -882,27 +883,25 @@ def get_aggregate_stats_traffic_class(
     """
     path = (
         "/stats/aggregate/trafficClass?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
     if traffic_class is not None:
-        path = path + "&trafficClass={}".format(traffic_class)
+        path += f"&trafficClass={traffic_class}"
     if traffic_type is not None:
-        path = path + "&trafficType={}".format(traffic_type)
+        path += f"&trafficType={traffic_type}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
     return self._get(path)
 
@@ -981,27 +980,28 @@ def get_aggregate_stats_traffic_class_ne_pk_list(
     """
     path = (
         "/stats/aggregate/trafficClass?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if traffic_class is not None:
-        path = path + "&trafficClass={}".format(traffic_class)
+        path += f"&trafficClass={traffic_class}"
     if traffic_type is not None:
-        path = path + "&trafficType={}".format(traffic_type)
+        path += f"&trafficType={traffic_type}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -1072,25 +1072,29 @@ def get_aggregate_stats_traffic_class_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/trafficClass/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    path = "/stats/aggregate/trafficClass"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if traffic_class is not None:
-        path = path + "&trafficClass={}".format(traffic_class)
+        path += f"&trafficClass={traffic_class}"
     if traffic_type is not None:
-        path = path + "&trafficType={}".format(traffic_type)
+        path += f"&trafficType={traffic_type}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
     return self._get(path)
 
@@ -1161,23 +1165,21 @@ def get_aggregate_stats_flows(
     """
     path = (
         "/stats/aggregate/flow?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
     if flow is not None:
-        path = path + "&flow={}".format(flow)
+        path += f"&flow={flow}"
     if traffic_type is not None:
-        path = path + "&trafficType={}".format(traffic_type)
+        path += f"&trafficType={traffic_type}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
     return self._get(path)
 
@@ -1252,25 +1254,26 @@ def get_aggregate_stats_flows_ne_pk_list(
     """
     path = (
         "/stats/aggregate/flow?startTime="
-        + "{}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"{start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
     if flow is not None:
-        path = path + "&flow={}".format(flow)
+        path += f"&flow={flow}"
     if traffic_type is not None:
-        path = path + "&trafficType={}".format(traffic_type)
+        path += f"&trafficType={traffic_type}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -1304,9 +1307,12 @@ def get_aggregate_stats_active_flows(
     path = "/stats/aggregate/flow/active"
 
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -1365,21 +1371,25 @@ def get_aggregate_stats_flows_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/flow/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    path = "/stats/aggregate/flow"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if traffic_class is not None:
-        path = path + "&trafficClass={}".format(traffic_class)
+        path += f"&trafficClass={traffic_class}"
     if flow is not None:
-        path = path + "&flow={}".format(flow)
+        path += f"&flow={flow}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
     return self._get(path)
 
@@ -1460,27 +1470,25 @@ def get_aggregate_stats_dscp(
     """
     path = (
         "/stats/aggregate/dscp?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
     if dscp is not None:
-        path = path + "&dscp={}".format(dscp)
+        path += f"&dscp={dscp}"
     if traffic_type is not None:
-        path = path + "&trafficType={}".format(traffic_type)
+        path += f"&trafficType={traffic_type}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
     return self._get(path)
 
@@ -1559,27 +1567,28 @@ def get_aggregate_stats_dscp_ne_pk_list(
     """
     path = (
         "/stats/aggregate/dscp?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if dscp is not None:
-        path = path + "&dscp={}".format(dscp)
+        path += f"&dscp={dscp}"
     if traffic_type is not None:
-        path = path + "&trafficType={}".format(traffic_type)
+        path += f"&trafficType={traffic_type}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNE={}".format(group_by_ne)
+        path += f"&groupByNE={group_by_ne}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -1660,26 +1669,28 @@ def get_aggregate_stats_dscp_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/dscp/"
-        + "{}?startTime={}&endTime={}&trafficType={}&".format(
-            ne_pk, start_time, end_time, traffic_type
-        )
-        + "granularity={}".format(granularity)
-    )
+    path = "/stats/aggregate/dscp"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += f"startTime={start_time}&endTime={end_time}"
+    path += f"&trafficType={traffic_type}&granularity={granularity}"
 
     if traffic_class is not None:
-        path = path + "&trafficClass={}".format(traffic_class)
+        path += f"&trafficClass={traffic_class}"
     if dscp is not None:
-        path = path + "&dscp={}".format(dscp)
+        path += f"&dscp={dscp}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
     return self._get(path)
 
@@ -1743,25 +1754,25 @@ def get_aggregate_stats_dns_ne_pk_list(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/dns?startTime={}&endTime={}".format(
-        start_time,
-        end_time,
-    )
+    path = f"/stats/aggregate/dns?startTime={start_time}&endTime={end_time}"
 
     if is_source is not None:
-        path = path + "&isSource={}".format(is_source)
+        path += f"&isSource={is_source}"
     if split_type is not None:
-        path = path + "&splitType={}".format(split_type)
+        path += f"&splitType={split_type}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if split_by_ne is not None:
-        path = path + "&splitByNe={}".format(split_by_ne)
+        path += f"&splitByNe={split_by_ne}"
     if group_by is not None:
-        path = path + "&groupBy={}".format(group_by)
+        path += f"&groupBy={group_by}"
     if group_by_subdomains is not None:
-        path = path + "&groupBySubdomains={}".format(group_by_subdomains)
+        path += f"&groupBySubdomains={group_by_subdomains}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -1825,24 +1836,27 @@ def get_aggregate_stats_dns_single_appliance(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/dns/{}?startTime={}&endTime={}".format(
-        ne_pk,
-        start_time,
-        end_time,
-    )
+    path = "/stats/aggregate/dns"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += f"startTime={start_time}&endTime={end_time}"
 
     if is_source is not None:
-        path = path + "&isSource={}".format(is_source)
+        path += f"&isSource={is_source}"
     if split_type is not None:
-        path = path + "&splitType={}".format(split_type)
+        path += f"&splitType={split_type}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if split_by_ne is not None:
-        path = path + "&splitByNe={}".format(split_by_ne)
+        path += f"&splitByNe={split_by_ne}"
     if group_by is not None:
-        path = path + "&groupBy={}".format(group_by)
+        path += f"&groupBy={group_by}"
     if group_by_subdomains is not None:
-        path = path + "&groupBySubdomains={}".format(group_by_subdomains)
+        path += f"&groupBySubdomains={group_by_subdomains}"
 
     return self._get(path)
 
@@ -1906,26 +1920,29 @@ def get_aggregate_stats_ports_single_appliance(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/ports/{}?startTime={}&endTime={}".format(
-        ne_pk,
-        start_time,
-        end_time,
-    )
+    path = "/stats/aggregate/ports"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += f"startTime={start_time}&endTime={end_time}"
 
     if is_source is not None:
-        path = path + "&isSource={}".format(is_source)
+        path += f"&isSource={is_source}"
     if is_known is not None:
-        path = path + "&isKnown={}".format(is_known)
+        path += f"&isKnown={is_known}"
     if protocol is not None:
-        path = path + "&protocol={}".format(protocol)
+        path += f"&protocol={protocol}"
     if port is not None:
-        path = path + "&port={}".format(port)
+        path += f"&port={port}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if split_by_ne is not None:
-        path = path + "&splitByNe={}".format(split_by_ne)
+        path += f"&splitByNe={split_by_ne}"
     if last_hour is not None:
-        path = path + "&lastHour={}".format(last_hour)
+        path += f"&lastHour={last_hour}"
 
     return self._get(path)
 
@@ -1989,27 +2006,24 @@ def get_aggregate_stats_ports(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/ports?startTime={}&endTime={}".format(
-        start_time,
-        end_time,
-    )
+    path = f"/stats/aggregate/ports?startTime={start_time}&endTime={end_time}"
 
     if is_source is not None:
-        path = path + "&isSource={}".format(is_source)
+        path += f"&isSource={is_source}"
     if is_known is not None:
-        path = path + "&isKnown={}".format(is_known)
+        path += f"&isKnown={is_known}"
     if protocol is not None:
-        path = path + "&protocol={}".format(protocol)
+        path += f"&protocol={protocol}"
     if port is not None:
-        path = path + "&port={}".format(port)
+        path += f"&port={port}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if split_by_ne is not None:
-        path = path + "&splitByNe={}".format(split_by_ne)
+        path += f"&splitByNe={split_by_ne}"
     if last_hour is not None:
-        path = path + "&lastHour={}".format(last_hour)
+        path += f"&lastHour={last_hour}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
     return self._get(path)
 
@@ -2073,27 +2087,27 @@ def get_aggregate_stats_ports_ne_pk_list(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/ports?startTime={}&endTime={}".format(
-        start_time,
-        end_time,
-    )
+    path = f"/stats/aggregate/ports?startTime={start_time}&endTime={end_time}"
 
     if is_source is not None:
-        path = path + "&isSource={}".format(is_source)
+        path += f"&isSource={is_source}"
     if is_known is not None:
-        path = path + "&isKnown={}".format(is_known)
+        path += f"&isKnown={is_known}"
     if protocol is not None:
-        path = path + "&protocol={}".format(protocol)
+        path += f"&protocol={protocol}"
     if port is not None:
-        path = path + "&port={}".format(port)
+        path += f"&port={port}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if split_by_ne is not None:
-        path = path + "&splitByNe={}".format(split_by_ne)
+        path += f"&splitByNe={split_by_ne}"
     if last_hour is not None:
-        path = path + "&lastHour={}".format(last_hour)
+        path += f"&lastHour={last_hour}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -2141,17 +2155,14 @@ def get_aggregate_stats_top_talkers(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/topTalkers?startTime={}&endTime={}".format(
-        start_time,
-        end_time,
-    )
+    path = f"/stats/aggregate/topTalkers?startTime={start_time}&endTime={end_time}"
 
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if split_by_ne is not None:
-        path = path + "&splitByNe={}".format(split_by_ne)
+        path += f"&splitByNe={split_by_ne}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
     return self._get(path)
 
@@ -2200,19 +2211,19 @@ def get_aggregate_stats_top_talkers_ne_pk_list(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/topTalkers?startTime={}&endTime={}".format(
-        start_time,
-        end_time,
-    )
+    path = f"/stats/aggregate/topTalkers?startTime={start_time}&endTime={end_time}"
 
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if split_by_ne is not None:
-        path = path + "&splitByNe={}".format(split_by_ne)
+        path += f"&splitByNe={split_by_ne}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -2251,14 +2262,17 @@ def get_aggregate_stats_top_talkers_single_appliance(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/topTalkers/{}?startTime={}&endTime={}".format(
-        ne_pk,
-        start_time,
-        end_time,
-    )
+    path = "/stats/aggregate/topTalkers"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += f"startTime={start_time}&endTime={end_time}"
 
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
 
     return self._get(path)
 
@@ -2297,17 +2311,17 @@ def get_aggregate_stats_top_talkers_split_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/topTalkers/split/"
-        + "{}?startTime={}&endTime={}".format(
-            ne_pk,
-            start_time,
-            end_time,
-        )
-    )
+    path = "/stats/aggregate/topTalkers/split"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += f"startTime={start_time}&endTime={end_time}"
 
     if source_ip is not None:
-        path = path + "&sourceIp={}".format(source_ip)
+        path += f"&sourceIp={source_ip}"
 
     return self._get(path)
 
@@ -2354,17 +2368,14 @@ def get_aggregate_stats_traffic_behavior(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/trafficBehavior?startTime={}&endTime={}".format(
-        start_time,
-        end_time,
-    )
+    path = f"/stats/aggregate/trafficBehavior?startTime={start_time}&endTime={end_time}"
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
     if behavioral_cat is not None:
-        path = path + "&behavioralCate={}".format(behavioral_cat)
+        path += f"&behavioralCate={behavioral_cat}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
     return self._get(path)
 
@@ -2425,25 +2436,28 @@ def get_aggregate_stats_traffic_behavior_ne_pk_list(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/trafficBehavior?startTime={}&endTime={}".format(
-        start_time,
-        end_time,
+    path = (
+        "/stats/aggregate/trafficBehavior"
+        + f"?startTime={start_time}&endTime={end_time}"
     )
 
     if behavioral_cat is not None:
-        path = path + "&behavioralCate={}".format(behavioral_cat)
+        path += f"&behavioralCate={behavioral_cat}"
     if application is not None:
-        path = path + "&application={}".format(application)
+        path += f"&application={application}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if last_hour is not None:
-        path = path + "&lastHour={}".format(last_hour)
+        path += f"&lastHour={last_hour}"
     if is_aggregated is not None:
-        path = path + "&isAggregated={}".format(is_aggregated)
+        path += f"&isAggregated={is_aggregated}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -2495,23 +2509,23 @@ def get_aggregate_stats_traffic_behavior_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/trafficBehavior/"
-        + "{}?startTime={}&endTime={}".format(
-            ne_pk,
-            start_time,
-            end_time,
-        )
-    )
+    path = "/stats/aggregate/trafficBehavior"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += f"startTime={start_time}&endTime={end_time}"
 
     if behavioral_cat is not None:
-        path = path + "&behavioralCate={}".format(behavioral_cat)
+        path += f"&behavioralCate={behavioral_cat}"
     if application is not None:
-        path = path + "&application={}".format(application)
+        path += f"&application={application}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if last_hour is not None:
-        path = path + "&lastHour={}".format(last_hour)
+        path += f"&lastHour={last_hour}"
 
     return self._get(path)
 
@@ -2571,19 +2585,17 @@ def get_aggregate_stats_jitter(
     """
     path = (
         "/stats/aggregate/jitter?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
     return self._get(path)
 
@@ -2650,23 +2662,24 @@ def get_aggregate_stats_jitter_ne_pk_list(
     """
     path = (
         "/stats/aggregate/jitter?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -2735,25 +2748,29 @@ def get_aggregate_stats_jitter_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/jitter/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    path = "/stats/aggregate/jitter"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
     if tunnel_name is not None:
-        path = path + "&tunnelName={}".format(tunnel_name)
+        path += f"&tunnelName={tunnel_name}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
     return self._get(path)
 
@@ -2817,21 +2834,19 @@ def get_aggregate_stats_drc(
     """
     path = (
         "/stats/aggregate/drc?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if group_pk is not None:
-        path = path + "&groupPk={}".format(group_pk)
+        path += f"&groupPk={group_pk}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
     return self._get(path)
 
@@ -2893,21 +2908,22 @@ def get_aggregate_stats_drc_ne_pk_list(
     """
     path = (
         "/stats/aggregate/drc?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -2971,23 +2987,27 @@ def get_aggregate_stats_drc_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/drc/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    path = "/stats/aggregate/drc"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if tunnel_name is not None:
-        path = path + "&tunnelName={}".format(tunnel_name)
+        path += f"&tunnelName={tunnel_name}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
     return self._get(path)
 
@@ -3037,13 +3057,12 @@ def get_aggregate_stats_interface(
     """
     path = (
         "/stats/aggregate/interface?"
-        + "startTime={}&endTime={}&granularity={}&trafficType={}".format(
-            start_time, end_time, granularity, traffic_type
-        )
+        + f"startTime={start_time}&endTime={end_time}"
+        + f"&granularity={granularity}&trafficType={traffic_type}"
     )
 
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
     return self._get(path)
 
@@ -3097,15 +3116,17 @@ def get_aggregate_stats_interface_ne_pk_list(
     """
     path = (
         "/stats/aggregate/interface?"
-        + "startTime={}&endTime={}&granularity={}&trafficType={}".format(
-            start_time, end_time, granularity, traffic_type
-        )
+        + f"startTime={start_time}&endTime={end_time}"
+        + f"&granularity={granularity}&trafficType={traffic_type}"
     )
 
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -3162,19 +3183,20 @@ def get_aggregate_stats_interface_overlay_transport_ne_pk_list(
     """
     path = (
         "/stats/aggregate/interfaceOverlay?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if interface_name is not None:
-        path = path + "&interfaceName={}".format(interface_name)
+        path += f"&interfaceName={interface_name}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -3236,21 +3258,22 @@ def get_aggregate_stats_mos_ne_pk_list(
     """
     path = (
         "/stats/aggregate/mos?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -3313,23 +3336,27 @@ def get_aggregate_stats_mos_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/mos/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    path = "/stats/aggregate/mos"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if tunnel_name is not None:
-        path = path + "&tunnelName={}".format(tunnel_name)
+        path += f"&tunnelName={tunnel_name}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
     return self._get(path)
 
@@ -3382,17 +3409,18 @@ def get_aggregate_stats_boost_ne_pk_list(
     """
     path = (
         "/stats/aggregate/boost?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -3452,21 +3480,25 @@ def get_aggregate_stats_boost_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/boost/"
-        + "{}?startTime={}&endTime={}&granularity={}".format(
-            ne_pk, start_time, end_time, granularity
-        )
+    path = "/stats/aggregate/boost"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if tunnel_name is not None:
-        path = path + "&tunnelName={}".format(tunnel_name)
+        path += f"&tunnelName={tunnel_name}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
     return self._get(path)
 
@@ -3522,19 +3554,20 @@ def get_aggregate_stats_security_policy_ne_pk_list(
     """
     path = (
         "/stats/aggregate/securityPolicy?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
-    data = {"ids": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"ids": ne_pk_list}
 
     return self._post(path, data=data)
 
@@ -3595,20 +3628,24 @@ def get_aggregate_stats_security_policy_single_appliance(
         parameters
     :rtype: dict
     """
-    path = (
-        "/stats/aggregate/securityPolicy/"
-        + "{}?startTime={}&endTime={}&granularity={}&".format(
-            ne_pk, start_time, end_time, granularity
-        )
-        + "fromZone={}&toZone={}".format(from_zone, to_zone)
+    path = "/stats/aggregate/securityPolicy"
+
+    if self.orch_version >= 9.3:
+        path += f"?nePk={ne_pk}"
+    else:
+        path += f"/{ne_pk}?"
+
+    path += (
+        f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
+    path += f"fromZone={from_zone}&toZone={to_zone}"
 
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if data_format is not None:
-        path = path + "&format={}".format(data_format)
+        path += f"&format={data_format}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
     return self._get(path)
 
@@ -3639,10 +3676,10 @@ def get_aggregate_stats_tunnels_ne_pk_tunnels(
     :param ne_pk_tunnel_list: List of dictionaries of appliance nePk
         values and optional tunnel id's,
         e.g. ``[{"nePk":"77.NE", "tunnelId":"tunnel_8"}, ...]`` \n
-        * keyword **ids** (`str`): Network Primary Key (nePk) of
-          appliance, e.g. ``3.NE`` \n
-        * keyword **tunnelId** (`str`): tunnel id, e.g. ``Tunnel_12``,
-          mandatory field but can be blank string "" \n
+            * keyword **ids** (`str`): Network Primary Key (nePk) of
+              appliance, e.g. ``3.NE`` \n
+            * keyword **tunnelId** (`str`): tunnel id, e.g.
+              ``Tunnel_12``, mandatory field but can be blank string ""
     :type ne_pk_tunnel_list: list[str]
     :param start_time: Long(Signed 64 bits) value of seconds since EPOCH
         time indicating the starting time boundary of data time range
@@ -3679,19 +3716,17 @@ def get_aggregate_stats_tunnels_ne_pk_tunnels(
     """
     path = (
         "/stats2/aggregate/tunnel?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
     data = ne_pk_tunnel_list
 
@@ -3746,14 +3781,15 @@ def get_aggregate_stats_top_talkers_ne_pk_tunnels(
         parameters
     :rtype: dict
     """
-    path = "/stats2/aggregate/topTalkers?" + "startTime={}&endTime={}".format(
-        start_time, end_time
+    path = (
+        "/stats2/aggregate/topTalkers?"
+        + f"startTime={start_time}&endTime={end_time}"
     )
 
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if split_by_ne is not None:
-        path = path + "&splitByNe={}".format(split_by_ne)
+        path += f"&splitByNe={split_by_ne}"
 
     data = ne_pk_tunnel_list
 
@@ -3824,22 +3860,20 @@ def get_aggregate_stats_dns_ne_pk_tunnels(
         parameters
     :rtype: dict
     """
-    path = "/stats2/aggregate/dns?startTime={}&endTime={}".format(
-        start_time, end_time
-    )
+    path = f"/stats2/aggregate/dns?startTime={start_time}&endTime={end_time}"
 
     if is_source is not None:
-        path = path + "&isSource={}".format(is_source)
+        path += f"&isSource={is_source}"
     if split_type is not None:
-        path = path + "&splitType={}".format(split_type)
+        path += f"&splitType={split_type}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if split_by_ne is not None:
-        path = path + "&splitByNe={}".format(split_by_ne)
+        path += f"&splitByNe={split_by_ne}"
     if group_by is not None:
-        path = path + "&groupBy={}".format(group_by)
+        path += f"&groupBy={group_by}"
     if group_by_subdomains is not None:
-        path = path + "&groupBySubdomains={}".format(group_by_subdomains)
+        path += f"&groupBySubdomains={group_by_subdomains}"
 
     data = ne_pk_tunnel_list
 
@@ -3910,25 +3944,22 @@ def get_aggregate_stats_ports_ne_pk_tunnels(
         parameters
     :rtype: dict
     """
-    path = "/stats/aggregate/ports?startTime={}&endTime={}".format(
-        start_time,
-        end_time,
-    )
+    path = f"/stats/aggregate/ports?startTime={start_time}&endTime={end_time}"
 
     if is_source is not None:
-        path = path + "&isSource={}".format(is_source)
+        path += f"&isSource={is_source}"
     if is_known is not None:
-        path = path + "&isKnown={}".format(is_known)
+        path += f"&isKnown={is_known}"
     if protocol is not None:
-        path = path + "&protocol={}".format(protocol)
+        path += f"&protocol={protocol}"
     if port is not None:
-        path = path + "&port={}".format(port)
+        path += f"&port={port}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if split_by_ne is not None:
-        path = path + "&splitByNe={}".format(split_by_ne)
+        path += f"&splitByNe={split_by_ne}"
     if last_hour is not None:
-        path = path + "&lastHour={}".format(last_hour)
+        path += f"&lastHour={last_hour}"
 
     data = ne_pk_tunnel_list
 
@@ -3993,17 +4024,15 @@ def get_aggregate_stats_mos_ne_pk_tunnels(
     """
     path = (
         "/stats2/aggregate/mos?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
     data = ne_pk_tunnel_list
 
@@ -4061,16 +4090,14 @@ def get_aggregate_stats_application2_ne_pk_tunnels(
         parameters
     :rtype: dict
     """
-    path = "/stats2/aggregate/application2?startTime={}&endTime={}".format(
-        start_time, end_time
-    )
+    path = f"/stats2/aggregate/application2?startTime={start_time}&endTime={end_time}"
 
     if application is not None:
-        path = path + "&application={}".format(application)
+        path += f"&application={application}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
     data = ne_pk_tunnel_list
 
@@ -4152,23 +4179,21 @@ def get_aggregate_stats_application_ne_pk_tunnels(
     """
     path = (
         "/stats2/aggregate/application?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if application is not None:
-        path = path + "&application={}".format(application)
+        path += f"&application={application}"
     if traffic_type is not None:
-        path = path + "&trafficType={}".format(traffic_type)
+        path += f"&trafficType={traffic_type}"
     if ip is not None:
-        path = path + "&ip={}".format(ip)
+        path += f"&ip={ip}"
     if metric is not None:
-        path = path + "&metric={}".format(metric)
+        path += f"&metric={metric}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
     if group_by_ne is not None:
-        path = path + "&groupByNe={}".format(group_by_ne)
+        path += f"&groupByNe={group_by_ne}"
 
     data = ne_pk_tunnel_list
 
@@ -4219,9 +4244,7 @@ def get_aggregate_stats_overlay_bandwidth_ne_pk_tunnels(
     """
     path = (
         "/stats2/aggregate/overlays/bandwidth?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     data = ne_pk_tunnel_list
@@ -4283,15 +4306,13 @@ def get_aggregate_stats_interface_overlay_transport_ne_pk_tunnels(
     """
     path = (
         "/stats2/aggregate/interfaceOverlay?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if interface_name is not None:
-        path = path + "&interfaceName={}".format(interface_name)
+        path += f"&interfaceName={interface_name}"
     if overlay is not None:
-        path = path + "&overlay={}".format(overlay)
+        path += f"&overlay={overlay}"
 
     data = ne_pk_tunnel_list
 
@@ -4348,15 +4369,13 @@ def get_aggregate_stats_shaper_ne_pk_list(
     """
     path = (
         "/stats2/aggregate/shaper?"
-        + "startTime={}&endTime={}&granularity={}".format(
-            start_time, end_time, granularity
-        )
+        + f"startTime={start_time}&endTime={end_time}&granularity={granularity}"
     )
 
     if direction is not None:
-        path = path + "&direction={}".format(direction)
+        path += f"&direction={direction}"
     if top is not None:
-        path = path + "&top={}".format(top)
+        path += f"&top={top}"
 
     data = ne_pk_tunnel_list
 

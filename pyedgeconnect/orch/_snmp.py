@@ -64,4 +64,9 @@ def get_appliance_snmp(
           enabled at system start up
     :rtype: dict
     """
-    return self._get("/snmp/{}?cached={}".format(ne_pk, cached))
+    if self.orch_version >= 9.3:
+        path = f"/snmp?nePk={ne_pk}&cached={cached}"
+    else:
+        path = f"/snmp/{ne_pk}?cached={cached}"
+
+    return self._get(path)

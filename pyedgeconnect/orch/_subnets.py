@@ -180,10 +180,14 @@ def get_appliance_subnets(
               DESCRIPTION, e.g. ``0``
     :rtype: dict
     """
-    path = "/subnets/{}/{}".format(cached, ne_id)
-
-    if subnet_filter is not None:
-        path = path + "?subnet={}".format(subnet_filter)
+    if self.orch_version >= 9.3:
+        path = f"/subnets?nePk={ne_id}&cached={cached}"
+        if subnet_filter is not None:
+            path += f"&subnet={subnet_filter}"
+    else:
+        path = f"/subnets/{cached}/{ne_id}"
+        if subnet_filter is not None:
+            path += f"?subnet={subnet_filter}"
 
     return self._get(path)
 
@@ -350,7 +354,12 @@ def get_discovered_appliance_subnets(
               DESCRIPTION, e.g. ``0``
     :rtype: dict
     """
-    return self._get("/subnets/forDiscovered/{}".format(discovered_id))
+    if self.orch_version >= 9.3:
+        path = f"/subnets/forDiscovered?discoveredId={discovered_id}"
+    else:
+        path = f"/subnets/forDiscovered/{discovered_id}"
+
+    return self._get(path)
 
 
 def set_appliance_subnet_sharing_options(
@@ -401,8 +410,14 @@ def set_appliance_subnet_sharing_options(
             "add_local_wan": advertise_local_wan,
         }
     }
+
+    if self.orch_version >= 9.3:
+        path = f"/subnets/setSubnetSharingOptions?nePk={ne_id}"
+    else:
+        path = f"/subnets/setSubnetSharingOptions/{ne_id}"
+
     return self._post(
-        "/subnets/setSubnetSharingOptions/{}".format(ne_id),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",

@@ -27,4 +27,9 @@ def get_built_in_policies(
     :return: Returns appliance policy information
     :rtype: dict
     """
-    return self._get("/saMap/{}".format(ne_pk))
+    if self.orch_version >= 9.3:
+        path = f"/saMap?nePk={ne_pk}"
+    else:
+        path = f"/saMap/{ne_pk}"
+
+    return self._get(path)

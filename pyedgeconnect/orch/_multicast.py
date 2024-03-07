@@ -29,7 +29,12 @@ def get_appliance_multicast_enabled(
     :return: Returns dictionary of multicast enabled info
     :rtype: dict
     """
-    return self._get("/multicast/enable/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/multicast/enable?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/multicast/enable/{ne_id}?cached={cached}"
+
+    return self._get(path)
 
 
 def get_appliance_multicast_config(
@@ -57,7 +62,12 @@ def get_appliance_multicast_config(
     :return: Returns dictionary of multicast configuration
     :rtype: dict
     """
-    return self._get("/multicast/config/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/multicast/config?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/multicast/config/{ne_id}?cached={cached}"
+
+    return self._get(path)
 
 
 def get_appliance_multicast_interfaces(
@@ -81,7 +91,12 @@ def get_appliance_multicast_interfaces(
     :return: Returns list of multicast interface states
     :rtype: list
     """
-    return self._get("/multicast/state/interfaces/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/multicast/state/interfaces?nePk={ne_id}"
+    else:
+        path = f"/multicast/state/interfaces/{ne_id}"
+
+    return self._get(path)
 
 
 def get_appliance_multicast_neighbors(
@@ -105,7 +120,12 @@ def get_appliance_multicast_neighbors(
     :return: Returns list of multicast neighbor states
     :rtype: list
     """
-    return self._get("/multicast/state/neighbors/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/multicast/state/neighbors?nePk={ne_id}"
+    else:
+        path = f"/multicast/state/neighbors/{ne_id}"
+
+    return self._get(path)
 
 
 def get_appliance_multicast_routes(
@@ -129,4 +149,9 @@ def get_appliance_multicast_routes(
     :return: Returns list of multicast route states
     :rtype: list
     """
-    return self._get("/multicast/state/routes/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/multicast/state/routes?nePk={ne_id}"
+    else:
+        path = f"/multicast/state/routes/{ne_id}"
+
+    return self._get(path)

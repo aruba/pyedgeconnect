@@ -74,7 +74,12 @@ def get_region(
     :return: Returns dictionary of region
     :rtype: dict
     """
-    return self._get("/regions/{}".format(region_id))
+    if self.orch_version >= 9.3:
+        path = f"/regions?regionId={region_id}"
+    else:
+        path = f"/regions/{region_id}"
+
+    return self._get(path)
 
 
 def update_region_name(
@@ -101,9 +106,17 @@ def update_region_name(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    data = {"regionName": region_name}
+
+    if self.orch_version >= 9.3:
+        path = f"/regions?regionId={region_id}"
+    else:
+        path = f"/regions/{region_id}"
+
     return self._put(
-        "/regions/{}".format(region_id),
+        path,
         expected_status=[204],
+        data=data,
         return_type="bool",
     )
 
@@ -129,8 +142,13 @@ def delete_region(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/regions?regionId={region_id}"
+    else:
+        path = f"/regions/{region_id}"
+
     return self._delete(
-        "/regions/{}".format(region_id),
+        path,
         expected_status=[204],
         return_type="bool",
     )
@@ -214,8 +232,13 @@ def update_region_appliance_association(
     """
     data = {"regionId": region_id}
 
+    if self.orch_version >= 9.3:
+        path = f"/regions/appliances?nePk={ne_pk}"
+    else:
+        path = f"/regions/appliances/{ne_pk}"
+
     return self._put(
-        "/regions/appliances/{}".format(ne_pk),
+        path,
         data=data,
         expected_status=[204],
         return_type="bool",
@@ -247,7 +270,12 @@ def get_region_appliance_association_by_nepk(
         * keyword **regionName** (`str`): Region name
     :rtype: dict
     """
-    return self._get("/regions/appliances/nePk/{}".format(ne_pk))
+    if self.orch_version >= 9.3:
+        path = f"/regions/appliances?nePk={ne_pk}"
+    else:
+        path = f"/regions/appliances/nePk/{ne_pk}"
+
+    return self._get(path)
 
 
 def get_region_appliance_association_by_region_id(
@@ -271,4 +299,9 @@ def get_region_appliance_association_by_region_id(
     :return: Returns dictionary of appliances associated to region
     :rtype: dict
     """
-    return self._get("/regions/appliances/regionId/{}".format(region_id))
+    if self.orch_version >= 9.3:
+        path = f"/regions/appliances/regionId?regionId={region_id}"
+    else:
+        path = f"/regions/appliances/regionId/{region_id}"
+
+    return self._get(path)

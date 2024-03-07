@@ -331,8 +331,13 @@ def change_appliance_license(
             "display": "EC-AS-UL",
         }
 
+    if self.orch_version >= 9.3:
+        path = f"/license/portal/ec?nePk={ne_pk}"
+    else:
+        path = f"/license/portal/ec/{ne_pk}"
+
     return self._post(
-        "/license/portal/ec/{}".format(ne_pk),
+        path,
         data=data,
         return_type="bool",
     )
@@ -359,8 +364,13 @@ def grant_appliance_base_license(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/license/portal/appliance/grant?nePk={ne_pk}"
+    else:
+        path = f"/license/portal/appliance/grant/{ne_pk}"
+
     return self._post(
-        "/license/portal/appliance/grant/{}".format(ne_pk),
+        path,
         return_type="bool",
     )
 
@@ -386,8 +396,13 @@ def revoke_appliance_base_license(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/license/portal/appliance/revoke?nePk={ne_pk}"
+    else:
+        path = f"/license/portal/appliance/revoke/{ne_pk}"
+
     return self._post(
-        "/license/portal/appliance/revoke/{}".format(ne_pk),
+        path,
         return_type="bool",
     )
 
@@ -417,7 +432,12 @@ def delete_appliance_license_token(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/license/portal/appliance/license/token?nePk={ne_pk}"
+    else:
+        path = f"/license/portal/appliance/license/token/{ne_pk}"
+
     return self._delete(
-        "/license/portal/appliance/license/token/{}".format(ne_pk),
+        path,
         return_type="bool",
     )

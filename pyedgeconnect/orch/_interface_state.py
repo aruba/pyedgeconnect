@@ -68,4 +68,9 @@ def get_appliance_interface_state(
           addresses
     :rtype: dict
     """
-    return self._get("/interfaceState/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/interfaceState?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/interfaceState/{ne_id}?cached={cached}"
+
+    return self._get(path)

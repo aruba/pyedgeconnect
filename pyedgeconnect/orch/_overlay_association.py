@@ -133,7 +133,12 @@ def get_appliance_overlay_association(
               overlay, e.g. ``["3.NE","5.NE"]``
     :rtype: dict
     """
-    return self._get("/gms/overlays/association/{}".format(overlay_id))
+    if self.orch_version >= 9.3:
+        path = f"/gms/overlays/association?overlayId={overlay_id}"
+    else:
+        path = f"/gms/overlays/association/{overlay_id}"
+
+    return self._get(path)
 
 
 def remove_single_appliance_overlay_association(
@@ -162,8 +167,13 @@ def remove_single_appliance_overlay_association(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/gms/overlays/association?overlayId={overlay_id}&nePk={ne_pk}"
+    else:
+        path = f"/gms/overlays/association/{overlay_id}/{ne_pk}"
+
     return self._delete(
-        "/gms/overlays/association/{}/{}".format(overlay_id, ne_pk),
+        path,
         expected_status=[204],
         return_type="bool",
     )

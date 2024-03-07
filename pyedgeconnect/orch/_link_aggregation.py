@@ -34,4 +34,9 @@ def get_link_aggregation_data(
             interfaces as string, e.g. ``lan0,lan1``
     :rtype: dict
     """
-    return self._get("/linkAggregation/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/linkAggregation?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/linkAggregation/{ne_id}?cached={cached}"
+
+    return self._get(path)

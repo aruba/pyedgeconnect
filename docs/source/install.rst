@@ -72,7 +72,7 @@ To install a specific branch use the @branch syntax
 
     $ pip install git+https://github.com/aruba/pyedgeconnect@<branch_name>
     # Install the Development branch
-    $ pip install git+https://github.com/aruba/pyedgeconnect@Development
+    $ pip install git+https://github.com/aruba/pyedgeconnect@development
 
 Build Documentation Locally
 ---------------------------
@@ -83,7 +83,7 @@ to include sphinx and related packages, then in the docs directory run ``make ht
 .. code:: bash
 
     $ git clone https://github.com/aruba/pyedgeconnect.git
-    $ cd edgeconnect-python
+    $ cd pyedgeconnect
     $ pip install .[dev]
     $ cd docs
     $ make html

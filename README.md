@@ -11,6 +11,9 @@ Edge Connect web interfaces under "Support > Rest API"
 Many, but not all API functions have been implemented yet. Development
 is underway to continue to add further functions.
 
+**THERE IS NOW PRELIMINARY SUPPORT FOR API CHANGES INTRODUCED IN
+ORCHESTRATOR 9.3+**
+
 ## Install
 
 ### Python Version

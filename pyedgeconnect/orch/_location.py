@@ -41,4 +41,4 @@ def get_location_coordinates_from_address(
                     * keyword **lng** (`float`): Longitude coordinate
     :rtype: list
     """
-    return self._get("/location/addressToLocation?address={}".format(address))
+    return self._get(f"/location/addressToLocation?address={address}")

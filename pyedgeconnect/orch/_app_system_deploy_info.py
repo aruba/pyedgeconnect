@@ -154,7 +154,12 @@ def get_appliance_system_deployment_info(
                           max wait
     :rtype: dict
     """
-    return self._get("/systemInfo/system/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/systemInfo/system?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/systemInfo/system/{ne_id}?cached={cached}"
+
+    return self._get(path)
 
 
 def get_discovered_appliance_system_deployment_info(

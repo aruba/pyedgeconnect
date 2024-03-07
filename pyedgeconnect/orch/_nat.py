@@ -29,7 +29,12 @@ def get_appliance_nat_config(
     :return: Returns dictionary of NAT configuration details
     :rtype: dict
     """
-    return self._get("/nat/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/nat?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/nat/{ne_id}?cached={cached}"
+
+    return self._get(path)
 
 
 def get_appliance_nat_pools(
@@ -57,7 +62,12 @@ def get_appliance_nat_pools(
     :return: Returns dictionary of NAT configuration details
     :rtype: dict
     """
-    return self._get("/nat/{}/natPools?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/nat/natPools?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/nat/{ne_id}/natPools?cached={cached}"
+
+    return self._get(path)
 
 
 def get_appliance_nat_maps(
@@ -85,4 +95,9 @@ def get_appliance_nat_maps(
     :return: Returns dictionary of NAT configuration details
     :rtype: dict
     """
-    return self._get("/nat/{}/maps?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/nat/maps?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/nat/{ne_id}/maps?cached={cached}"
+
+    return self._get(path)

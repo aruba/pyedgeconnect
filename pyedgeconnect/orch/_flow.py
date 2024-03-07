@@ -315,59 +315,62 @@ def get_appliance_flows(  # noqa: C901, silences flake8 complexity
             * [62] (`int`): Destination VRF ID
     :rtype: dict
     """
-    path = "/flow/{}/q?".format(ne_id)
+    if self.orch_version >= 9.3:
+        path = f"/flow?nePk={ne_id}"
+    else:
+        path = f"/flow/{ne_id}/q?"
 
     if ip1 is not None:
-        path = path + "&ip1={}".format(ip1)
+        path += f"&ip1={ip1}"
     if mask1 is not None:
-        path = path + "&mask1={}".format(mask1)
+        path += f"&mask1={mask1}"
     if port1 is not None:
-        path = path + "&port1={}".format(port1)
+        path += f"&port1={port1}"
     if ip2 is not None:
-        path = path + "&ip2={}".format(ip2)
+        path += f"&ip2={ip2}"
     if mask2 is not None:
-        path = path + "&mask2={}".format(mask2)
+        path += f"&mask2={mask2}"
     if port2 is not None:
-        path = path + "&port2={}".format(port2)
+        path += f"&port2={port2}"
 
-    path = path + "&ipEitherFlag={}".format(ip_either_flag)
-    path = path + "&portEitherFlag={}".format(port_either_flag)
+    path += f"&ipEitherFlag={ip_either_flag}"
+    path += f"&portEitherFlag={port_either_flag}"
 
     if vrf1 is not None:
-        path = path + "&vrf1={}".format(vrf1)
+        path += f"&vrf1={vrf1}"
     if vrf2 is not None:
-        path = path + "&vrf2={}".format(vrf2)
+        path += f"&vrf2={vrf2}"
     if vrf_either is not None:
-        path = path + "&vrfEither={}".format(vrf_either)
+        path += f"&vrfEither={vrf_either}"
     if application is not None:
-        path = path + "&application={}".format(application)
+        path += f"&application={application}"
     if application_group is not None:
-        path = path + "&applicationGroup={}".format(application_group)
+        path += f"&applicationGroup={application_group}"
     if protocol is not None:
-        path = path + "&protocol={}".format(protocol)
+        path += f"&protocol={protocol}"
     if vlan is not None:
-        path = path + "&vlan={}".format(vlan)
+        path += f"&vlan={vlan}"
     if dscp is not None:
-        path = path + "&dscp={}".format(dscp)
+        path += f"&dscp={dscp}"
     if overlays is not None:
-        path = path + "&overlays={}".format(overlays)
+        path += f"&overlays={overlays}"
     if transport is not None:
-        path = path + "&transport={}".format(transport)
+        path += f"&transport={transport}"
     if services is not None:
-        path = path + "&services={}".format(services)
+        path += f"&services={services}"
     if zone1 is not None:
-        path = path + "&zone1={}".format(zone1)
+        path += f"&zone1={zone1}"
     if zone2 is not None:
-        path = path + "&zone2={}".format(zone2)
+        path += f"&zone2={zone2}"
     if zone_either is not None:
-        path = path + "&zoneEither={}".format(zone_either)
+        path += f"&zoneEither={zone_either}"
 
-    path = path + "&filter={}".format(flow_category)
-    path = path + "&edgeHa={}".format(edge_ha)
-    path = path + "&builtIn={}".format(built_in)
+    path += f"&filter={flow_category}"
+    path += f"&edgeHa={edge_ha}"
+    path += f"&builtIn={built_in}"
 
     if uptime is not None:
-        path = path + "&uptime={}".format(uptime)
+        path += f"&uptime={uptime}"
     if active_uptime_start is not None and active_uptime_end is not None:
         path += f"&anyStartTime={active_uptime_start}&anyEndTime={active_uptime_end}"
     if term_uptime_start is not None and term_uptime_end is not None:
@@ -375,13 +378,13 @@ def get_appliance_flows(  # noqa: C901, silences flake8 complexity
             f"&termStartTime={term_uptime_start}&termEndTime={term_uptime_end}"
         )
 
-    path = path + "&bytes={}".format(bytes_transferred)
-    path = path + "&duration={}".format(duration)
+    path += f"&bytes={bytes_transferred}"
+    path += f"&duration={duration}"
 
     if duration is not None:
-        path = path + "&duration={}".format(duration)
+        path += f"&duration={duration}"
     if anytime_slow_flows is not None:
-        path = path + "&anytimeSlowFlows={}".format(anytime_slow_flows)
+        path += f"&anytimeSlowFlows={anytime_slow_flows}"
 
     return self._get(path)
 
@@ -414,8 +417,13 @@ def reset_flows(
     """
     data = {"spIds": flow_id_list}
 
+    if self.orch_version >= 9.3:
+        path = f"/flow/flowReset?nePk={ne_id}"
+    else:
+        path = f"/flow/flowReset/{ne_id}"
+
     return self._post(
-        "/flow/flowReset/{}".format(ne_id),
+        path,
         data=data,
         expected_status=[200, 204],
     )
@@ -453,7 +461,15 @@ def reclassify_flows(
     """
     data = {"spIds": flow_id_list}
 
-    return self._post("/flow/flowReClassification/{}".format(ne_id), data=data)
+    if self.orch_version >= 9.3:
+        path = f"/flow/flowReClassification?nePk={ne_id}"
+    else:
+        path = f"/flow/flowReClassification/{ne_id}"
+
+    return self._post(
+        path,
+        data=data,
+    )
 
 
 def get_appliance_flow_bandwidth_stats(
@@ -484,11 +500,14 @@ def get_appliance_flow_bandwidth_stats(
         bandwidth stats about the flow
     :rtype: list[dict]
     """
-    return self._get(
-        "/flow/flowBandwidthStats/{}/q?id={}&seq={}".format(
-            ne_id, flow_id, flow_seq_num
-        )
-    )
+    if self.orch_version >= 9.3:
+        path = f"/flow/flowBandwidthStats?nePk={ne_id}&"
+    else:
+        path = f"/flow/flowBandwidthStats/{ne_id}/q?"
+
+    path += f"id={flow_id}&seq={flow_seq_num}"
+
+    return self._get(path)
 
 
 def get_appliance_flow_details(
@@ -528,11 +547,14 @@ def get_appliance_flow_details(
               description in Swagger
     :rtype: list
     """
-    return self._get(
-        "/flow/flowDetails/{}/q?id={}&seq={}".format(
-            ne_id, flow_id, flow_seq_num
-        )
-    )
+    if self.orch_version >= 9.3:
+        path = f"/flow/flowDetails?nePk={ne_id}&"
+    else:
+        path = f"/flow/flowDetails/{ne_id}/q?"
+
+    path += f"id={flow_id}&seq={flow_seq_num}"
+
+    return self._get(path)
 
 
 def get_appliance_flow_details_verbose(
@@ -579,8 +601,11 @@ def get_appliance_flow_details_verbose(
 
     :rtype: list
     """
-    return self._get(
-        "/flow/flowDetails2/{}/q?id={}&seq={}".format(
-            ne_id, flow_id, flow_seq_num
-        )
-    )
+    if self.orch_version >= 9.3:
+        path = f"/flow/flowDetails2?nePk={ne_id}&"
+    else:
+        path = f"/flow/flowDetails2/{ne_id}/q?"
+
+    path += f"id={flow_id}&seq={flow_seq_num}"
+
+    return self._get(path)

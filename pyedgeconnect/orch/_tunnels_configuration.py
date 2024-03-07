@@ -144,33 +144,33 @@ def get_physical_tunnel_details(
     path = "/tunnels2/physical?limit={}".format(limit)
 
     if matching_alias is not None:
-        path = path + "&matchingAlias={}".format(matching_alias)
+        path += "&matchingAlias={}".format(matching_alias)
     if state is not None:
-        path = path + "&state={}".format(state)
+        path += "&state={}".format(state)
     if tunnel_id is not None:
-        path = path + "&id={}".format(tunnel_id)
+        path += "&id={}".format(tunnel_id)
     if alias is not None:
-        path = path + "&alias={}".format(alias)
+        path += "&alias={}".format(alias)
     if tag is not None:
-        path = path + "&tag={}".format(tag)
+        path += "&tag={}".format(tag)
     if source_ne_pk is not None:
-        path = path + "&srcNePk={}".format(source_ne_pk)
+        path += "&srcNePk={}".format(source_ne_pk)
     if dest_ne_pk is not None:
-        path = path + "&destNePk={}".format(dest_ne_pk)
+        path += "&destNePk={}".format(dest_ne_pk)
     if dest_tunnel_id is not None:
-        path = path + "&destTunnelId={}".format(dest_tunnel_id)
+        path += "&destTunnelId={}".format(dest_tunnel_id)
     if dest_tunnel_alias is not None:
-        path = path + "&destTunnelAlias={}".format(dest_tunnel_alias)
+        path += "&destTunnelAlias={}".format(dest_tunnel_alias)
     if operational_status is not None:
-        path = path + "&operStatus={}".format(operational_status)
+        path += "&operStatus={}".format(operational_status)
     if admin_status is not None:
-        path = path + "&adminStatus={}".format(admin_status)
+        path += "&adminStatus={}".format(admin_status)
     if remote_id_state is not None:
-        path = path + "&remoteIdState={}".format(remote_id_state)
+        path += "&remoteIdState={}".format(remote_id_state)
     if fec_status is not None:
-        path = path + "&fecStatus={}".format(fec_status)
+        path += "&fecStatus={}".format(fec_status)
     if fec_ratio is not None:
-        path = path + "&fecRatio={}".format(fec_ratio)
+        path += "&fecRatio={}".format(fec_ratio)
 
     return self._get(path)
 
@@ -258,33 +258,33 @@ def get_physical_tunnel_details_for_appliance(
     path = "/tunnels2/physical/{}?limit={}".format(ne_pk, limit)
 
     if matching_alias is not None:
-        path = path + "&matchingAlias={}".format(matching_alias)
+        path += "&matchingAlias={}".format(matching_alias)
     if state is not None:
-        path = path + "&state={}".format(state)
+        path += "&state={}".format(state)
     if tunnel_id is not None:
-        path = path + "&id={}".format(tunnel_id)
+        path += "&id={}".format(tunnel_id)
     if alias is not None:
-        path = path + "&alias={}".format(alias)
+        path += "&alias={}".format(alias)
     if tag is not None:
-        path = path + "&tag={}".format(tag)
+        path += "&tag={}".format(tag)
     if source_ne_pk is not None:
-        path = path + "&srcNePk={}".format(source_ne_pk)
+        path += "&srcNePk={}".format(source_ne_pk)
     if dest_ne_pk is not None:
-        path = path + "&destNePk={}".format(dest_ne_pk)
+        path += "&destNePk={}".format(dest_ne_pk)
     if dest_tunnel_id is not None:
-        path = path + "&destTunnelId={}".format(dest_tunnel_id)
+        path += "&destTunnelId={}".format(dest_tunnel_id)
     if dest_tunnel_alias is not None:
-        path = path + "&destTunnelAlias={}".format(dest_tunnel_alias)
+        path += "&destTunnelAlias={}".format(dest_tunnel_alias)
     if operational_status is not None:
-        path = path + "&operStatus={}".format(operational_status)
+        path += "&operStatus={}".format(operational_status)
     if admin_status is not None:
-        path = path + "&adminStatus={}".format(admin_status)
+        path += "&adminStatus={}".format(admin_status)
     if remote_id_state is not None:
-        path = path + "&remoteIdState={}".format(remote_id_state)
+        path += "&remoteIdState={}".format(remote_id_state)
     if fec_status is not None:
-        path = path + "&fecStatus={}".format(fec_status)
+        path += "&fecStatus={}".format(fec_status)
     if fec_ratio is not None:
-        path = path + "&fecRatio={}".format(fec_ratio)
+        path += "&fecRatio={}".format(fec_ratio)
 
     return self._get(path)
 
@@ -359,11 +359,11 @@ def get_tunnels_between_appliances(
     path = "/tunnels2/getTunnelsBetweenAppliances?limit={}".format(limit)
 
     if matching_alias is not None:
-        path = path + "&matchingAlias={}".format(matching_alias)
+        path += "&matchingAlias={}".format(matching_alias)
     if overlay_id is not None:
-        path = path + "&overlayId={}".format(overlay_id)
+        path += "&overlayId={}".format(overlay_id)
     if state is not None:
-        path = path + "&state={}".format(state)
+        path += "&state={}".format(state)
 
     data = {"ids": ne_pk_list}
 
@@ -400,7 +400,7 @@ def get_tunnels_between_appliances_config_data(
     path = "/tunnels2/physical/state"
 
     if state is not None:
-        path = path + "&state={}".format(state)
+        path += "&state={}".format(state)
 
     data = {"ids": ne_pk_list}
 

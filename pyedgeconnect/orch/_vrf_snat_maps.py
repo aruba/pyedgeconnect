@@ -29,4 +29,9 @@ def get_snat_maps(
     :return: Returns dictionary of SNAT maps
     :rtype: dict
     """
-    return self._get("/snatMaps/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/snatMaps?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/snatMaps/{ne_id}?cached={cached}"
+
+    return self._get(path)

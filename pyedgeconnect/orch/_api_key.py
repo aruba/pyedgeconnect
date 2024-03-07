@@ -118,7 +118,12 @@ def get_api_key(
     :return: Dictionary of API key
     :rtype: dict
     """
-    return self._get("/apiKey/{}".format(name))
+    if self.orch_version >= 9.3:
+        path = f"/apiKey?name={name}"
+    else:
+        path = f"/apiKey/{name}"
+
+    return self._get(path)
 
 
 def update_api_key(
@@ -181,8 +186,13 @@ def update_api_key(
     if ip_list is not None:
         api_key_entry["ip_list"] = ip_list
 
+    if self.orch_version >= 9.3:
+        path = f"/apiKey?name={name}"
+    else:
+        path = f"/apiKey/{name}"
+
     return self._put(
-        "/apiKey/{}".format(name),
+        path,
         data=api_key_entry,
         expected_status=[204],
         return_type="bool",
@@ -210,6 +220,13 @@ def delete_api_key(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
+    if self.orch_version >= 9.3:
+        path = f"/apiKey?name={name}"
+    else:
+        path = f"/apiKey/{name}"
+
     return self._delete(
-        "/apiKey/{}".format(name), expected_status=[204], return_type="bool"
+        path,
+        expected_status=[204],
+        return_type="bool",
     )

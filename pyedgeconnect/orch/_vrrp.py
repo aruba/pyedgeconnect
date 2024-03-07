@@ -82,4 +82,9 @@ def get_vrrp_interfaces(
               to wan0)
     :rtype: list
     """
-    return self._get("/vrrp/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/vrrp?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/vrrp/{ne_id}?cached={cached}"
+
+    return self._get(path)

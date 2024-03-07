@@ -47,6 +47,8 @@ examples/edgeconnect-telemetry-demo/app/influxdb/config
 examples/edgeconnect-telemetry-demo/app/redis
 examples/edgeconnect-telemetry-demo/app/worker
 examples/edgeconnect-telemetry-demo/app/logging/
+examples/wan_util_95th/data
+examples/boost_timeseries/data
 !example.env
 
 # Virtual Environment

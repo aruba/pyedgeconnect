@@ -46,6 +46,6 @@ def get_appliance_reboot_history(
     path = "/gms/applianceRebootHistory"
 
     if action is not None:
-        path = path + "?action={}".format(action)
+        path += f"?action={action}"
 
     return self._get(path)

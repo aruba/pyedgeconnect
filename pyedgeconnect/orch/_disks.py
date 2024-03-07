@@ -31,4 +31,9 @@ def get_appliance_disk_information(
         * keyword **diskImage** (`str`): Filename of disk image
     :rtype: dict
     """
-    return self._get("/configReportDisk/{}".format(ne_id))
+    if self.orch_version >= 9.3:
+        path = f"/configReportDisk?nePk={ne_id}"
+    else:
+        path = f"/configReportDisk/{ne_id}"
+
+    return self._get(path)

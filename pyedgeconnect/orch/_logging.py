@@ -29,4 +29,9 @@ def get_appliance_syslog_config(
     :return: Returns dictionary of logging configuration
     :rtype: dict
     """
-    return self._get("/logging/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/logging?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/logging/{ne_id}?cached={cached}"
+
+    return self._get(path)

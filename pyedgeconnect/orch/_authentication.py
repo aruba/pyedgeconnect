@@ -39,4 +39,9 @@ def get_appliance_auth_information(
     :return: Returns dictionary of AAA configuration information
     :rtype: dict
     """
-    return self._get("/vrrp/{}?cached={}".format(ne_id, cached))
+    if self.orch_version >= 9.3:
+        path = f"/authRadiusTacacs?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/authRadiusTacacs/{ne_id}?cached={cached}"
+
+    return self._get(path)

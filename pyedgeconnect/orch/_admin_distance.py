@@ -29,7 +29,9 @@ def get_appliance_admin_distance(
     :return: Returns dictionary of admin distance values
     :rtype: dict
     """
+    if self.orch_version >= 9.3:
+        path = f"/appliance/adminDistance?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/appliance/adminDistance/{ne_id}?cached={cached}"
 
-    return self._get(
-        "/appliance/adminDistance/{}?cached={}".format(ne_id, cached)
-    )
+    return self._get(path)

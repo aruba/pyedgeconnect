@@ -220,7 +220,12 @@ def get_debug_files_from_appliance(
                       description in Swagger
     :rtype: dict
     """
-    return self._get("/debugFiles/{}".format(ne_pk))
+    if self.orch_version >= 9.3:
+        path = f"/debugFiles?nePk={ne_pk}"
+    else:
+        path = f"/debugFiles/{ne_pk}"
+
+    return self._get(path)
 
 
 def delete_debug_file_from_orchestrator(
@@ -383,8 +388,13 @@ def delete_debug_file_from_appliance(
     if filename is not None:
         data["local_filename"] = filename
 
+    if self.orch_version >= 9.3:
+        path = f"/debugFiles/delete?nePk={ne_pk}"
+    else:
+        path = f"/debugFiles/delete/{ne_pk}"
+
     return self._post(
-        "/debugFiles/delete/{}".format(ne_pk),
+        path,
         data=data,
         return_type="bool",
     )
@@ -415,7 +425,10 @@ def generate_appliance_sysdump(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-    data = {"neList": ne_pk_list}
+    if self.orch_version >= 9.3:
+        data = {"nePks": ne_pk_list}
+    else:
+        data = {"neList": ne_pk_list}
 
     return self._post(
         "/debugFiles/generateApplianceSysDump",
@@ -427,7 +440,6 @@ def generate_appliance_sysdump(
 def upload_appliance_debug_files_to_support(
     self,
     ne_pk: str,
-    debug_file_group: str,
     debug_filenames: list,
     case_number: str,
 ) -> bool:
@@ -448,11 +460,6 @@ def upload_appliance_debug_files_to_support(
 
     :param ne_pk: Network Primary Key (nePk) of appliance, e.g. ``3.NE``
     :type ne_pk: str
-    :param debug_file_group: Type of debug files, accepted values are
-        ``debugDump`` for sysdumps, ``techDump`` for show tech,
-        ``snapshots``, ``tcpDump`` for packet captures, ``debugFile``,
-        and ``log`` for log file.
-    :type debug_file_group: str
     :param debug_filenames: List of filenames of debug files to upload
         to the case
     :type debug_filenames: list
@@ -515,16 +522,33 @@ def upload_appliance_debug_files_to_orchestrator(
     :return: Returns True/False based on successful call
     :rtype: bool
     """
-    data = {
-        "appliances": [
-            {
-                "nePk": ne_pk,
+    if self.orch_version >= 9.3:
+        data = {
+            "nePks": [ne_pk],
+            ne_pk: {
                 "files": [
-                    {"group": debug_file_group, "fileNames": debug_filenames}
-                ],
-            }
-        ],
-    }
+                    {
+                        "group": debug_file_group,
+                        "fileNames": debug_filenames,
+                    }
+                ]
+            },
+        }
+
+    else:
+        data = {
+            "appliances": [
+                {
+                    "nePk": ne_pk,
+                    "files": [
+                        {
+                            "group": debug_file_group,
+                            "fileNames": debug_filenames,
+                        }
+                    ],
+                }
+            ],
+        }
 
     return self._post(
         "/applianceFiles/uploadToOrchestrator",

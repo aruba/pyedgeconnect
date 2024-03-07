@@ -96,3 +96,69 @@ an unexpected status and treating it as an error.
 
 6. The return is passed back to the originating function called by the
 user
+
+
+Orchestrator 9.3+ API Changes:
+
+To accomodate cross-compatability with the major API changes in
+Orchestrator version 9.3 and beyond, additional logic was added
+in the init & login functions to verify Orcehstrator version to then
+check in submodule functions to utilize the correctly formatted endpoint
+based on version.
+
+Below you can see the logic on init if an API key is provided to
+immediately check Orchestrator's version and log the major/minor
+version numbers.
+
+.. code-block::python
+
+    # Check if Orchestrator version is 9.3+ if API Key provided
+    if api_key != "":
+        try:
+            orch_info = self.get_orchestrator_server_brief()
+            release = orch_info["release"]
+            major = int(release.split(".")[0])
+            minor = int(release.split(".")[1])
+            self.orch_version = major + minor / 10
+        except Exception as e:
+            print(e)
+            print(
+                """
+                Attempt to retrieve Orchestrator version failed
+                Defaulting logic to pre-9.3 API endpoints
+                """
+            )
+            # Orch Version not found, default to pre-9.3
+            self.orch_version = 0.0
+
+Similar logic is in the user login function in case an API key is not
+provided upon init. Upon a successfull login the function will
+perform the same query to Orchestrator and log the version information.
+
+The Orchestrator submodules have been updated with logic to leverage the
+Orchestrator version to create a valid endpoint based on the version.
+
+Instead of the endpoint being directly in the POST, a new variable
+``path`` is used to properly form the endpoint and query parameters
+based on pre 9.3 or post 9.3 syntax:
+
+.. code-block::python
+
+    def appliance_post_api(
+        self,
+        ne_pk: str,
+        url: str,
+        data,
+    ) -> dict:
+        """<docstring ...>"""
+        if self.orch_version >= 9.3:
+            path = f"/appliance/rest?nePk={ne_pk}&url={url}"
+        else:
+            path = f"/appliance/rest/{ne_pk}/{url}"
+
+        return self._post(
+            path,
+            data=data,
+            expected_status=[200, 204],
+            return_type="bool",
+        )

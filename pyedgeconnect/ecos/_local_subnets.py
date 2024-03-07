@@ -987,13 +987,13 @@ def get_appliance_routing_peers_info(self) -> list:
             * keyword **metric** (`int`): Route metric
             * keyword **peerPriority** (`int`): Peer priority value
             * keyword **txtrans** (`int`): Last transmitted
-                transaction count
+              transaction count
             * keyword **txsecs** (`int`): Time elapsed since last
-                transmitted update
+              transmitted update
             * keyword **rxtrans** (`int`): Last received transaction
-                count
+              count
             * keyword **rxsecs** (`int`): Time elapsed since last
-                received update
+              received update
             * keyword **rxrecs** (`int`): NEEDS DESCRIPTION
             * keyword **rxtabs** (`int`): NEEDS DESCRIPTION
             * keyword **outOfOrderCount** (`int`): Out of order

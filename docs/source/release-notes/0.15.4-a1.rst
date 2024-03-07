@@ -23,7 +23,7 @@ Updated the following Orchestrator functions from Swagger:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - :func:`~pyedgeconnect.Orchestrator.broadcast_cli` Updated return type
-  from ``bool`` to ``text`` forso that result can be retrieved using
+  from ``bool`` to ``text`` so that result can be retrieved using
   returned key string with
   :func:`~pyedgeconnect.Orchestrator.get_audit_log_task_status`
 - :func:`~pyedgeconnect.Orchestrator.get_appliance_template_history`
@@ -58,7 +58,7 @@ Added the following EdgeConnect functions from Swagger:
 💥 Breaking Changes:
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-- Corrected function name for :func:`~pyedgeconnect.EdgeConnect.get_vrrp_interfaces`
+- Corrected function name for :func:`~pyedgeconnect.Orchestrator.get_vrrp_interfaces`
   which previously was missing `c` in `interfaces`
 
 
@@ -75,7 +75,7 @@ Added the following EdgeConnect functions from Swagger:
 
 .. warning::
 
-  The following two functions for the _ip_objects submodule exprience
+  The following two functions for the _ip_objects submodule experience
   errors at this time. These function do work in the Orchestrator UI:
   :func:`~pyedgeconnect.Orchestrator.bulk_upload_address_group` and
   :func:`~pyedgeconnect.Orchestrator.bulk_upload_service_group`

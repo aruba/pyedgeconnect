@@ -361,7 +361,75 @@ def get_appliance_deployment(
     return self._get("/deployment")
 
 
-# TODO - POST /deployment
-#      - Modify the deployment settings
-# TODO - POST /deployment/validate
-#      - Validate deployment configuration
+def update_appliance_deployment(
+    self,
+    deployment: dict,
+) -> bool:
+    """Update the deployment configuration of the appliance
+
+    .. list-table::
+        :header-rows: 1
+
+        * - Swagger Section
+          - Method
+          - Endpoint
+        * - deployment
+          - POST
+          - /deployment
+
+    :param deployment: Dictionary of deployment configuration details.
+      Reference data from
+      :func:`~pyedgeconnect.EdgeConnect.get_appliance_deployment` for
+      data structure to pass as dictionary. When performing updates,
+      it is easiest to get the current deployment, modify desired
+      components, and then push the full deployment back as to avoid
+      missing existing configurations. Can send same data to
+      :func:`~pyedgeconnect.EdgeConnect.validate_appliance_deployment`
+      to validate prior to using this function.
+    :type deployment: dict
+    :return: Returns True/False based on successful call
+    :rtype: bool
+    """
+    return self._post(
+        "/deployment",
+        data=deployment,
+        return_type="bool",
+    )
+
+
+def validate_appliance_deployment(
+    self,
+    deployment: dict,
+) -> dict:
+    """Have appliance validate the potential deployment configuration
+    prior to sending to
+    :func:`~pyedgeconnect.EdgeConnect.update_appliance_deployment`
+
+    .. list-table::
+        :header-rows: 1
+
+        * - Swagger Section
+          - Method
+          - Endpoint
+        * - deployment
+          - POST
+          - /deployment/validate
+
+    :param deployment: Dictionary of deployment configuration details.
+      Reference data from
+      :func:`~pyedgeconnect.EdgeConnect.get_appliance_deployment` for
+      data structure to pass as dictionary. When performing updates,
+      it is easiest to get the current deployment, modify desired
+      components, and then push the full deployment back as to avoid
+      missing existing configurations.
+    :type deployment: dict
+    :return: Dictionary of response and if reboot is required
+      * keyword **err** (`str`): Error message if applicable
+      * keyword **rebootRequired** (`bool`): `True` if appliance reboot
+        is required
+    :rtype: dict
+    """
+    return self._post(
+        "/deployment/validate",
+        data=deployment,
+    )

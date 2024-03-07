@@ -24,4 +24,7 @@ Example script documentation and instructions
    generate_preconfig
    upload_security_policy
    update_port_forwarding
+   wan_util_95th
+   boost_timeseries
    ec_telemetry_demo
+   ec_sse_orchestration

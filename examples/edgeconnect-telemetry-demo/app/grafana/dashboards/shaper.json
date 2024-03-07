@@ -1,0 +1,472 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 6,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 284,
+      "panels": [],
+      "repeat": "ec_hostname",
+      "repeatDirection": "h",
+      "title": "$ec_hostname",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ec_telem_influx"
+      },
+      "description": "Traffic class bytes inbound/outbound represented as a percentage of the inbound/outbound system deployment values",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": true,
+            "axisColorMode": "text",
+            "axisLabel": "Inbound (-)  /  Outbound (+)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 2,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/RX/"
+            },
+            "properties": [
+              {
+                "id": "custom.transform",
+                "value": "negative-Y"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 16,
+        "x": 0,
+        "y": 1
+      },
+      "id": 104,
+      "interval": "1m",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Last *",
+          "sortDesc": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "9.0.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "ec_telem_influx"
+          },
+          "hide": false,
+          "query": "//max deployment inbound\ndeprx = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"deployment_info\")\n  |> filter(fn: (r) => r[\"_field\"] == \"wan_inbound_bw\")\n  |> filter(fn: (r) => r[\"interface_name\"] == \"SYSTEM\")\n  |> map(fn: (r) => ({r with _value: r._value * 1000}))\n  |> aggregateWindow(every:1m,fn:last)\n  |> fill(column: \"_value\", usePrevious: true)\n\n//max deployment outbound\ndeptx = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"deployment_info\")\n  |> filter(fn: (r) => r[\"_field\"] == \"wan_outbound_bw\")\n  |> filter(fn: (r) => r[\"interface_name\"] == \"SYSTEM\")\n  |> map(fn: (r) => ({r with _value: r._value * 1000}))\n  |> aggregateWindow(every:1m,fn:last)\n  |> fill(column: \"_value\", usePrevious: true)\n\n// inbound shaping bytes\ninbound_shaper_1 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"1\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"inbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\ninbound_shaper_2 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"2\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"inbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\ninbound_shaper_3 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"3\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"inbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\ninbound_shaper_4 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"4\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"inbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\ninbound_shaper_5 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"5\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"inbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\ninbound_shaper_6 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"6\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"inbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\ninbound_shaper_7 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"7\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"inbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\ninbound_shaper_8 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"8\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"inbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\ninbound_shaper_9 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"9\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"inbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\ninbound_shaper_10 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"10\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"inbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\n// compare inbound shaper class with inbound deployment values\nin1 = join(tables:{deprx:deprx, inbound_shaper_1:inbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 1 RX\": float(v: r._value_inbound_shaper_1) / float(v: r._value_deprx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 1 RX\"])\n  |> yield(name: \"inbound 1 %\")\n\njoin(tables:{deprx:deprx, inbound_shaper_1:inbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 2 RX\": float(v: r._value_inbound_shaper_2) / float(v: r._value_deprx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 2 RX\"])\n  |> yield(name: \"inbound 2 %\")\n\njoin(tables:{deprx:deprx, inbound_shaper_3:inbound_shaper_3}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 3 RX\": float(v: r._value_inbound_shaper_3) / float(v: r._value_deprx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 3 RX\"])\n  |> yield(name: \"inbound 3 %\")\n\njoin(tables:{deprx:deprx, inbound_shaper_1:inbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 4 RX\": float(v: r._value_inbound_shaper_4) / float(v: r._value_deprx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 4 RX\"])\n  |> yield(name: \"inbound 4 %\")\n\njoin(tables:{deprx:deprx, inbound_shaper_1:inbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 5 RX\": float(v: r._value_inbound_shaper_5) / float(v: r._value_deprx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 5 RX\"])\n  |> yield(name: \"inbound 5 %\")\n\njoin(tables:{deprx:deprx, inbound_shaper_3:inbound_shaper_3}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 6 RX\": float(v: r._value_inbound_shaper_6) / float(v: r._value_deprx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 6 RX\"])\n  |> yield(name: \"inbound 6 %\")\n\njoin(tables:{deprx:deprx, inbound_shaper_1:inbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 7 RX\": float(v: r._value_inbound_shaper_7) / float(v: r._value_deprx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 7 RX\"])\n  |> yield(name: \"inbound 7 %\")\n\njoin(tables:{deprx:deprx, inbound_shaper_1:inbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 8 RX\": float(v: r._value_inbound_shaper_8) / float(v: r._value_deprx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 8 RX\"])\n  |> yield(name: \"inbound 8 %\")\n\njoin(tables:{deprx:deprx, inbound_shaper_3:inbound_shaper_3}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 9 RX\": float(v: r._value_inbound_shaper_9) / float(v: r._value_deprx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 9 RX\"])\n  |> yield(name: \"inbound 9 %\")\n\njoin(tables:{deprx:deprx, inbound_shaper_1:inbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 10 RX\": float(v: r._value_inbound_shaper_10) / float(v: r._value_deprx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 10 RX\"])\n  |> yield(name: \"inbound 10 %\")\n\n\n// outbound shaping bytes\noutbound_shaper_1 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"1\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"outbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\noutbound_shaper_2 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"2\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"outbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\noutbound_shaper_3 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"3\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"outbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\noutbound_shaper_4 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"4\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"outbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\noutbound_shaper_5 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"5\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"outbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\noutbound_shaper_6 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"6\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"outbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\noutbound_shaper_7 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"7\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"outbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\noutbound_shaper_8 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"8\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"outbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\noutbound_shaper_9 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"9\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"outbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\noutbound_shaper_10 = from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_bytes_shaped\")\n  |> map(fn: (r) => ({r with _value: r._value / 8}))\n  |> filter(fn: (r) => r[\"traffic_class\"] == \"10\")\n  |> filter(fn: (r) => r[\"shaper_direction\"] == \"outbound\")  \n  |> keep(columns: [\"_value\", \"_time\",\"traffic_class\", \"shaper_direction\"])\n  |> fill(column: \"_value\", usePrevious: true)\n\n// compare outbound shaper class with outbound deployment values\njoin(tables:{deptx:deptx, outbound_shaper_1:outbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 1 TX\": float(v: r._value_outbound_shaper_1) / float(v: r._value_deptx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 1 TX\"])\n  |> yield(name: \"outbound 1 %\")\n\njoin(tables:{deptx:deptx, outbound_shaper_1:outbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 2 TX\": float(v: r._value_outbound_shaper_2) / float(v: r._value_deptx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 2 TX\"])\n  |> yield(name: \"outbound 2 %\")\n\njoin(tables:{deptx:deptx, outbound_shaper_3:outbound_shaper_3}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 3 TX\": float(v: r._value_outbound_shaper_3) / float(v: r._value_deptx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 3 TX\"])\n  |> yield(name: \"outbound 3 %\")\n\njoin(tables:{deptx:deptx, outbound_shaper_1:outbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 4 TX\": float(v: r._value_outbound_shaper_4) / float(v: r._value_deptx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 4 TX\"])\n  |> yield(name: \"outbound 4 %\")\n\njoin(tables:{deptx:deptx, outbound_shaper_1:outbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 5 TX\": float(v: r._value_outbound_shaper_5) / float(v: r._value_deptx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 5 TX\"])\n  |> yield(name: \"outbound 5 %\")\n\njoin(tables:{deptx:deptx, outbound_shaper_3:outbound_shaper_3}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 6 TX\": float(v: r._value_outbound_shaper_6) / float(v: r._value_deptx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 6 TX\"])\n  |> yield(name: \"outbound 6 %\")\n\njoin(tables:{deptx:deptx, outbound_shaper_1:outbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 7 TX\": float(v: r._value_outbound_shaper_7) / float(v: r._value_deptx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 7 TX\"])\n  |> yield(name: \"outbound 7 %\")\n\njoin(tables:{deptx:deptx, outbound_shaper_1:outbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 8 TX\": float(v: r._value_outbound_shaper_8) / float(v: r._value_deptx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 8 TX\"])\n  |> yield(name: \"outbound 8 %\")\n\njoin(tables:{deptx:deptx, outbound_shaper_3:outbound_shaper_3}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 9 TX\": float(v: r._value_outbound_shaper_9) / float(v: r._value_deptx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 9 TX\"])\n  |> yield(name: \"outbound 9 %\")\n\njoin(tables:{deptx:deptx, outbound_shaper_1:outbound_shaper_1}, on:[\"_time\"])\n  |> map(fn:(r) => ({ _time: r._time, hostname: r.hostname,\n    \"Class 10 TX\": float(v: r._value_outbound_shaper_10) / float(v: r._value_deptx)}))\n  |> keep(columns: [\"_time\", \"_value\", \"Class 10 TX\"])\n  |> yield(name: \"outbound 10 %\")\n\n\n",
+          "refId": "Traffic Class Utilization"
+        }
+      ],
+      "title": "$ec_hostname - Traffic Class Bandwidth Utilization ",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": ".*direction=\"(.*bound.*)\".*class=\"([0-9])\".*",
+            "renamePattern": "$1 Class $2"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ec_telem_influx"
+      },
+      "description": "95th percentile for each inbound/outbound traffic class",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 21,
+        "w": 8,
+        "x": 16,
+        "y": 1
+      },
+      "id": 257,
+      "interval": "1m",
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "ec_telem_influx"
+          },
+          "hide": false,
+          "query": "from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)  \n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"shaper_wait_time\")\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "refId": "Traffic Class"
+        }
+      ],
+      "title": "$ec_hostname Shaper Wait",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": ".*(inbound|outbound).*class=\"([0-9])\".*",
+            "renamePattern": "Class $2 $1"
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ec_telem_influx"
+      },
+      "description": "95th percentile for each inbound/outbound traffic class",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Inbound (-)  /  Outbound (+)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/inbound/"
+            },
+            "properties": [
+              {
+                "id": "custom.transform",
+                "value": "negative-Y"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 16,
+        "x": 0,
+        "y": 12
+      },
+      "id": 194,
+      "interval": "1m",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "ec_telem_influx"
+          },
+          "hide": false,
+          "query": "from(bucket: \"${db_bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"hostname\"] =~ /^${ec_hostname}/)  \n  |> filter(fn: (r) => r[\"_measurement\"] == \"shaper_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"shaper_dropped_expired_packets\")\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "refId": "Traffic Class"
+        }
+      ],
+      "title": "$ec_hostname Shaper Drops",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": ".*(inbound|outbound).*class=\"([0-9])\".*",
+            "renamePattern": "Class $2 $1"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 110
+      },
+      "id": 471,
+      "panels": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "description": "This example code serves to demonstrate the possibilities in\nretrieving telemetry data from Orchestrator and EdgeConnect and\nvisuzalize it. The demo is simple to run, however, modifying\nand/or incorporating components of this work into your own solution\nrequires a greater understanding of Python, Docker, InfluxDB,\nGrafana, and Redis.\n\n\nAll of these components are not necessarily required for developing\nyour own solution as there may be pieces of data you don't need\nto collect, some additional others that you want to add,\nsubstitude alternative tools for task queuing, database, and\nvisualization or alerting needs.",
+          "gridPos": {
+            "h": 2,
+            "w": 24,
+            "x": 0,
+            "y": 1
+          },
+          "id": 19,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "<h1 style=\"color:red;text-align:center;\">THIS DEMO IS NOT MEANT TO BE A PRODUCTION MONITORING SOLUTION</h1>",
+            "mode": "html"
+          },
+          "pluginVersion": "9.3.2",
+          "transparent": true,
+          "type": "text"
+        }
+      ],
+      "title": "BLANK",
+      "type": "row"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "ECTELEM",
+          "value": "ECTELEM"
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "ec_telem_influx"
+        },
+        "definition": "buckets() ",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Database Bucket",
+        "multi": false,
+        "name": "db_bucket",
+        "options": [],
+        "query": "buckets() ",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "ec_telem_influx"
+        },
+        "definition": "import \"influxdata/influxdb/v1\"\nv1.tagValues(\n    bucket: \"${db_bucket}\",\n    tag: \"hostname\",\n    predicate: (r) => true,\n)",
+        "description": "Hostname of EdgeConnect",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Appliance",
+        "multi": true,
+        "name": "ec_hostname",
+        "options": [],
+        "query": "import \"influxdata/influxdb/v1\"\nv1.tagValues(\n    bucket: \"${db_bucket}\",\n    tag: \"hostname\",\n    predicate: (r) => true,\n)",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Shaper & Traffic Classes",
+  "uid": "shaper",
+  "version": 1,
+  "weekStart": ""
+}

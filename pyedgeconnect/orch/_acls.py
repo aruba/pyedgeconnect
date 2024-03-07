@@ -9,8 +9,7 @@ def get_appliance_acls(
     ne_id: str,
     cached: bool,
 ) -> dict:
-    """Get Access list settings configurations from Edge Connect
-    appliance
+    """Get Access list settings configurations from appliance
 
     .. list-table::
         :header-rows: 1
@@ -22,16 +21,15 @@ def get_appliance_acls(
           - GET
           - /acls/{neId}?cached={cached}
 
-    :param ne_id: Appliance id in the format of integer.NE e.g. ``3.NE``
-    :type ne_id: str
-    :param cached: ``True`` retrieves last known value to Orchestrator,
-        ``False`` retrieves values directly from Appliance
-    :type cached: bool
     :return: Returns dictionary where each key is name of an ACL, each
         value is an object of the ACL's settings. Each ACL's settings
-        contains 'entry' and 'rmap'. 'rmap' give info about the
+        contains "entry" and "rmap". "rmap" give info about the
         routemap which uses this ACL.
     :rtype: dict
     """
+    if self.orch_version >= 9.3:
+        path = f"/acls?nePk={ne_id}&cached={cached}"
+    else:
+        path = f"/acls/{ne_id}?cached={cached}"
 
-    return self._get("/acls/{}?cached={}".format(ne_id, cached))
+    return self._get(path)
