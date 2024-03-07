@@ -1,0 +1,686 @@
+0.16.0-a1 -- 2024-03-YY
+-----------------------
+
+🚀 Features
+~~~~~~~~~~~~~
+
+.. important::
+  ✨✨Preliminary support for Orchestrator 9.3+✨✨:
+
+  There were hundreds of changes to Orchestrator API endpoints in 9.3
+  forward. Logic has been added to the pyedgeconnect Orchestrator class
+  ``init`` and ``login`` functions to capture Orchestrator version
+  information to then determine corrent endpoint syntax
+  in further functions.
+
+  As part of this update, 280+ pyedgeconnect functions have been updated
+  for 9.3 support, detailed in the updated and added functions section.
+
+  All the logic has been written with cross-compatability in mind so a
+  majority of existing code using pyedgeconnect should not need to be
+  rewritten for functions that have been written for 9.3 support.
+
+  As an example, let's disect :func:`~pyedgeconnect.Orchestrator.get_api_key`
+
+  In use, it takes the single paramter ``name`` for retrieving a
+  particular API key from Orchestrator
+
+  .. code::
+
+    orch.get_api_key(name="myKey")
+
+  The original source code for this function just had a simple path
+  with the paramter inline.
+
+  .. code::
+
+      return self._get(f"/apiKey/{name}")
+
+  The updated source code for this and other functions, leverages the
+  Orchestrator version to determine the apporpriate syntax.
+
+  .. code::
+
+      if self.orch_version >= 9.3:
+          path = f"/apiKey?name={name}"
+      else:
+          path = f"/apiKey/{name}"
+
+      return self._get(path)
+
+
+- ✨ **A new code example!**: ⚙️ Automate configuring Service Orchestration
+  for HPE Aruba Networking SSE including automating the location and
+  tunnels on the SSE platform side. Read through the full
+  writeup in the examples to kickstart your integration asap!
+
+- ✨ **A new code example!**: 📈 Pull WAN interface minute data from
+  Orchestrator to CSV files and generate a report calculating 95th
+  percentile utilization per-appliance as well as per-interface.
+  Written walkthrough under the examples section.
+
+- ✨ **A new code example!**: 🚀 Pull Boost minute data from
+  Orchestrator to CSV files per appliance with a simple calculation
+  to estimate Kbps from the Bytes Boosted value in the original data to
+  more easily compare to the configured Boost value already in Kbps.
+  Written walkthrough under the examples section.
+
+- **Updated code example!**: EdgeConnect Telemetry demo now includes
+  parsing Shaper & Traffic class data.
+
+
+Updated the following Orchestrator functions from Swagger:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Added updated API endpoint for Orchestrator 9.3+ support
+of the following functions, sorted below by their respective
+Swagger tags.
+
+ACLS
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_acls`
+
+ADMIN_DISTANCE
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_admin_distance`
+
+AGGREGATE_STATS
+
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_tunnels_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_tunnels_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_appliances_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_appliances_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_applications_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_applications_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_traffic_class_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_traffic_class_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_flows_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_active_flows`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_flows_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_dscp_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_dscp_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_dns_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_dns_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_ports_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_ports_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_top_talkers_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_top_talkers_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_top_talkers_split_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_traffic_behavior_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_traffic_behavior_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_jitter_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_jitter_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_drc_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_drc_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_interface_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_interface_overlay_transport_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_mos_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_mos_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_boost_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_boost_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_security_policy_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_aggregate_stats_security_policy_single_appliance`
+
+ALARM
+
+- :func:`~pyedgeconnect.Orchestrator.get_alarms_from_appliances`
+- :func:`~pyedgeconnect.Orchestrator.acknolwedge_alarms_from_appliance`
+- :func:`~pyedgeconnect.Orchestrator.add_note_to_appliance_alarm`
+- :func:`~pyedgeconnect.Orchestrator.clear_alarms_from_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_alarm_count_from_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_alarm_count_orchestrator_or_appliances`
+- :func:`~pyedgeconnect.Orchestrator.get_customized_alarm_severity`
+- :func:`~pyedgeconnect.Orchestrator.get_customized_alarm_severity_for_type`
+- :func:`~pyedgeconnect.Orchestrator.delete_customized_alarm_severity_for_type`
+
+API_KEYS
+
+- :func:`~pyedgeconnect.Orchestrator.get_api_key`
+- :func:`~pyedgeconnect.Orchestrator.update_api_key`
+- :func:`~pyedgeconnect.Orchestrator.delete_api_key`
+
+APPLIANCE
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliances`
+   - This function now has an additional filter parameter of ``ne_pk`` so
+     a single appliance can be retrieved instead of all appliances
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_info`
+   - Raise warning on deprecation for 9.3+, handles same endpoint logic
+     as :func:`~pyedgeconnect.Orchestrator.get_appliances`
+- :func:`~pyedgeconnect.Orchestrator.delete_appliance`
+- :func:`~pyedgeconnect.Orchestrator.delete_appliance_for_rediscovery`
+- :func:`~pyedgeconnect.Orchestrator.delete_denied_appliances`
+- :func:`~pyedgeconnect.Orchestrator.add_and_approve_discovered_appliances`
+- :func:`~pyedgeconnect.Orchestrator.add_discovered_appliances`
+- :func:`~pyedgeconnect.Orchestrator.deny_appliance`
+- :func:`~pyedgeconnect.Orchestrator.rediscover_denied_appliance`
+- :func:`~pyedgeconnect.Orchestrator.change_appliance_credentials`
+- :func:`~pyedgeconnect.Orchestrator.appliance_get_api`
+- :func:`~pyedgeconnect.Orchestrator.appliance_post_api`
+- :func:`~pyedgeconnect.Orchestrator.appliance_delete_api`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_dns_cache_config`
+
+APPLIANCE_BACKUP
+
+- :func:`~pyedgeconnect.Orchestrator.backup_appliance_config`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_backup_history`
+- :func:`~pyedgeconnect.Orchestrator.delete_appliance_backup`
+- :func:`~pyedgeconnect.Orchestrator.restore_appliance_from_backup`
+
+APPLIANCE_EXTRA_INFO
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_extra_info`
+- :func:`~pyedgeconnect.Orchestrator.set_appliance_extra_info`
+- :func:`~pyedgeconnect.Orchestrator.delete_appliance_extra_info`
+
+APPLIANCE_PRECONFIG
+
+- :func:`~pyedgeconnect.Orchestrator.modify_preconfig`
+- :func:`~pyedgeconnect.Orchestrator.delete_preconfig`
+- :func:`~pyedgeconnect.Orchestrator.approve_and_apply_preconfig`
+- :func:`~pyedgeconnect.Orchestrator.apply_preconfig_to_existing`
+- :func:`~pyedgeconnect.Orchestrator.get_apply_preconfig_status`
+
+APPLIANCE_RESYNC
+
+- :func:`~pyedgeconnect.Orchestrator.appliance_resync`
+
+APPLIANCES_SOFTWARE_VERSIONS
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_software_version`
+
+APPLIANCE_UPGRADE
+
+- :func:`~pyedgeconnect.Orchestrator.delete_ecos_image`
+
+APPLICATION_DEFINITION
+
+- :func:`~pyedgeconnect.Orchestrator.update_user_defined_app_port_protocol`
+- :func:`~pyedgeconnect.Orchestrator.delete_user_defined_app_port_protocol`
+- :func:`~pyedgeconnect.Orchestrator.update_user_defined_app_dns_classification`
+- :func:`~pyedgeconnect.Orchestrator.delete_user_defined_app_dns_classification`
+- :func:`~pyedgeconnect.Orchestrator.post_user_defined_app_address_map`
+- :func:`~pyedgeconnect.Orchestrator.delete_user_defined_app_address_map`
+- :func:`~pyedgeconnect.Orchestrator.post_user_defined_app_meter_flow`
+- :func:`~pyedgeconnect.Orchestrator.delete_user_defined_app_meter_flow`
+
+APP_SYSTEM_DEPLOY_INFO
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_system_deployment_info`
+
+APP_SYSTEM_STATE_INFO
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_system_state_info`
+
+AUTHENTICATION
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_auth_information`
+
+BANNERS
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_login_banners`
+
+BGP
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_bgp_config`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_bgp_config_all_vrfs`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_bgp_neighbors`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_bgp_neighbors_all_vrfs`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_bgp_state`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_bgp_state_all_vrfs`
+
+BONDED_TUNNELS_CONFIGURATION
+
+- :func:`~pyedgeconnect.Orchestrator.get_bonded_tunnel_details_for_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_bonded_tunnels_for_physical_tunnel`
+- :func:`~pyedgeconnect.Orchestrator.get_bonded_tunnels_state`
+
+BRIDGE_INTERFACE_STATE
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_bridge_interface_state`
+
+BROADCAST_CLI
+
+- :func:`~pyedgeconnect.Orchestrator.broadcast_cli`
+
+BUILT_IN_POLICIES
+
+- :func:`~pyedgeconnect.Orchestrator.get_built_in_policies`
+
+CUSTOM_APPLIANCE_TAGS
+
+- :func:`~pyedgeconnect.Orchestrator.get_custom_appliance_tags`
+
+DEBUG_FILES
+
+- :func:`~pyedgeconnect.Orchestrator.get_debug_files_from_appliance`
+- :func:`~pyedgeconnect.Orchestrator.delete_debug_file_from_appliance`
+- :func:`~pyedgeconnect.Orchestrator.generate_appliance_sysdump`
+
+DEPLOYMENT
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_deployment`
+- :func:`~pyedgeconnect.Orchestrator.get_single_appliance_deployment`
+
+DISKS
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_disk_information`
+
+DNS
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_dns`
+
+DNS_PROXY
+
+- :func:`~pyedgeconnect.Orchestrator.get_dns_proxy`
+
+EXCEPTION
+
+- :func:`~pyedgeconnect.Orchestrator.delete_single_tunnel_exception`
+- :func:`~pyedgeconnect.Orchestrator.update_single_tunnel_exception`
+
+FLOW
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_flows`
+- :func:`~pyedgeconnect.Orchestrator.reset_flows`
+- :func:`~pyedgeconnect.Orchestrator.reclassify_flows`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_flow_bandwidth_stats`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_flow_details`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_flow_details_verbose`
+
+GRNODE
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_location`
+- :func:`~pyedgeconnect.Orchestrator.update_appliance_location_grnodepk`
+- :func:`~pyedgeconnect.Orchestrator.update_appliance_location_nepk`
+
+GROUP
+
+- :func:`~pyedgeconnect.Orchestrator.get_gms_group`
+- :func:`~pyedgeconnect.Orchestrator.update_gms_group`
+- :func:`~pyedgeconnect.Orchestrator.delete_gms_group`
+
+INBOUND_SHAPER
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_inbound_shaper`
+
+INTERFACE_LABELS
+
+- :func:`~pyedgeconnect.Orchestrator.push_interface_labels_to_appliance`
+
+INTERFACE_STATE
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_interface_state`
+
+IP_OBJECTS
+
+- :func:`~pyedgeconnect.Orchestrator.get_address_group`
+- :func:`~pyedgeconnect.Orchestrator.delete_address_group`
+- :func:`~pyedgeconnect.Orchestrator.get_service_group`
+- :func:`~pyedgeconnect.Orchestrator.delete_service_group`
+
+LICENSE
+
+- :func:`~pyedgeconnect.Orchestrator.change_appliance_license`
+- :func:`~pyedgeconnect.Orchestrator.grant_appliance_base_license`
+- :func:`~pyedgeconnect.Orchestrator.revoke_appliance_base_license`
+- :func:`~pyedgeconnect.Orchestrator.delete_appliance_license_token`
+
+LINK_AGGREGATION
+
+- :func:`~pyedgeconnect.Orchestrator.get_link_aggregation_data`
+
+LINK_INTEGRITY
+
+- :func:`~pyedgeconnect.Orchestrator.get_link_integrity_test_result`
+
+LOGGING
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_syslog_config`
+
+LOOPBACK
+
+- :func:`~pyedgeconnect.Orchestrator.get_loopback_interfaes`
+
+MGMT_SERVICES
+
+- :func:`~pyedgeconnect.Orchestrator.get_mgmt_services`
+
+MULTICAST
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_multicast_enabled`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_multicast_config`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_multicast_interfaces`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_multicast_neighbors`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_multicast_routes`
+
+NAT
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_nat_config`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_nat_pools`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_nat_maps`
+
+NAT_MAPS
+
+- :func:`~pyedgeconnect.Orchestrator.get_nat_policy`
+- :func:`~pyedgeconnect.Orchestrator.get_nat_policy_inbound_outbound`
+- :func:`~pyedgeconnect.Orchestrator.get_nat_policy_dynamic`
+
+NET_FLOW
+
+- :func:`~pyedgeconnect.Orchestrator.get_net_flow_configuration`
+
+NETWORK_MEMORY
+
+- :func:`~pyedgeconnect.Orchestrator.erase_appliance_network_memory`
+
+NETWORK_ROLE_AND_SITE
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_network_role_and_site`
+- :func:`~pyedgeconnect.Orchestrator.update_appliance_network_role_and_site`
+
+OPTIMIZATION_POLICY
+
+- :func:`~pyedgeconnect.Orchestrator.get_optimization_policy`
+
+OSPF
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_ospf_config`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_ospf_interfaces_config`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_ospf_state`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_ospf_interfaces_state`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_ospf_neighbors_state`
+
+OVERLAY_ASSOCIATION
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_overlay_association`
+- :func:`~pyedgeconnect.Orchestrator.remove_single_appliance_overlay_association`
+
+OVERLAYS
+
+- :func:`~pyedgeconnect.Orchestrator.get_overlay_config`
+- :func:`~pyedgeconnect.Orchestrator.modify_overlay_config`
+- :func:`~pyedgeconnect.Orchestrator.delete_overlay`
+- :func:`~pyedgeconnect.Orchestrator.get_overlay_config_for_region`
+- :func:`~pyedgeconnect.Orchestrator.modify_overlay_config_for_region`
+
+PEER_PRIORITY
+
+- :func:`~pyedgeconnect.Orchestrator.get_peer_priority_configuration`
+
+PORT_FORWARDING
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_port_fowarding`
+
+QOS_POLICY
+
+- :func:`~pyedgeconnect.Orchestrator.get_qos_policy`
+
+REACHABILITY
+
+- :func:`~pyedgeconnect.Orchestrator.get_reachability_status_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_reachability_status_orchestrator`
+
+REALTIME_STATS
+
+- :func:`~pyedgeconnect.Orchestrator.get_realtime_stats`
+
+REGIONS
+
+- :func:`~pyedgeconnect.Orchestrator.get_region`
+- :func:`~pyedgeconnect.Orchestrator.update_region_name`
+- :func:`~pyedgeconnect.Orchestrator.delete_region`
+- :func:`~pyedgeconnect.Orchestrator.update_region_appliance_association`
+- :func:`~pyedgeconnect.Orchestrator.get_region_appliance_association_by_nepk`
+- :func:`~pyedgeconnect.Orchestrator.get_region_appliance_association_by_region_id`
+
+RELEASES
+
+- :func:`~pyedgeconnect.Orchestrator.delay_release_notification`
+- :func:`~pyedgeconnect.Orchestrator.dismiss_release_notification`
+
+ROUTE_POLICY
+
+- :func:`~pyedgeconnect.Orchestrator.get_route_policy`
+
+SAVE_CHANGES
+
+- :func:`~pyedgeconnect.Orchestrator.save_changes_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.save_changes_single_appliance`
+
+SECURITY_MAPS
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_security_maps`
+
+SHAPER
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_shaper`
+
+SNMP
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_snmp`
+
+SUBNETS
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_subnets`
+- :func:`~pyedgeconnect.Orchestrator.get_discovered_appliance_subnets`
+- :func:`~pyedgeconnect.Orchestrator.set_appliance_subnet_sharing_options`
+
+TCA
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_tca`
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_tunnel_tca`
+
+TCPDUMP
+
+- :func:`pyedgeconnect.Orchestrator.tcpdump_status_appliance`
+
+TEMPLATE
+
+- :func:`pyedgeconnect.Orchestrator.get_template_group`
+- :func:`pyedgeconnect.Orchestrator.post_template_group`
+- :func:`pyedgeconnect.Orchestrator.delete_template_group`
+- :func:`pyedgeconnect.Orchestrator.get_selected_templates_in_template_group`
+- :func:`pyedgeconnect.Orchestrator.select_templates_for_template_group`
+- :func:`pyedgeconnect.Orchestrator.get_appliance_template_history`
+- :func:`pyedgeconnect.Orchestrator.get_appliance_applied_template_goups`
+- :func:`pyedgeconnect.Orchestrator.get_appliance_template_groups_association`
+- :func:`pyedgeconnect.Orchestrator.associate_template_group_to_appliance`
+
+THIRD_PARTY_SERVICES
+
+- :func:`~pyedgeconnect.Orchestrator.central_assign_appliance_to_site`
+
+TIMESERIES_STATS
+
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_appliance_process_state`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_orchestrator_memory`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_tunnel_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_appliances`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_appliances_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_appliances_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_traffic_class`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_traffic_class_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_traffic_class_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_flow`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_flow_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_flow_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_dscp`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_dscp_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_dscp_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_shaper`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_shaper_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_internal_drops_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_drc`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_drc_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_drc_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_interface_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_interface_overlay_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_mos_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_application`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_application_ne_pk_list`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_application_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_boost_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_security_policy_single_appliance`
+- :func:`~pyedgeconnect.Orchestrator.get_timeseries_stats_jitter_single_appliance`
+
+UI_USAGE_STATS
+
+- :func:`~pyedgeconnect.Orchestrator.add_ui_usage_count`
+
+UPGRADE_APPLIANCES
+
+- :func:`~pyedgeconnect.Orchestrator.upgrade_appliances`
+
+USER_ACCOUNT
+
+- :func:`~pyedgeconnect.Orchestrator.get_appliance_user_accounts`
+
+USERS
+
+- :func:`~pyedgeconnect.Orchestrator.get_user`
+- :func:`~pyedgeconnect.Orchestrator.delete_user`
+- :func:`~pyedgeconnect.Orchestrator.create_or_update_user`
+- :func:`~pyedgeconnect.Orchestrator.change_user_password`
+
+VRF
+
+- :func:`~pyedgeconnect.Orchestrator.get_routing_segmentation_segment_by_id`
+- :func:`~pyedgeconnect.Orchestrator.update_routing_segmentation_segment_by_id`
+- :func:`~pyedgeconnect.Orchestrator.delete_routing_segmentation_segment_by_id`
+- :func:`~pyedgeconnect.Orchestrator.get_routing_segmentation_maps_from_source_segment`
+- :func:`~pyedgeconnect.Orchestrator.update_routing_segmentation_maps_from_source_segment`
+- :func:`~pyedgeconnect.Orchestrator.delete_routing_segmentation_maps_from_source_segment`
+- :func:`~pyedgeconnect.Orchestrator.get_routing_segmentation_security_policy`
+- :func:`~pyedgeconnect.Orchestrator.update_routing_segmentation_security_policy`
+
+VRF_DNAT_MAPS
+
+- :func:`~pyedgeconnect.Orchestrator.get_dnat_maps`
+
+VRF_SNAT_MAPS
+
+- :func:`~pyedgeconnect.Orchestrator.get_snat_maps`
+
+VRRP
+
+- :func:`~pyedgeconnect.Orchestrator.get_vrrp_interfaces`
+
+VTI
+
+- :func:`~pyedgeconnect.Orchestrator.get_vti_interfaes`
+
+VXOA_HOSTNAME
+
+- :func:`~pyedgeconnect.Orchestrator.update_appliance_hostname`
+
+WAN_NEXT_HOP_HEALTH
+
+- :func:`~pyedgeconnect.Orchestrator.get_wan_next_hop_health_config`
+
+
+Updated functions with new parameters:
+
+APPLICATION_DEFINITION
+
+- :func:`~pyedgeconnect.Orchestrator.post_user_defined_app_address_map`
+  - Added ``subattributes`` parameter for supporting additional app definition details in 9.2+
+
+Added the following Orchestrator functions from Swagger Incl. Support for 9.3+:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Health
+
+- :func:`~pyedgeconnect.Orchestrator.get_health_appliance_summary`
+- :func:`~pyedgeconnect.Orchestrator.get_health_alarm_summary`
+- :func:`~pyedgeconnect.Orchestrator.get_health_threshold_config`
+- :func:`~pyedgeconnect.Orchestrator.set_health_threshold_config`
+- :func:`~pyedgeconnect.Orchestrator.get_health_jitter`
+- :func:`~pyedgeconnect.Orchestrator.get_health_latency`
+- :func:`~pyedgeconnect.Orchestrator.get_health_loss`
+- :func:`~pyedgeconnect.Orchestrator.get_health_mos`
+
+Third Party Services / Service Orchestration
+
+- :func:`~pyedgeconnect.Orchestrator.get_service_orchestration_breakout_state`
+- :func:`~pyedgeconnect.Orchestrator.set_service_orchestration_breakout_state`
+- :func:`~pyedgeconnect.Orchestrator.get_service_orchestration_labels`
+- :func:`~pyedgeconnect.Orchestrator.set_service_orchestration_labels`
+- :func:`~pyedgeconnect.Orchestrator.get_service_orchestration_all_names_to_ids`
+- :func:`~pyedgeconnect.Orchestrator.get_service_orchestration_all_services`
+- :func:`~pyedgeconnect.Orchestrator.add_new_service_orchestration`
+- :func:`~pyedgeconnect.Orchestrator.delete_service_orchestration`
+- :func:`~pyedgeconnect.Orchestrator.get_service_orchestration_tunnel_settings`
+- :func:`~pyedgeconnect.Orchestrator.set_service_orchestration_tunnel_settings`
+- :func:`~pyedgeconnect.Orchestrator.get_service_orchestration_tunnel_identifiers`
+- :func:`~pyedgeconnect.Orchestrator.get_service_orchestration_config_entries`
+- :func:`~pyedgeconnect.Orchestrator.get_service_orchestration_ipsla_settings`
+- :func:`~pyedgeconnect.Orchestrator.set_service_orchestration_ipsla_settings`
+- :func:`~pyedgeconnect.Orchestrator.get_service_orchestration_remote_endpoints`
+- :func:`~pyedgeconnect.Orchestrator.set_service_orchestration_remote_endpoints`
+- :func:`~pyedgeconnect.Orchestrator.add_service_orchestration_remote_endpoints`
+- :func:`~pyedgeconnect.Orchestrator.delete_service_orchestration_remote_endpoints`
+- :func:`~pyedgeconnect.Orchestrator.get_service_orchestration_appliance_association`
+- :func:`~pyedgeconnect.Orchestrator.set_service_orchestration_appliance_association`
+
+
+Added the following EdgeConnect functions from Swagger:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- :func:`~pyedgeconnect.EdgeConnect.get_traffic_class_names`
+- :func:`~pyedgeconnect.EdgeConnect.set_traffic_class_names`
+- :func:`~pyedgeconnect.EdgeConnect.update_appliance_deployment`
+- :func:`~pyedgeconnect.EdgeConnect.validate_appliance_deployment`
+- :func:`~pyedgeconnect.EdgeConnect.get_vrrp_interfaces`
+- :func:`~pyedgeconnect.EdgeConnect.configure_vrrp_interfaces`
+
+
+🐛 Bug Fixes
+~~~~~~~~~~~~~~
+
+- `#6 <https://github.com/aruba/pyedgeconnect/issues/6>`_ -
+  :func:`~pyedgeconnect.Orchestrator.get_appliance_bgp_state_all_vrfs`
+  Updated endpoint path as it was in an incorrect order resulting in
+  bad response.
+
+- `#8 <https://github.com/aruba/pyedgeconnect/issues/8>`_ -
+  Added 9.3 support for appliance preconfig endpoints
+
+- `#2 <https://github.com/aruba/pyedgeconnect/issues/2>`_ -
+  Added 9.3 support for vrf/segmentation endpoints
+
+- :func:`~pyedgeconnect.EdgeConnect.get_appliance_routing_peers_info`
+  Updated docstring formatting due to indentation typo
+
+- :func:`~pyedgeconnect.Orchestrator.update_region_name` Updated body
+  to include previously unused paramter ``region_name`` to update
+  the name of a region.
+
+💥 Breaking Changes:
+~~~~~~~~~~~~~~~~~~~~~~~
+
+- :func:`~pyedgeconnect.Orchestrator.update_routing_segmentation_security_policy`
+
+Renamed parameters ``source_zone`` and ``destination_zone`` to
+``source_segment`` and ``destination_segment`` as the inputs are
+segment ID values and not FW zone values. If this function is being
+used without explicit arguments no breaking change is encountered
+but if users are calling the function with explicit keyword
+arguments of the old parameter names then the code will need to be
+updated to reflect the updated parameter names.
+
+
+🧰 Maintenance / Other
+~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+🐛 Known Issues
+~~~~~~~~~~~~~~~
+
+.. warning::
+
+  The following two functions for the _ip_objects submodule experience
+  errors at this time. These function do work in the Orchestrator UI:
+  :func:`~pyedgeconnect.Orchestrator.bulk_upload_address_group` and
+  :func:`~pyedgeconnect.Orchestrator.bulk_upload_service_group`
