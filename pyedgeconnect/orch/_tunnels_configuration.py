@@ -255,7 +255,12 @@ def get_physical_tunnel_details_for_appliance(
         query details
     :rtype: dict
     """
-    path = "/tunnels2/physical/{}?limit={}".format(ne_pk, limit)
+
+    if self.orch_version >= 9.3:
+        # tunnels2/physical?nePk=27.NE&limit=50
+        path = "/tunnels2/physical?nePk={}&limit={}".format(ne_pk, limit)
+    else:
+        path = "/tunnels2/physical/{}?limit={}".format(ne_pk, limit)
 
     if matching_alias is not None:
         path += "&matchingAlias={}".format(matching_alias)
@@ -285,7 +290,6 @@ def get_physical_tunnel_details_for_appliance(
         path += "&fecStatus={}".format(fec_status)
     if fec_ratio is not None:
         path += "&fecRatio={}".format(fec_ratio)
-
     return self._get(path)
 
 
