@@ -467,12 +467,22 @@ def get_appliance_tunnel_ids(
         "totalTunnelCount"
     :rtype: dict
     """
-    if state is not None:
-        return self._get(
-            "/tunnels/physical/tunnelIds/{}?state={}".format(ne_pk, state)
-        )
+    if self.orch_version >= 9.3:
+        if state is not None:
+            return self._get(
+                f"/tunnels/physical/tunnelIds?nePk={ne_pk}&state={state}"
+            )
+        else:
+            return self._get(
+                f"/tunnels/physical/tunnelIds?nePk={ne_pk}"
+            )
     else:
-        return self._get("/tunnels/physical/tunnelIds/{}".format(ne_pk))
+        if state is not None:
+            return self._get(
+                "/tunnels/physical/tunnelIds/{}?state={}".format(ne_pk, state)
+            )
+        else:
+            return self._get("/tunnels/physical/tunnelIds/{}".format(ne_pk))
 
 
 def get_tunnel_traceroute(
