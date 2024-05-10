@@ -660,16 +660,11 @@ def apply_preconfig_to_existing(
         path = f"/gms/appliance/preconfiguration/apply?preconfigId={preconfig_id}&nePk={ne_pk}"
     else:
         path = (
-            f"/gms/appliance/preconfiguration/{preconfig_id}/apply/{ne_pk}",
+            f"/gms/appliance/preconfiguration/{preconfig_id}/apply/{ne_pk}"
         )
 
     return self._post(
         path,
-        return_type="bool",
-    )
-
-    return self._post(
-        f"/gms/appliance/preconfiguration/{preconfig_id}/apply/{ne_pk}",
         return_type="bool",
     )
 
