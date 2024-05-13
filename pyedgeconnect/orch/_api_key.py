@@ -33,7 +33,9 @@ def add_api_key(
     active: bool,
     key: str = None,
     description: str = None,
-    ip_list: str = None,
+    ip_list: list = None,
+    rbac_roles: str = None,
+    appliance_access_group: str = None,
 ) -> bool:
     """Operation to add a new API key to Orchestrator
 
@@ -64,7 +66,11 @@ def add_api_key(
     :type description: str, optional
     :param ip_list: List of allowed IP's to make requests with this API
         Key. Leave blank to allow all IP's.
-    :type ip_list: str
+    :type ip_list: list
+    :param rbac_roles: RBAC roles, defaults to None
+    :type description: str, optional
+    :param appliance_access_group: Appliance access group, defaults to None
+    :type description: str, optional
     :return: Returns True/False based on successful call
     :rtype: bool
     """
@@ -82,17 +88,24 @@ def add_api_key(
         "active": active,
     }
 
-    if key is not None:
-        api_key_entry["key"] = key
     if description is not None:
         api_key_entry["description"] = description
     if ip_list is not None:
         api_key_entry["ip_list"] = ip_list
 
+    if self.orch_version >= 9.3:
+        if rbac_roles is not None:
+            api_key_entry["rbacRoles"] = rbac_roles
+        if appliance_access_group is not None:
+            api_key_entry["applianceAccessGroup"] = appliance_access_group
+    else:
+        if key is not None:
+            api_key_entry["key"] = key
+
     return self._post(
         "/apiKey",
         data=api_key_entry,
-        expected_status=[204],
+        expected_status=[201],
         return_type="bool",
     )
 
