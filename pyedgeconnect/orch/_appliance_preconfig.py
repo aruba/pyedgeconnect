@@ -237,15 +237,17 @@ def modify_preconfig(
     }
 
     if self.orch_version >= 9.3:
-        path = f"/gms/appliance/preconfiguration?preconfigId={preconfig_id}"
+        return self._put(
+            f"/gms/appliance/preconfiguration?preconfigId={preconfig_id}",
+            data=data,
+            return_type="bool",
+        )
     else:
-        path = f"/gms/appliance/preconfiguration/{preconfig_id}"
-
-    return self._post(
-        path,
-        data=data,
-        return_type="bool",
-    )
+        return self._post(
+            f"/gms/appliance/preconfiguration/{preconfig_id}",
+            data=data,
+            return_type="bool",
+        )
 
 
 def get_preconfig(
@@ -658,16 +660,11 @@ def apply_preconfig_to_existing(
         path = f"/gms/appliance/preconfiguration/apply?preconfigId={preconfig_id}&nePk={ne_pk}"
     else:
         path = (
-            f"/gms/appliance/preconfiguration/{preconfig_id}/apply/{ne_pk}",
+            f"/gms/appliance/preconfiguration/{preconfig_id}/apply/{ne_pk}"
         )
 
     return self._post(
         path,
-        return_type="bool",
-    )
-
-    return self._post(
-        f"/gms/appliance/preconfiguration/{preconfig_id}/apply/{ne_pk}",
         return_type="bool",
     )
 
