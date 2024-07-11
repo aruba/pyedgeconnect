@@ -85,7 +85,7 @@ def upgrade_appliances(
           - Endpoint
         * - upgradeAppliances
           - POST
-          - /validateApplianceUpgrade
+          - /upgradeAppliances
 
     :param ne_pk_list: List of one or more appliance Network Primary
         Keys (nePk) of appliances to upgrade, e.g. ``["3.NE","5.NE"]``.
@@ -125,6 +125,6 @@ def upgrade_appliances(
         data["neList"] = ne_pk_list
 
     return self._post(
-        "/validateApplianceUpgrade",
+        "/upgradeAppliances",
         data=data,
     )
