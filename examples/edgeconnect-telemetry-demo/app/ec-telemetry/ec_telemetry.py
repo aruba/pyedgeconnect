@@ -620,7 +620,7 @@ def ec_data_gather(  # noqa: C901
 
             # Add friendly name of traffic class if available
             if tclass_names is not None:
-                fields["traffic_class_name"] = tclass_names[str_stat_list[1]]
+                fields["traffic_class_name"] = tclass_names[str_stat_list[1]].get("name")
 
             # Use timestamp from minute data
             timestamp = int(str_stat_list[19])
@@ -683,7 +683,7 @@ def ec_data_gather(  # noqa: C901
 
             # Add friendly name of traffic class if available
             if tclass_names is not None:
-                fields["traffic_class_name"] = tclass_names[str_stat_list[1]]
+                fields["traffic_class_name"] = tclass_names[str_stat_list[1]].get("name")
 
             # Use timestamp from minute data
             timestamp = int(str_stat_list[10])
