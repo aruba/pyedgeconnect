@@ -1,0 +1,63 @@
+0.16.1-a1 -- 2024-11-15
+-----------------------
+
+🚀 Features
+~~~~~~~~~~~~~
+
+.. important::
+  ✨✨Continuing support for Orchestrator 9.3+✨✨:
+
+
+
+- ✨ **Jupyter Notebook** and associated files added to the 'generate_preconfig' folder in the 'examples' folder
+  to guide a developer on the step by step process of generating preconfig YAML files,
+  validating them, and sending them to the Orchestrator.
+
+
+🐛 Bug Fixes
+~~~~~~~~~~~~~~
+
+1. **Correct Traffic Class Name Population**
+
+   - Fixed traffic class name population issues from tclass names in `ec_telemetry.py`.
+   - Files Changed:
+     - `ec_telemetry.py`: Added `.get('name')` to lines 623 and 686.
+
+2. **Return Value Adjustments**
+
+   - Changed return value for the post request on line 128 to `/upgradeAppliances` in `ec_upgrade.py`.
+   - Files Changed:
+     - `ec_upgrade.py`: Adjusted the response on line 128.
+
+3. **Modify Preconfig Method**
+
+   - Changed `modify_preconfig` method to PUT for version 9.3 or above in `ec_config.py`.
+   - Files Changed:
+     - `ec_config.py`: Updated `modify_preconfig` method to use PUT for versions 9.3 and above.
+
+4. **Fix Issues in `apply_preconfig_to_existing` and `add_api_key`**
+
+   - Addressed multiple issues in `apply_preconfig_to_existing` and `add_api_key` methods to improve robustness and compatibility.
+   - Files Changed:
+     - `ec_preconfig.py`: Fixed various issues in `apply_preconfig_to_existing` and `add_api_key`.
+
+
+💥 Breaking Changes:
+~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+🧰 Maintenance / Other
+~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+🐛 Known Issues
+~~~~~~~~~~~~~~~
+
+.. warning::
+
+  The following two functions for the _ip_objects submodule experience
+  errors at this time. These function do work in the Orchestrator UI:
+  :func:`~pyedgeconnect.Orchestrator.bulk_upload_address_group` and
+  :func:`~pyedgeconnect.Orchestrator.bulk_upload_service_group`
