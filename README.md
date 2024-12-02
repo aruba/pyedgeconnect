@@ -259,4 +259,4 @@ Release notes are located in ``docs/source/release-notes`` directory [here](docs
 
 ## Authors
 
-Authored by Zach Camara, email at <zachary.camara@hpe.com>
+Authored by Zach Camara, email at <aruba-automation@hpe.com>
