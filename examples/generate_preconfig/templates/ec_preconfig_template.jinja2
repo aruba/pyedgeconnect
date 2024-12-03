@@ -46,7 +46,6 @@ applianceInfo:
     email: {{ data['email'] | default("",false) }}
     phoneNumber: {{ data['phoneNumber'] | default("",false) }}
 
-
 {#
 In this example, the CSV file has a column for templateGroups and
 businessIntentOverlays
@@ -54,22 +53,19 @@ businessIntentOverlays
 These values are comma separated lists within each cell as a string
 e.g. "CriticalApps,DefaultOverlay"
 
+and 
+
+e.g. "Default Template Group,Default Hub Settings"
+
 The logic below, sets that if the columns are present, to set a new list
 object equal to the string split by commas
+
 e.g. ["CriticalApps", "DefaultOverlay"]
+e.g. ["Default Template Group", "Default Hub Settings"]
 
 Then for each item, the entry is written for applicable template groups
 and overlays
 #}
-{% if data['templateGroups'] is defined and data['templateGroups'] != "" %}
-{% set tg_list = data['templateGroups'].split(',') %}
-templateGroups:
-  groups:
-    {% for group in tg_list %}
-        - {{ group }}
-    {% endfor %}
-{% endif %}
-
 
 {% if data['businessIntentOverlays'] is defined and data['businessIntentOverlays'] != "" %}
 {% set overlay_list = data['businessIntentOverlays'].split(',') %}
@@ -80,10 +76,73 @@ businessIntentOverlays:
     {% endfor %}
 {% endif %}
 
+{% if data['templateGroups'] is defined and data['templateGroups'] != "" %}
+{% set tg_list = data['templateGroups'].split(',') %}
+templateGroups:
+  groups:
+    {% for group in tg_list %}
+        - {{ group }}
+    {% endfor %}
+{% endif %}
+
+{#
+# Link Aggregration
+#}
+
+linkAggregation:
+{% if data['linkAggregation1'] is defined and data['linkAggregation1'] != "" %}
+  linkAggregationGroups:
+    - channelGroup: {{ data['linkAggregation1'] | default("",false) }}
+      interfaces: {{ data['linkAggregation1Interfaces'] | default("",false) }}
+      mtu: {{ data['lag1Mtu'] | default("",false) }}
+      mode: {{ data['lag1Mode'] | default("",false) }}
+      lacpRate: {{ data['lag1LacpRate'] | default("",false) }}
+      lacpSystemPriority: {{ data['lag1LacpSysPri'] | default("",false) }}
+      lacpComment: {{ data['lag1LacpComment'] | default("",false) }}
+  isForceDelete: {{ data['lag1ForceDelete'] | default("true",false) }}
+{% endif %}
+
+{#
+# LAN Bridge Groups
+#}
+
+bridgeGroups:
+{% if data['bridgeGroup1'] is defined and data['bridgeGroup1'] != "" %}
+  - bridgeGroup: {{ data['bridgeGroup1'] | default("",false) }}
+    interfaces: {{ data['bridgeGroup1Interfaces'] | default("",false) }}
+    mtu: {{ data['bridgeGroup1Mtu'] | default("",false) }}
+    adminStatus: {{ data['bridgeGroup1Admin'] | default("",false) }}
+    comment: {{ data['bridgeGroup1Comment'] | default("",false) }}
+{% endif %}
+
+{#
+# VTI - Virtual Tunnel Interfaces
+#}
+
+{% if data['virtualTunnelInterface'] is defined and data['virtualTunnelInterface'] != "" %}
+virtualTunnelInterface:
+  vtis:
+    - interfaceId: {{ data['virtualTunnelInterface'] | default("",false) }}
+      ipAddressMask: {{ data['virtualTunnelInterfaceIp'] | default("",false) }}
+      ipAddressAliasMask: {{ data['virtualTunnelInterfaceIpAlias'] | default("",false) }}
+      adminStatus: {{ data['virtualTunnelInterfaceAdmin'] | default("",false) }}
+      passthroughTunnel: {{ data['virtualTunnelInterfacePtTunnel'] | default("",false) }}
+      interfaceType: {{ data['virtualTunnelInterfaceType'] | default("",false) }}
+      interfaceLabel: {{ data['virtualTunnelInterfaceLabel'] | default("None",false) }}
+      interfaceLabelAlias: {{ data['virtualTunnelInterfaceLabelAlias'] | default("",false) }}
+      zone: {{ data['virtualTunnelInterfaceZone'] | default("",false) }}
+      segment: {{ data['virtualTunnelInterfaceSegment'] | default("",false) }}
+      autoDistribute: {{ data['virtualTunnelInterfaceAdvertise'] | default("",false) }}
+      behindNat: {{ data['virtualTunnelInterfaceBehindNAT'] | default("",false) }}
+{% endif %}
+
 {#
 The total inbound/outbound bandwidths can be calculated by summing the
-individual WAN interface bandwidths. This logic would need to be
-augmented for additional or variable number of WAN interfaces
+individual WAN interface bandwidths, and currently supports a total of
+2 WAN interfaces and 2 EdgeHA WAN interfaces. 
+
+This logic would need to be augmented for additional or variable number
+of WAN interfaces.
 
 Each WAN interface bandwidth (inbound or outbound) is set to a variable
 and then summed to find total. If a variable is not defined will default
@@ -92,10 +151,14 @@ to value of 0
 
 {% set wan1_outbound = data['wan_interface_1_max_outbound_bw'] | default(0,true) | int %}
 {% set wan2_outbound = data['wan_interface_2_max_outbound_bw'] | default(0,true) | int %}
-{% set wan_total_outbound = wan1_outbound + wan2_outbound %}
+{% set hawan1_outbound = data['haPeerInterfaceInfo_interfaceLabel1_outboundbw'] | default(0,true) | int %}
+{% set hawan2_outbound = data['haPeerInterfaceInfo_interfaceLabel2_outboundbw'] | default(0,true) | int %}
+{% set wan_total_outbound = wan1_outbound + wan2_outbound + hawan1_outbound + hawan2_outbound %}
 {% set wan1_inbound = data['wan_interface_1_max_inbound_bw'] | default(0,true) | int %}
 {% set wan2_inbound = data['wan_interface_2_max_inbound_bw'] | default(0,true) | int %}
-{% set wan_total_inbound = wan1_inbound + wan2_inbound %}
+{% set hawan1_inbound = data['haPeerInterfaceInfo_interfaceLabel1_inboundbw'] | default(0,true) | int %}
+{% set hawan2_inbound = data['haPeerInterfaceInfo_interfaceLabel2_inboundbw'] | default(0,true) | int %}
+{% set wan_total_inbound = wan1_inbound + wan2_inbound + hawan1_inbound + hawan2_inbound  %}
 
 deploymentInfo:
   deploymentMode: {{ data['deploymentMode'] | default("inline-router",true) }}
@@ -108,17 +171,6 @@ deploymentInfo:
     WAN bandwidth specified by the interfaces
     #}
     outboundMaxBandwidth: {{ data['outboundMaxBandwidth'] | default(wan_total_outbound,true) }}
-
-{#
-In this particular template there are variables for 2 LAN and 2 WAN
-interfaces. The interface name can be physical or a subinterface
-e.g. lan0 or lan0.100.
-
-With unique variable names the below could be copied to account for
-more interfaces. In a scenario where the source data is from something
-other than a CSV file, logic could be written to process a dynamic list
-of interfaces within a for loop.
-#}
   deploymentInterfaces:
 {% if data['lan_interface_1_name'] is defined and data['lan_interface_1_name'] != "" %}
     - interfaceName: {{ data['lan_interface_1_name'] }}
@@ -193,33 +245,29 @@ limit number of variables supplied by the user
       zone: {{ data['wan_interface_2_zone'] | default("",false) }}
 {% endif %}
 
-
-{#
-Similar to apply different firewall zones based on assigned labels,
-conditional logic can be used to determine values that may differ
-between HA appliances at a site.
-
-e.g. if the hostname ends in "-01", apply local metric of 50, and for
-"-02" apply local metric of 60:
-
-  {% if data['hostname'][-3:] == "-01" %}
-    localMetric: 50
-  {% elif data['hostname'][-3:] == "-02" %}
-    localMetric: 60
-  {% endif %}
-#}
-
-localRoutes:
-  useSharedSubnetInfo: {{ data['useSharedSubnetInfo'] | default ("true",true) }}
-  advertiseLocalLanSubnets: {{ data['advertiseLocalLanSubnets'] | default ("true",true) }}
-  advertiseLocalWanSubnets: {{ data['advertiseLocalWanSubnets'] | default ("false",true) }}
-  localMetric: {{ data['localMetric'] | default ("50",true) }}
-  localCommunities: {{ data['localCommunities'] | default ("",false) }}
-  redistOspfToSubnetShare: {{ data['redistOspfToSubnetShare'] | default ("false",true) }}
-  ospfRedistMetric: {{ data['ospfRedistMetric'] | default ("0",true) }}
-  ospfRedistTag: {{ data['ospfRedistTag'] | default ("0",true) }}
-  filterRoutesWithLocalASN: {{ data['filterRoutesWithLocalASN'] | default ("true",true) }}
-  redistToSDwanFabricRouteMap: {{ data['redistToSDwanFabricRouteMap'] | default ("default_rtmap_to_subsh",true) }}
+{% if data['haPeerHostname'] is defined and data['haPeerHostname'] != "" %}
+  haConfig:
+    haPeerSerial: {{ data['haPeerSerial'] }}
+    haPeerHostname: {{ data['haPeerHostname'] }}
+    haIpPool: {{ data['haIPPool'] | default("169.254.1.0/24",true) }}
+    haSubnetMask: {{ data['haSubnetMask'] | default("30",true) }}
+    haVlanStart: {{ data['haVlanStart'] | default("100",true) }}
+    haInterface: {{ data['haInterface'] }}
+    haInterfaceOrder: {{ data['haInterfaceOrder'] }}
+    haPeerInterfaceInfo:
+    - interfaceLabel: {{ data['haPeerInterfaceInfo_interfaceLabel1'] }}
+      outbound: {{ data['haPeerInterfaceInfo_interfaceLabel1_outboundbw'] }}
+      inbound: {{ data['haPeerInterfaceInfo_interfaceLabel1_inboundbw'] }}
+      segment: {{ data['haPeerInterfaceInfo_interfaceLabel1_segment'] }}
+      zone: {{ data['haPeerInterfaceInfo_interfaceLabel1_zone'] }}
+    {% if data['haPeerInterfaceInfo_interfaceLabel2'] is defined and data['haPeerInterfaceInfo_interfaceLabel2'] != "" %}
+    - interfaceLabel: {{ data['haPeerInterfaceInfo_interfaceLabel2'] }}
+      outbound: {{ data['haPeerInterfaceInfo_interfaceLabel2_outboundbw'] }}
+      inbound: {{ data['haPeerInterfaceInfo_interfaceLabel2_inboundbw'] }}
+      segment: {{ data['haPeerInterfaceInfo_interfaceLabel2_segment'] }}
+      zone: {{ data['haPeerInterfaceInfo_interfaceLabel2_zone'] }}
+    {% endif %}
+{% endif %}
 
 {#
 # The bandwidth licensing level could be determined via conditionals
@@ -228,12 +276,42 @@ bandwidth tier licenses.
 #}
 
 ecLicensing:
-
   useDefaultAccount: {{ data['useDefaultAccount'] | default ("true", true) }}
   bandwidthLevel: {{ data['license_bandwidth'] }}
   boost: {{ data['license_boost'] | default ("0", true) }}
 
+{#
+# For each segment in the SD-WAN, the appliance needs the "Routes Page" 
+configuration, this ensures that routes for that segment are advertised to the 
+SD-WAN fabric upon configuration. This is controllable via a Template as well, 
+but is availible directly via Preconfiguration for flexibility.
+#}
 
+segmentLocalRoutes:
+  {% if data['segment1_segmentLocalRoutes_segment'] is defined and data['segment1_segmentLocalRoutes_segment'] != "" %}
+  - segment: {{ data['segment1_segmentLocalRoutes_segment'] }}
+    useSharedSubnetInfo: {{ data['segment1_segmentLocalRoutes_useSharedSubnetInfo'] | default ("true",true) }}
+    advertiseLocalLanSubnets: {{ data['segment1_segmentLocalRoutes_advertiseLocalLanSubnets'] | default ("true",true) }}
+    advertiseLocalWanSubnets: {{ data['segment1_segmentLocalRoutes_advertiseLocalWanSubnets'] | default ("false",true) }}
+    localMetric: {{ data['segment1_segmentLocalRoutes_localMetric'] | default ("50",true) }}
+    localCommunities: {{ data['segment1_segmentLocalRoutes_localCommunities'] | default ("",false) }}
+    filterRoutesWithLocalASN: {{ data['segment1_segmentLocalRoutes_filterRoutesWithLocalASN'] | default ("true",true) }}
+    redistToSDwanFabricRouteMap: {{ data['segment1_segmentLocalRoutes_redistToSDwanFabricRouteMap'] | default ("default_rtmap_to_subsh",true) }}
+  {% endif %}
+  {% if data['segment2_segmentLocalRoutes_segment'] is defined and data['segment2_segmentLocalRoutes_segment'] != "" %}
+  - segment: {{ data['segment2_segmentLocalRoutes_segment'] }}
+    useSharedSubnetInfo: {{ data['segment2_segmentLocalRoutes_useSharedSubnetInfo'] | default ("true",true) }}
+    advertiseLocalLanSubnets: {{ data['segment2_segmentLocalRoutes_advertiseLocalLanSubnets'] | default ("true",true) }}
+    advertiseLocalWanSubnets: {{ data['segment2_segmentLocalRoutes_advertiseLocalWanSubnets'] | default ("false",true) }}
+    localMetric: {{ data['segment2_segmentLocalRoutes_localMetric'] | default ("50",true) }}
+    localCommunities: {{ data['segment2_segmentLocalRoutes_localCommunities'] | default ("",false) }}
+    filterRoutesWithLocalASN: {{ data['segment2_segmentLocalRoutes_filterRoutesWithLocalASN'] | default ("true",true) }}
+    redistToSDwanFabricRouteMap: {{ data['segment2_segmentLocalRoutes_redistToSDwanFabricRouteMap'] | default ("default_rtmap_to_subsh",true) }}
+  {% endif %}
+ 
+{#
+# BGP Configuration - Non-Segment Aware
+#}
 
 {% if data['bgp_asn'] is defined and data['bgp_asn'] != "" %}
 bgpSystemConfig:
@@ -271,9 +349,12 @@ bgpSystemConfig:
       asPrependCount: {{ data['bgp_peer1_asPrependCount']  | default ("0",true)}}
       password:
     {% endif %}
-
 {% endif %}
 
+{#
+# Loopback Configuration - Best practice would be to use Orchestrated loopbacks, 
+but this is availible via preconfiguration for flexibility.
+#}
 
 {% if data['loopback_interfaceId'] is defined and data['loopback_interfaceId'] != "" %}
 loopbackInterface:
@@ -281,5 +362,151 @@ loopbackInterface:
     - interfaceId: {{ data['loopback_interfaceId'] }}
       adminStatus: Up
       ipAddressMask: {{ data['loopback_ipAddressMask'] }}
+      interfaceLabel: {{ data['loopback_interfaceLabel'] }}
       zone: {{ data['loopback_zone'] }}
+      segment: {{ data['loopback_segment'] }}
+{% endif %}
+
+{#
+# VRRP Configuration
+#}
+
+{% if data['vrrp_group_1'] is defined and data['vrrp_group_1'] != "" %}
+vrrp:
+  vrrpEntries:
+      - groupId:  {{ data['vrrp_group1'] }}
+      interfaceName: {{ data['vrrp_group1_interface'] }}
+      admin: {{ data['vrrp_group1_admin'] }}
+      virtualIpAddress: {{ data['vrrp_group1_vip'] }}
+      advertisementTimer: {{ data['vrrp_group1_advtime'] }}
+      priority: {{ data['vrrp_group1_pri'] |  default ("128",false)  }}
+      version: {{ data['vrrp_group1_ver'] }}
+      preemption: {{ data['vrrp_group1_preempt']  | default ("true",true) }}
+      authenticationString: {{ data['vrrp_group1_authkey'] }}
+      description: {{ data['vrrp_group1_desc'] }}
+      packetTrace: false
+      holddownTimer: {{ data['vrrp_group1_holddown'] | default ("60",false)  }}
+  {% if data['vrrp_group_2'] is defined and data['vrrp_group_2'] != "" %}
+    - groupId: {{ data['vrrp_group2'] }}
+      interfaceName: {{ data['vrrp_group2_interface'] }}
+      admin: {{ data['vrrp_group2_admin'] }}
+      virtualIpAddress: {{ data['vrrp_group2_vip'] }}
+      advertisementTimer: {{ data['vrrp_group2_advtime'] }}
+      priority: {{ data['vrrp_group1_pri'] | default ("128",false)  }}
+      version: {{ data['vrrp_group2_ver'] }}
+      preemption: {{ data['vrrp_group2_preempt'] }}
+      description: {{ data['vrrp_group2_desc'] }}
+      packetTrace: false
+      holddownTimer: {{ data['vrrp_group2_holddown'] | default ("60",false)  }}
+  {% endif %}
+{% endif %}
+
+{#
+# OSPF Configuration - Segment/VRF Aware
+#}
+
+{% if data['ospf_segment'] is defined and data['ospf_segment'] != "" %}
+segmentOspfConfig:
+  - segment: {{ data['ospf_segment'] }}
+    enable: true
+    routerId: {{ data['ospf_routerId'] }}
+    redistMapToOspf: {{ data['ospf_RouteMap'] | default ("default_rtmap_to_ospf",true) }}
+    opaqueEnable: {{ data['ospf_opaqueEnable'] | default ("true",true) }}
+    areas:
+      - areaId: {{ data['ospf_areaId'] }}
+        areaType: {{ data['ospf_areaType'] | default ("default_rtmap_to_ospf",true) }}
+    interfaces:
+    {% if data['ospf_interface1_name'] is defined and data['ospf_interface1_name'] != "" %}
+      - interfaceName: {{ data['ospf_interface1_name'] }}
+        areaId: {{ data['ospf_interface1_areaId'] | default (data['ospf_areaId'],true) }}
+        cost: {{ data['ospf_interface1_cost'] | default ("1",true) }}
+        priority: {{ data['ospf_interface1_priority'] | default ("1",true) }}
+        adminStatus: {{ data['ospf_interface1_adminStatus'] | default ("Up",true) }}
+        helloInterval: {{ data['ospf_interface1_helloInterval'] | default ("10",true) }}
+        deadInterval: {{ data['ospf_interface1_deadInterval'] | default ("40",true) }}
+        transmitDelay: {{ data['ospf_interface1_transmitDelay'] | default ("1",true) }}
+        retransmitInterval: {{ data['ospf_interface1_retransmitInterval'] | default ("4",true) }}
+        authentication: {{ data['ospf_interface1_authentication'] | default ("None",true) }}
+    {% if data['ospf_interface1_authentication'] == "Text" %}
+        authenticationKey: {{ data['ospf_interface1_authenticationKey'] }}
+        md5Key:
+        md5Password:
+        comment: text authentication
+    {% endif %}
+    {% if data['ospf_interface1_authentication'] == "MD5" %}
+        authenticationKey: 
+        md5Key: {{ data['ospf_interface1_md5Key'] | default ("0",true) }}
+        md5Password: {{ data['ospf_interface1_md5Password'] }}
+        comment: MD5 authentication
+    {% endif %}
+    {% if data['ospf_interface1_authentication'] == "None" or "" %}
+        authenticationKey: 
+        md5Key:
+        md5Password:
+        comment: no authentication
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{#
+# Management IP Configuration - Setting the Management IP of the appliance.
+#}
+
+{% if data['managementIp'] is defined and data['managementIp'] != "" %}
+managementIp:
+  ipAddress: {{ data['managementIp'] }}
+{% endif %}
+
+{#
+# Combo Ports (SFP/RJ45 EC-10106/108 lan2/wan2)
+#}
+
+{% if data['interface1_interfaceName'] is defined and data['interface1_interfaceName'] != "" %}
+interfaceConfig:
+  interfaces:
+  {% if data['interface1_interfaceName'] == "wan2" or data['interface1_interfaceName'] == "lan2" %}
+    - interfaceName: {{ data['interface1_interfaceName'] }}
+      interfaceSpeed: {{ data['interface1_interfaceSpeed'] | default ("auto",true) }}
+      interfaceDuplex: {{ data['interface1_interfaceDuplex'] | default ("auto",true) }}
+    {% if data['interface1_comboPortMode'] == "rj45" or data['interface1_comboPortMode'] == "0" or data['interface1_comboPortMode'] == "" %}
+      comboPortMode: 0 
+    {% endif %}
+    {% if data['interface1_comboPortMode'] == "sfp" or data['interface1_comboPortMode'] == "3" %}
+      comboPortMode: 3 
+    {% endif %}
+  {% else %}
+    - interfaceName: {{ data['interface1_interfaceName'] }}
+      interfaceSpeed: {{ data['interface1_interfaceSpeed'] | default ("auto",true) }}
+      interfaceDuplex: {{ data['interface1_interfaceDuplex'] | default ("auto",true) }}
+  {% endif %}
+  {% if data['interface2_interfaceName'] == "wan2" or data['interface2_interfaceName'] == "lan2" %}
+    - interfaceName: {{ data['interface2_interfaceName'] }}
+      interfaceSpeed: {{ data['interface2_interfaceSpeed'] | default ("auto",true) }}
+      interfaceDuplex: {{ data['interface2_interfaceDuplex'] | default ("auto",true) }}
+    {% if data['interface2_comboPortMode'] == "rj45" or data['interface2_comboPortMode'] == "0" or data['interface2_comboPortMode'] == "" %}
+      comboPortMode: 0 
+    {% endif %}
+    {% if data['interface2_comboPortMode'] == "sfp" or data['interface2_comboPortMode'] == "3" %}
+      comboPortMode: 3 
+    {% endif %}
+  {% else %}
+    - interfaceName: {{ data['interface2_interfaceName'] }}
+      interfaceSpeed: {{ data['interface2_interfaceSpeed'] | default ("auto",true) }}
+      interfaceDuplex: {{ data['interface2_interfaceDuplex'] | default ("auto",true) }}
+  {% endif %}
+  {% if data['interface3_interfaceName'] == "wan2" or data['interface3_interfaceName'] == "lan2" %}
+    - interfaceName: {{ data['interface3_interfaceName'] }}
+      interfaceSpeed: {{ data['interface3_interfaceSpeed'] | default ("auto",true) }}
+      interfaceDuplex: {{ data['interface3_interfaceDuplex'] | default ("auto",true) }}
+    {% if data['interface3_comboPortMode'] == "rj45" or data['interface3_comboPortMode'] == "0" or data['interface3_comboPortMode'] == "" %}
+      comboPortMode: 0 
+    {% endif %}
+    {% if data['interface3_comboPortMode'] == "sfp" or data['interface3_comboPortMode'] == "3" %}
+      comboPortMode: 3 
+    {% endif %}
+  {% else %}
+    - interfaceName: {{ data['interface3_interfaceName'] }}
+      interfaceSpeed: {{ data['interface3_interfaceSpeed'] | default ("auto",true) }}
+      interfaceDuplex: {{ data['interface3_interfaceDuplex'] | default ("auto",true) }}
+  {% endif %}
 {% endif %}
