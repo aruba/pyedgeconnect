@@ -60,3 +60,5 @@ logging/
 
 
 
+/examples/generate_preconfig/gen_preconfig_venv/
+/examples/generate_preconfig/JupyterLab_Notebook/preconfig_outputs/
