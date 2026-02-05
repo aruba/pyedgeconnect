@@ -8,6 +8,7 @@ def run_ping_or_traceroute(
     self,
     command: str,
     destination_ip_hostname: str,
+    ip_version: int,
     options: str,
 ) -> dict:
     """Run a ping or traceroute from appliance
@@ -42,6 +43,7 @@ def run_ping_or_traceroute(
     data = {
         "cmd": command,
         "ip_hostname": destination_ip_hostname,
+        "ip_version": ip_version,
         "options": options,
     }
 
