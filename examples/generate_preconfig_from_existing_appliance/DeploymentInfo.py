@@ -111,7 +111,7 @@ class DeploymentInfo:
             server_per_segment_preconfig_yaml_support
         )
 
-        preconfig_name = f"{device_name}_AUTOMATED_PRECONFIG"
+        preconfig_name = f"{device_name}_deploymentInfo-AUTOMATED_PRECONFIG"
 
         is_preconfig_valid = self._validate_preconfig(orch, preconfig_yaml)
         if is_preconfig_valid and self.upload_to_orch is True:
@@ -123,6 +123,7 @@ class DeploymentInfo:
             )
 
 
+    # TODO: change this to use the utils.py function instead
     def _validate_preconfig(self, orch, preconfig_yaml) -> bool:
 
         """
@@ -143,6 +144,7 @@ class DeploymentInfo:
             print("Preconfig is NOT valid. Please look at error response for details.")
 
 
+    # TODO: change this to use the utils.py function instead
     def _generate_preconfig_yaml(self, appliance_tunnel_info, deployment_info, device_name, dhcp_info_list, ec_template_file,
                                  extra_info, ha_config, is_dhcp_configured, server_per_segment_preconfig_yaml_support) -> str:
         """
@@ -176,6 +178,7 @@ class DeploymentInfo:
         return yaml_preconfig
 
 
+    # TODO: change this to use the utils.py function instead
     def _write_local_yaml_file(self, appliance_tunnel_info, deployment_info, device_name, dhcp_info_list, ec_template, extra_info,
                                ha_config, is_dhcp_configured, output_directory, server_per_segment_preconfig_yaml_support):
 

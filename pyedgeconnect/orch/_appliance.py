@@ -170,7 +170,7 @@ def delete_appliance(
 
     return self._delete(
         path,
-        expected_status=[204],
+        expected_status=[200, 204],
         return_type="bool",
     )
 
@@ -230,7 +230,7 @@ def delete_appliance_for_rediscovery(
 
     return self._delete(
         path,
-        expected_status=[204],
+        expected_status=[200, 204],
         return_type="bool",
     )
 
@@ -545,7 +545,7 @@ def delete_denied_appliances(
     return self._post(
         "/appliance/denied/delete",
         data=data,
-        expected_status=[204],
+        expected_status=[200, 204],
         return_type="bool",
     )
 
@@ -820,6 +820,7 @@ def appliance_post_api(
     ne_pk: str,
     url: str,
     data,
+    return_type: str = "bool",
 ) -> dict:
     """Pass along a POST API call to an appliance
 
@@ -842,8 +843,13 @@ def appliance_post_api(
     :param data: The data to pass in body of call. Can be a ``list`` or
       ``dict``
     :type data: list or dict
-    :return: Returns True/False based on successful call
-    :rtype: bool
+    :param return_type: Determines the format of the returned data.
+        Options:
+        - "bool": Returns True/False based on successful call (default)
+        - "json": Returns the JSON response data from the API call
+    :type return_type: str
+    :return: Response data. Format depends on return_type parameter.
+    :rtype: dict
     """
     if self.orch_version >= 9.3:
         path = f"/appliance/rest?nePk={ne_pk}&url={url}"
@@ -854,7 +860,7 @@ def appliance_post_api(
         path,
         data=data,
         expected_status=[200, 204],
-        return_type="bool",
+        return_type=return_type,
     )
 
 

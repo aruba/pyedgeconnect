@@ -1,0 +1,25 @@
+# For device: {{ data['hostname'] }}
+
+applianceInfo:
+  softwareVersion: {{ data['softwareVersion'] }}
+  hostname: {{ data['hostname'] }}
+  group: {{ data['group'] }}
+  site: {{ data['site'] }}
+{% if data['should_include_cluster_profile']%}
+  clusterProfile: {{ data['clusterProfile'] }}
+{% endif %}
+  networkRole: {{ data['networkRole'] }}
+  region: {{ data['region'] }}
+  location:
+    address: {{ data['location_address'] }}
+    address2: {{ data['location_address2'] }}
+    city: {{ data['location_city'] }}
+    state: {{ data['location_state'] }}
+    zipCode: {{ data['location_zipCode'] }}
+    country: {{ data['location_country'] }}
+    latitude:
+    longitude:
+  contact:
+    name: {{ data['contact_name'] }}
+    email: {{ data['contact_email'] }}
+    phoneNumber: {{ data['contact_phoneNumber'] }}

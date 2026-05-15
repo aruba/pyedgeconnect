@@ -738,6 +738,17 @@ class Orchestrator(HttpCommon):
     )
     from .orch._broadcast_cli import broadcast_cli
     from .orch._built_in_policies import get_built_in_policies
+
+    from .orch._cluster import get_cluster_state
+    from .orch._cluster import get_cluster_alarm_count
+    from .orch._cluster import get_all_cluster_profiles
+    from .orch._cluster import add_cluster_profiles
+    from .orch._cluster import update_cluster_profile
+    from .orch._cluster import delete_cluster_profile
+    from .orch._cluster import get_all_cluster_profile_mappings
+    from .orch._cluster import update_cluster_profile_mapping
+    from .orch._cluster import initialize_edge_ha_cluster
+
     from .orch._custom_appliance_tags import get_custom_appliance_tags
     from .orch._custom_certs import (
         check_custom_certs_appliances_to_portal,
@@ -912,7 +923,7 @@ class Orchestrator(HttpCommon):
     from .orch._location import get_location_coordinates_from_address
     from .orch._logging import get_appliance_syslog_config
     from .orch._login import login, logout, send_mfa
-    from .orch._loopback import get_loopback_interfaes
+    from .orch._loopback import get_loopback_interfaces
     from .orch._loopback_orch import (
         get_deleted_loopback_orchestration_ips,
         get_loopback_orchestration,

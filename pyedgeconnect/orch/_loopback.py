@@ -4,7 +4,7 @@
 # loopback : Gets Appliance Loopback interfaces config
 
 
-def get_loopback_interfaes(
+def get_loopback_interfaces(
     self,
     ne_id: str,
     cached: bool,
